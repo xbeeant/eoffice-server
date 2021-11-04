@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.xbeeant.eoffice.mapper.ResourceMapper">
+    <select id="hasPermissionResources" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from eoffice_resource
+        where fid = #{fid,jdbcType=BIGINT}
+          and rid in (
+                select target_id
+                from eoffice_perm
+                where uid = #{uid}
+                  and (download = 1 or edit = 1 or print = 1 or view = 1 or share = 1)
+                )
+    </select>
+</mapper>

@@ -1,0 +1,23 @@
+package io.github.xbeeant.eoffice.service;
+
+import io.github.xbeeant.antdesign.MenuItem;
+import io.github.xbeeant.eoffice.model.Folder;
+import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperService;
+
+import java.util.List;
+
+/**
+ * @author mybatis code generator
+ * @version Sat Oct 30 18:23:36 CST 2021
+ */
+public interface IFolderService extends IMybatisPageHelperService<Folder, Long> {
+    /**
+     * has permission folders
+     *
+     * @param userId 用户标识
+     * @return {@link List}
+     * @see List
+     * @see MenuItem
+     */
+    List<MenuItem> hasPermissionFolders(String userId);
+}

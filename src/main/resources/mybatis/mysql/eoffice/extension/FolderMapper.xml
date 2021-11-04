@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.xbeeant.eoffice.mapper.FolderMapper">
+    <select id="hasPermissionFolders" resultMap="BaseResultMap">
+        select fid, pfid, name, icon, path, display_order
+        from eoffice_folder
+        where deleted = 0
+          and fid in (select target_id from eoffice_perm where type = 1 and uid = #{userId,jdbcType=VARCHAR})
+    </select>
+
+    <select id="subFolders" resultMap="BaseResultMap">
+        select *
+        from (
+                     select t1.*,
+                            if(find_in_set(pfid, @pids) > 0, @pids := concat(@pids, ',', fid), 0) as ischild
+                     from (
+                                  select fid, pfid, name
+                                  from eoffice_folder t
+                                  where deleted = 0
+                                  order by pfid, fid
+                                  ) t1,
+                          (select @pids := #{fid,jdbcType=BIGINT}) t2
+                     ) t3
+        where ischild != 0;
+    </select>
+</mapper>

@@ -20,4 +20,14 @@ public interface IFolderService extends IMybatisPageHelperService<Folder, Long> 
      * @see MenuItem
      */
     List<MenuItem> hasPermissionFolders(String userId);
+
+    /**
+     * 所有父节点
+     *
+     * @param fid 支撑材
+     * @return {@link List}
+     * @see List
+     * @see Folder
+     */
+    MenuItem parents(Long fid);
 }

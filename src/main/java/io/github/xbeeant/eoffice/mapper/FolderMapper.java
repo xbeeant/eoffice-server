@@ -31,4 +31,14 @@ public interface FolderMapper extends IMybatisPageHelperDao<Folder, Long> {
      * @see Folder
      */
     List<Folder> subFolders(Long fid);
+
+    /**
+     * 父节点
+     *
+     * @param fid 支撑材
+     * @return {@link List}
+     * @see List
+     * @see Folder
+     */
+    List<Folder> parents(Long fid);
 }

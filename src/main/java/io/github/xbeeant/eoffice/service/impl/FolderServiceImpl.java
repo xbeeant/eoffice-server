@@ -76,6 +76,7 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         resource.setFid(record.getPfid());
         resource.setName(record.getName());
         resource.setPath(record.getPath());
+        resource.setAid(0L);
         resource.setCreateBy(record.getCreateBy());
         resource.setUpdateBy(record.getCreateBy());
         resourceService.insertSelective(resource);
@@ -90,6 +91,16 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         permService.insertSelective(perm);
 
         return super.insertSelective(record);
+    }
+
+    @Override
+    public MenuItem parents(Long fid) {
+        List<Folder> parents = folderMapper.parents(fid);
+        // 移除重复的
+        Set<Folder> cleanedFolders = new TreeSet<>(Comparator.comparing(Folder::getFid));
+        cleanedFolders.addAll(parents);
+
+        return toTreeMenu(cleanedFolders).get(0);
     }
 
     @Override
@@ -116,6 +127,10 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         Set<Folder> cleanedFolders = new TreeSet<>(Comparator.comparing(Folder::getFid));
         cleanedFolders.addAll(permedFolders);
 
+        return toTreeMenu(cleanedFolders);
+    }
+
+    private List<MenuItem> toTreeMenu(Set<Folder> cleanedFolders) {
         // 对象转换
         List<MenuItem> treeNodes = new ArrayList<>();
         MenuItem treeNode;

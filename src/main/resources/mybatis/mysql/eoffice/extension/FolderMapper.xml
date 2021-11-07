@@ -23,4 +23,15 @@
                      ) t3
         where ischild != 0;
     </select>
+
+    <select id="parents" resultMap="BaseResultMap">
+        SELECT t3.*
+        FROM (SELECT t1.*,
+                     IF(FIND_IN_SET(fid, @ids) > 0, @ids := CONCAT(pfid, ',', @ids), '0') AS isparent
+              FROM (SELECT t.fid, t.pfid, t.NAME
+                    FROM eoffice_folder AS t
+                    ORDER BY t.fid DESC) t1,
+                   (SELECT @ids := #{fid,jdbcType=BIGINT}) t2) t3
+        WHERE t3.isparent != '0'
+    </select>
 </mapper>

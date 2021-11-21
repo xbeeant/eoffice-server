@@ -3,6 +3,7 @@ package io.github.xbeeant.eoffice.service;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperService;
+import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -30,9 +31,10 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      *
      * @param fid fid
      * @param uid uid
+     * @param pageBounds
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see List
      */
-    ApiResponse<List<Resource>> hasPermissionResources(Long fid, String uid);
+    ApiResponse<List<Resource>> hasPermissionResources(Long fid, String uid, PageBounds pageBounds);
 }

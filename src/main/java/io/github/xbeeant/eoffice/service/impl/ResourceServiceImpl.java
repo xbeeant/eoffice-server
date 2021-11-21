@@ -1,5 +1,6 @@
 package io.github.xbeeant.eoffice.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
@@ -16,6 +17,8 @@ import io.github.xbeeant.eoffice.service.IPermService;
 import io.github.xbeeant.eoffice.service.IResourceService;
 import io.github.xbeeant.eoffice.service.IStorageService;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
+import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,9 +56,13 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     }
 
     @Override
-    public ApiResponse<List<Resource>> hasPermissionResources(Long fid, String uid) {
+    public ApiResponse<List<Resource>> hasPermissionResources(Long fid, String uid, PageBounds pageBounds) {
         ApiResponse<List<Resource>> result = new ApiResponse<>();
-
+        if (!StringUtils.isEmpty(pageBounds.getOrders())) {
+            PageHelper.orderBy(pageBounds.getOrders());
+        } else {
+            PageHelper.orderBy("create_at desc");
+        }
         List<Resource> resources = resourceMapper.hasPermissionResources(fid, uid);
         result.setData(resources);;
         return result;

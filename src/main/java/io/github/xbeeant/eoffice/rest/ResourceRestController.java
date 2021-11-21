@@ -4,6 +4,8 @@ import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.eoffice.service.IResourceService;
+import io.github.xbeeant.eoffice.util.AntDesignUtil;
+import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
 import io.github.xbeeant.spring.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -25,13 +27,17 @@ public class ResourceRestController {
 
     @GetMapping
     public ApiResponse<List<Resource>> resources(Authentication authentication,
-                                                 @RequestParam(defaultValue = "0", required = false) Long fid) {
+                                                 @RequestParam(defaultValue = "0", required = false) Long fid,
+                                                 PageRequest pageRequest) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
         ApiResponse<List<Resource>> apiResponse;
 
+        String sorter = AntDesignUtil.translateOrder(pageRequest.getSorter());
+        pageRequest.setSorter(sorter);
+
         // todo 权益
-        apiResponse = resourceService.hasPermissionResources(fid, userSecurityUser.getUserId());
+        apiResponse = resourceService.hasPermissionResources(fid, userSecurityUser.getUserId(), pageRequest.getPageBounds());
         apiResponse.setCode(0);
 
         return apiResponse;

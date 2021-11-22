@@ -1,7 +1,7 @@
 package io.github.xbeeant.eoffice.config;
 
 import io.github.xbeeant.core.ApiResponse;
-import io.github.xbeeant.eoffice.exception.FolderMissingException;
+import io.github.xbeeant.eoffice.exception.ResourceMissingException;
 import org.apache.ibatis.reflection.ReflectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +46,10 @@ public class GlobalException {
      * @see ApiResponse
      * @see String
      */
-    @ExceptionHandler(value = FolderMissingException.class)
-    public ApiResponse<String> folderMissingExceptionHandler(HttpServletRequest request, Exception e) {
+    @ExceptionHandler(value = ResourceMissingException.class)
+    public ApiResponse<String> resourceMissingExceptionHandler(HttpServletRequest request, Exception e) {
         ApiResponse<String> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(500, "父目录已经丢了哦，请返回首页重试");
+        apiResponse.setResult(500, e.getMessage());
         logger.error("SQL异常", e);
         return apiResponse;
     }

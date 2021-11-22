@@ -1,12 +1,18 @@
 package io.github.xbeeant.eoffice.util;
 
 import io.github.xbeeant.core.exception.FolderNotFoundException;
+import io.github.xbeeant.eoffice.model.Resource;
+import io.github.xbeeant.eoffice.model.Storage;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -167,5 +173,56 @@ public class FileHelper {
 
     public static String getStoragePath() {
         return getPath("storage");
+    }
+
+    public static void download(Storage storage, Resource resource, HttpServletResponse response, HttpServletRequest request) {
+        File f = new File(getStoragePath() + storage.getPath());
+        if (!f.exists()) {
+            try {
+                response.sendError(404, "File not found!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        String fileName = resource.getName();
+
+        response.setContentType("application/force-download;charset=UTF-8");
+        String userAgent = request.getHeader("USER-AGENT");
+        try {
+            if (StringUtils.contains(userAgent, "MSIE") || StringUtils.contains(userAgent, "Edge")) {
+                // IE浏览器
+                fileName = URLEncoder.encode(fileName, "UTF8");
+            } else if (StringUtils.contains(userAgent, "Mozilla")) {
+                // google,火狐浏览器
+                fileName = new String(fileName.getBytes(), StandardCharsets.ISO_8859_1);
+            } else {
+                // 其他浏览器
+                fileName = URLEncoder.encode(fileName, "UTF8");
+            }
+            response.setHeader("Content-disposition", "attachment; filename=" + fileName);
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage(), e);
+            return;
+        }
+        OutputStream out = null;
+        try (InputStream in = new FileInputStream(f.getAbsolutePath())) {
+            //获取要下载的文件输入流
+            int len = 0;
+            //创建数据缓冲区
+            byte[] buffer = new byte[1024];
+            //通过response对象获取outputStream流
+            out = response.getOutputStream();
+            //将FileInputStream流写入到buffer缓冲区
+            while ((len = in.read(buffer)) > 0) {
+                //使用OutputStream将缓冲区的数据输出到浏览器
+                out.write(buffer, 0, len);
+            }
+            //这一步走完，将文件传入OutputStream中后，页面就会弹出下载框
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 }

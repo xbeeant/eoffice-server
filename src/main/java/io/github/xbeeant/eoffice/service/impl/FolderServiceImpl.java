@@ -5,7 +5,6 @@ import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
 import io.github.xbeeant.eoffice.enums.PermConstant;
-import io.github.xbeeant.eoffice.exception.FolderMissingException;
 import io.github.xbeeant.eoffice.mapper.FolderMapper;
 import io.github.xbeeant.eoffice.model.Folder;
 import io.github.xbeeant.eoffice.model.Perm;
@@ -18,6 +17,7 @@ import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.*;
 
@@ -65,7 +65,7 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         if (null != record.getPfid() && 0 != record.getPfid()) {
             Folder folder = folderMapper.selectByPrimaryKey(record.getPfid());
             if (null == folder) {
-                throw new FolderMissingException();
+                throw new ResourceAccessException("父目录已经丢了哦，请返回首页重试");
             }
             record.setPath(folder.getPath() + record.getPath());
         }

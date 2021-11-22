@@ -11,11 +11,27 @@
  Target Server Version : 100421
  File Encoding         : 65001
 
- Date: 21/11/2021 22:31:13
+ Date: 22/11/2021 22:58:23
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for eoffice_config
+-- ----------------------------
+DROP TABLE IF EXISTS `eoffice_config`;
+CREATE TABLE `eoffice_config`  (
+  `cid` bigint(20) NOT NULL,
+  `module` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '模块',
+  `ckey` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '配置key',
+  `cvalue` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '配置value',
+  `create_at` datetime NULL DEFAULT NULL,
+  `create_by` bigint(20) NULL DEFAULT NULL,
+  `update_at` datetime NULL DEFAULT NULL,
+  `update_by` bigint(20) NULL DEFAULT NULL,
+  PRIMARY KEY (`cid`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '配置' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for eoffice_folder

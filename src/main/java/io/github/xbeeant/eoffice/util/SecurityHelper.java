@@ -1,6 +1,6 @@
 package io.github.xbeeant.eoffice.util;
 
-import io.github.xbeeant.antdesign.LoginResponse;
+import io.github.xbeeant.antdesign.LoginResult;
 import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.spring.security.SecurityUser;
 import io.github.xbeeant.spring.security.UserHelper;
@@ -21,21 +21,21 @@ public class SecurityHelper {
 
     private static final String ANONYMOUS = "anonymousUser";
 
-    public static LoginResponse antLoginResponse(HttpServletRequest request) {
+    public static LoginResult antLoginResult(HttpServletRequest request) {
         Authentication authentication = UserHelper.getCurrentUser();
-        return antLoginResponse(authentication, request);
+        return antLoginResult(authentication, request);
     }
 
-    public static LoginResponse antLoginResponse(Authentication authentication, HttpServletRequest request) {
+    public static LoginResult antLoginResult(Authentication authentication, HttpServletRequest request) {
         if (authentication.getPrincipal().equals(ANONYMOUS)) {
-            LoginResponse antLoginResponse = new LoginResponse();
-            antLoginResponse.setStatus("error");
-            return antLoginResponse;
+            LoginResult antLoginResult = new LoginResult();
+            antLoginResult.setStatus("error");
+            return antLoginResult;
         }
-        LoginResponse antLoginResponse = new LoginResponse();
-        antLoginResponse.setStatus("ok");
-        antLoginResponse.setCurrentAuthority("user");
-        return antLoginResponse;
+        LoginResult antLoginResult = new LoginResult();
+        antLoginResult.setStatus("ok");
+        antLoginResult.setCurrentAuthority("user");
+        return antLoginResult;
     }
 
     public static SecurityUser<User> currentUser() {

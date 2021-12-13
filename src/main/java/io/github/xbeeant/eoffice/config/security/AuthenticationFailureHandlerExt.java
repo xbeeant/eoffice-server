@@ -1,6 +1,6 @@
 package io.github.xbeeant.eoffice.config.security;
 
-import io.github.xbeeant.antdesign.LoginResponse;
+import io.github.xbeeant.antdesign.LoginResult;
 import io.github.xbeeant.http.Requests;
 import io.github.xbeeant.spring.security.handler.AuthenticationFailedHandler;
 import org.springframework.security.core.AuthenticationException;
@@ -17,7 +17,7 @@ import java.io.IOException;
 public class AuthenticationFailureHandlerExt extends AuthenticationFailedHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        LoginResponse antLoginResponse = new LoginResponse();
+        LoginResult antLoginResponse = new LoginResult();
         antLoginResponse.setStatus("error");
         antLoginResponse.setType("account");
         // 返回json

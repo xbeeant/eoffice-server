@@ -148,13 +148,13 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         for (MenuItem node : treeNodes) {
             for (MenuItem subNode : treeNodes) {
                 if (subNode.getpKey().equals(node.getKey())) {
-                    subNode.setParentExist(true);
+                    subNode.setIsLeaf(false);
                     node.addChildren(subNode);
                 }
             }
         }
         for (MenuItem node : treeNodes) {
-            if (!node.isParentExist()) {
+            if (Boolean.TRUE.equals(node.getIsLeaf())) {
                 node.setpKey("0");
             }
         }

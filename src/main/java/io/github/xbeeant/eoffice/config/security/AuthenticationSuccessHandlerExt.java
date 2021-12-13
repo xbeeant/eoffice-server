@@ -1,6 +1,6 @@
 package io.github.xbeeant.eoffice.config.security;
 
-import io.github.xbeeant.antdesign.LoginResponse;
+import io.github.xbeeant.antdesign.LoginResult;
 import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.eoffice.util.SecurityHelper;
 import io.github.xbeeant.http.Requests;
@@ -24,7 +24,7 @@ public class AuthenticationSuccessHandlerExt extends AuthenticationSuccessHandle
                                         HttpServletResponse response, Authentication authentication) throws IOException {
 
         request.getSession(true);
-        LoginResponse antLoginResponse = SecurityHelper.antLoginResponse(authentication, request);
+        LoginResult antLoginResponse = SecurityHelper.antLoginResult(authentication, request);
         // 输出登录提示信息
         response.setStatus(HttpStatus.SC_OK);
         SecurityUser<User> principal = (SecurityUser<User>) authentication.getPrincipal();

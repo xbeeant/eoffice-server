@@ -26,7 +26,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 
         LoginParamters loginParamters = (LoginParamters) authentication.getDetails();
-        Object userName = loginParamters.get("userName");
+        Object userName = loginParamters.get("username");
         if (null == userDetails) {
             log.warn("{} 登录失败 用户不存在", userName);
             throw new BadCredentialsException("用户名或密码错误");

@@ -1,7 +1,9 @@
 server:
   servlet:
     context-path: /eoffice
-  allowed-origin: http://172.20.160.1:88
+    session:
+      cookie:
+        path: /
   port: 8080
 mybatis:
   mapper-locations: classpath*:/mybatis/mysql/eoffice/**/*.xml

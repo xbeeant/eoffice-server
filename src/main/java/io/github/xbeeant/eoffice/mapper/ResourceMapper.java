@@ -4,7 +4,6 @@ import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
 
 /**
@@ -13,6 +12,7 @@ import java.util.List;
  */
 @Mapper
 public interface ResourceMapper extends IMybatisPageHelperDao<Resource, Long> {
+
     /**
      * has permission resources
      *

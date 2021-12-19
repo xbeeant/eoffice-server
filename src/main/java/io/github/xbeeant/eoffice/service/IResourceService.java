@@ -55,9 +55,31 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * 下载
      *
      * @param rid      资源ID
+     * @param sid      附件ID
+     * @param request  请求
+     * @param response 响应
+     */
+    void download(Long rid, Long sid, HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * download attachment
+     *
+     * @param rid      资源ID
      * @param aid      附件ID
      * @param request  请求
      * @param response 响应
      */
-    void download(Long rid, Long aid, HttpServletRequest request, HttpServletResponse response);
+    void downloadAttachment(Long rid, Long aid, HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * 保存
+     *
+     * @param rid    资源ID
+     * @param value  值
+     * @param uid 操作人ID
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see String
+     */
+    ApiResponse<String> save(Long rid, String value, String uid);
 }

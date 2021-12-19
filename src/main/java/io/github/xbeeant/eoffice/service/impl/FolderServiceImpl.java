@@ -76,7 +76,7 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         resource.setFid(record.getPfid());
         resource.setName(record.getName());
         resource.setPath(record.getPath());
-        resource.setAid(0L);
+        resource.setSid(0L);
         resource.setCreateBy(record.getCreateBy());
         resource.setUpdateBy(record.getCreateBy());
         resourceService.insertSelective(resource);

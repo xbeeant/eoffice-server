@@ -175,7 +175,7 @@ public class FileHelper {
         return getPath("storage");
     }
 
-    public static void download(Storage storage, Resource resource, HttpServletResponse response, HttpServletRequest request) {
+    public static void download(Storage storage, String fileName, HttpServletResponse response, HttpServletRequest request) {
         File f = new File(getStoragePath() + storage.getPath());
         if (!f.exists()) {
             try {
@@ -185,8 +185,6 @@ public class FileHelper {
             }
             return;
         }
-
-        String fileName = resource.getName();
 
         response.setContentType("application/force-download;charset=UTF-8");
         String userAgent = request.getHeader("USER-AGENT");
@@ -224,5 +222,11 @@ public class FileHelper {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
+    }
+
+    public static void download(Storage storage, Resource resource, HttpServletResponse response, HttpServletRequest request) {
+        String fileName = resource.getName();
+
+        download(storage, fileName, response, request);
     }
 }

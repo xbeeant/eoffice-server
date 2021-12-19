@@ -11,7 +11,7 @@
  Target Server Version : 100421
  File Encoding         : 65001
 
- Date: 22/11/2021 22:58:23
+ Date: 19/12/2021 22:50:28
 */
 
 SET NAMES utf8mb4;
@@ -82,7 +82,7 @@ DROP TABLE IF EXISTS `eoffice_resource`;
 CREATE TABLE `eoffice_resource`  (
   `rid` bigint(20) UNSIGNED NOT NULL COMMENT 'ID',
   `fid` bigint(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT '目录ID',
-  `aid` bigint(20) NOT NULL COMMENT '存储ID',
+  `sid` bigint(20) NOT NULL DEFAULT 0 COMMENT '文件ID',
   `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '资源名称',
   `extension` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '0' COMMENT '资源类型',
   `size` bigint(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT '资源大小',
@@ -98,18 +98,44 @@ CREATE TABLE `eoffice_resource`  (
 ) ENGINE = MyISAM CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '资源（文件）' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
+-- Table structure for eoffice_resource_attachment
+-- ----------------------------
+DROP TABLE IF EXISTS `eoffice_resource_attachment`;
+CREATE TABLE `eoffice_resource_attachment`  (
+  `aid` bigint(20) UNSIGNED NOT NULL COMMENT '附件ID',
+  `rid` bigint(20) NOT NULL COMMENT '资源ID',
+  `sid` bigint(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT '存储ID',
+  PRIMARY KEY (`aid`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '文档' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for eoffice_resource_version
+-- ----------------------------
+DROP TABLE IF EXISTS `eoffice_resource_version`;
+CREATE TABLE `eoffice_resource_version`  (
+  `vid` bigint(20) UNSIGNED NOT NULL COMMENT '版本ID',
+  `rid` bigint(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT '资源ID',
+  `sid` bigint(20) NOT NULL DEFAULT 0 COMMENT '存储ID',
+  `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '资源名称',
+  `size` bigint(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT '资源大小',
+  `create_at` datetime NOT NULL COMMENT '创建时间',
+  `create_by` bigint(20) UNSIGNED NOT NULL COMMENT '创建人ID',
+  PRIMARY KEY (`vid`) USING BTREE
+) ENGINE = MyISAM CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '资源（文件）' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
 -- Table structure for eoffice_storage
 -- ----------------------------
 DROP TABLE IF EXISTS `eoffice_storage`;
 CREATE TABLE `eoffice_storage`  (
-  `aid` bigint(20) UNSIGNED NOT NULL COMMENT '文件ID',
+  `sid` bigint(20) UNSIGNED NOT NULL COMMENT '存储ID',
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '名称',
   `size` bigint(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT '文件大小',
   `md5` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '文件MD5',
   `extension` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件扩展名',
   `path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '存储相对路径',
   `create_at` datetime NULL DEFAULT current_timestamp() COMMENT '创建时间',
-  PRIMARY KEY (`aid`) USING BTREE,
+  PRIMARY KEY (`sid`) USING BTREE,
   INDEX `idx_extension`(`extension`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '文档' ROW_FORMAT = Compact;
 

@@ -30,4 +30,14 @@ public interface IFolderService extends IMybatisPageHelperService<Folder, Long> 
      * @see Folder
      */
     MenuItem parents(Long fid);
+
+    /**
+     * 面包屑
+     *
+     * @param fid 文件夹ID
+     * @return {@link List}
+     * @see List
+     * @see Folder
+     */
+    List<Folder> breadcrumb(Long fid);
 }

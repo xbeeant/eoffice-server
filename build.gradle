@@ -38,7 +38,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation('org.springframework.boot:spring-boot-starter-web') {
+        exclude(group: 'org.springframework.boot', module: 'spring-boot-starter-json')
+    }
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0'
     implementation 'org.springframework.integration:spring-integration-http'
@@ -53,21 +55,22 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.integration:spring-integration-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    
-    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-log4j2', version: '2.6.2'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    implementation 'com.lmax:disruptor:3.4.2'
-    
+    implementation 'com.lmax:disruptor:3.4.4'
+
     implementation group: 'com.alibaba', name: 'druid-spring-boot-starter', version: '1.2.6'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-    
+
     implementation 'io.github.xbeeant:mybatis-pagehelper:1.0.0-SNAPSHOT'
     implementation 'io.github.xbeeant:spring-security:1.0.0-SNAPSHOT'
     implementation 'io.github.xbeeant:crypto:1.0.0-SNAPSHOT'
     implementation 'io.github.xbeeant:serializer:1.0.0-SNAPSHOT'
     implementation 'io.github.xbeeant:antdesign:1.0.0-SNAPSHOT'
     implementation 'io.github.xbeeant:mdc:1.0.0-SNAPSHOT'
-    
+    implementation 'io.github.xbeeant:core:1.0.0-SNAPSHOT'
+
     implementation 'commons-io:commons-io:20030203.000550'
 }
 

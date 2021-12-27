@@ -4,7 +4,7 @@ import io.github.xbeeant.antdesign.MenuItem;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
-import io.github.xbeeant.eoffice.enums.PermConstant;
+import io.github.xbeeant.eoffice.enums.PermTypeConstant;
 import io.github.xbeeant.eoffice.mapper.FolderMapper;
 import io.github.xbeeant.eoffice.model.Folder;
 import io.github.xbeeant.eoffice.model.Perm;
@@ -84,7 +84,7 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         // 设置权益信息
         Perm perm = new FullPerm();
         perm.setTargetId(record.getFid());
-        perm.setType(PermConstant.FOLDER);
+        perm.setType(PermTypeConstant.FOLDER);
         perm.setUid(uid);
         perm.setCreateBy(record.getCreateBy());
         perm.setUpdateBy(record.getCreateBy());
@@ -101,6 +101,11 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         cleanedFolders.addAll(parents);
 
         return toTreeMenu(cleanedFolders).get(0);
+    }
+
+    @Override
+    public List<Folder> breadcrumb(Long fid) {
+        return folderMapper.parents(fid);
     }
 
     @Override

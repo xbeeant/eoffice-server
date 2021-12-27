@@ -4,7 +4,7 @@ import com.github.pagehelper.PageHelper;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
-import io.github.xbeeant.eoffice.enums.PermConstant;
+import io.github.xbeeant.eoffice.enums.PermTypeConstant;
 import io.github.xbeeant.eoffice.exception.FileSaveFailedException;
 import io.github.xbeeant.eoffice.exception.ResourceMissingException;
 import io.github.xbeeant.eoffice.mapper.ResourceMapper;
@@ -139,7 +139,9 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         resourceVersion.setSize(storage.getSize());
         resourceVersion.setName(storage.getName());
         resourceVersionService.insertSelective(resourceVersion);
-        return new ApiResponse<>();
+        ApiResponse<String> result = new ApiResponse<>();
+        result.setMsg("保存成功");
+        return result;
     }
 
     @Override
@@ -150,11 +152,22 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         } catch (Exception e) {
             throw new FileSaveFailedException();
         }
-        // 获取文件夹信息
-        ApiResponse<Folder> folderInfo = folderService.selectByPrimaryKey(fid);
+
+        //
+        Folder folder = new Folder();
+        if(fid == null) {
+            // 为空，我的地盘
+            folder.setFid(0L);
+            folder.setPath("/");
+        } else {
+            // 获取文件夹信息
+            folder = folderService.selectByPrimaryKey(fid).getData();
+        }
+
+
         // 写入资源信息
         Resource resource = new Resource();
-        resource.setPath(folderInfo.getData().getPath());
+        resource.setPath(folder.getPath());
         resource.setName(storage.getName());
         resource.setExtension(storage.getExtension());
         resource.setSid(storage.getSid());
@@ -168,7 +181,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         perm.setCreateBy(uid);
         perm.setTargetId(resource.getRid());
         perm.setUid(Long.valueOf(uid));
-        perm.setType(PermConstant.RESOURCE);
+        perm.setType(PermTypeConstant.RESOURCE);
         permService.insertSelective(perm);
         ApiResponse<Resource> result = new ApiResponse<>();
         result.setData(resource);

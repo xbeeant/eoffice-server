@@ -25,13 +25,17 @@
     </select>
 
     <select id="parents" resultMap="BaseResultMap">
-        SELECT t3.*
-        FROM (SELECT t1.*,
-                     IF(FIND_IN_SET(fid, @ids) > 0, @ids := CONCAT(pfid, ',', @ids), '0') AS isparent
-              FROM (SELECT t.fid, t.pfid, t.NAME
-                    FROM eoffice_folder AS t
-                    ORDER BY t.fid DESC) t1,
-                   (SELECT @ids := #{fid,jdbcType=BIGINT}) t2) t3
-        WHERE t3.isparent != '0'
+        SELECT t2.*
+        FROM (
+                     SELECT @r AS _id,
+		( SELECT @r := pfid FROM eoffice_folder WHERE fid = _id ) AS pfid,
+		@l := @l + 1 AS lvl
+                     FROM
+                             ( SELECT @r := #{fid,jdbcType=BIGINT}, @l := 0 ) vars,
+                             eoffice_folder AS h
+                     WHERE
+                             @r &lt;&gt; 0
+                     ) t1
+                     JOIN eoffice_folder t2 ON t1._id = t2.fid
     </select>
 </mapper>

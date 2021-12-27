@@ -54,10 +54,10 @@ public class FolderRestController {
      * @see ApiResponse
      * @see List
      */
-    @GetMapping("parents")
-    public ApiResponse<MenuItem> parents(Long fid) {
-        ApiResponse<MenuItem> result = new ApiResponse<>();
-        MenuItem parents = folderService.parents(fid);
+    @GetMapping("breadcrumb")
+    public ApiResponse<List<Folder>> breadcrumb(Long fid) {
+        ApiResponse<List<Folder>> result = new ApiResponse<>();
+        List<Folder> parents = folderService.breadcrumb(fid);
         result.setData(parents);
         return result;
     }

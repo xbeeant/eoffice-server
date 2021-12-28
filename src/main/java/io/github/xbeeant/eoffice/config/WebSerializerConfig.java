@@ -10,7 +10,9 @@ import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -24,11 +26,7 @@ import java.time.format.DateTimeFormatter;
  */
 @Configuration
 public class WebSerializerConfig {
-    /**
-     * Jackson全局转化long类型为String，解决jackson序列化时long类型缺失精度问题
-     *
-     * @return Jackson2ObjectMapperBuilderCustomizer 注入的对象
-     */
+
     @Bean
     public HttpMessageConverters fastJsonHttpMessageConverters() {
         //1、定义一个convert转换消息的对象
@@ -71,10 +69,11 @@ public class WebSerializerConfig {
         fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat);
         //3、在convert中添加配置信息
         fastConverter.setFastJsonConfig(fastJsonConfig);
-
+        HttpMessageConverter<?> httpMessageConverter = fastConverter;
         //4、将convert添加到converters中
-        HttpMessageConverter<?> converter = fastConverter;
-        return new HttpMessageConverters(converter);
+        // 修改StringHttpMessageConverter默认配置
+        StringHttpMessageConverter converter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
 
+        return new HttpMessageConverters(httpMessageConverter, converter);
     }
 }

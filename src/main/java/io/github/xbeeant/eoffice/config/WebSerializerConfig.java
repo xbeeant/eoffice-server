@@ -35,7 +35,7 @@ public class WebSerializerConfig {
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
         // 转成字符串类型防止js溢出
         SerializeConfig serializeConfig = new SerializeConfig();
-        serializeConfig.put(Long.class, ToStringSerializer.class);
+        serializeConfig.put(Long.class, ToStringSerializer.instance);
         // 加入的locadatetime序列化，也可以不加（但是要用@JSONField(format = "yyyy-MM-dd HH:mm:ss")）格式化
         serializeConfig.put(LocalDateTime.class, (serializer, object, fieldName, fieldType, features) -> {
             SerializeWriter out = serializer.out;

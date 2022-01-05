@@ -44,7 +44,7 @@ Configuration:
           max: 100
   Loggers:
     Root:
-      level: info
+      level: INFO
       AppenderRef:
         - ref: CONSOLE
         - ref: ROLLING_FILE

@@ -132,7 +132,7 @@ public class ResourceRestController {
         return attachmentResponse;
     }
 
-    @GetMapping("s")
+    @RequestMapping(value = "s", method = {RequestMethod.GET, RequestMethod.POST})
     public void download(Long rid, Long sid, HttpServletRequest request, HttpServletResponse response) {
         resourceService.download(rid, sid, request, response);
     }

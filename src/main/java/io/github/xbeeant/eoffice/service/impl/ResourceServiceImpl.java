@@ -155,7 +155,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
 
         //
         Folder folder = new Folder();
-        if(fid == null) {
+        if(fid == null || 0L == fid) {
             // 为空，我的地盘
             folder.setFid(0L);
             folder.setPath("/");

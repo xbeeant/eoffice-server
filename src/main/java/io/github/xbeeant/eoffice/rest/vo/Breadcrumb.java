@@ -17,7 +17,7 @@ public class Breadcrumb {
      */
     private String path;
 
-    public Breadcrumb(String name, String fid) {
+    public Breadcrumb(String name, Long fid) {
         this.breadcrumbName = name;
         this.path = "/res/" + fid;
     }

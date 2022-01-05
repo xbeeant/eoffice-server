@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -48,7 +49,7 @@ public class ApplicationRestController {
     }
 
     @GetMapping("currentUser")
-    public ApiResponse<CurrentUser> current(Authentication authentication) {
+    public ApiResponse<CurrentUser> current(Authentication authentication, HttpSession session) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
         ApiResponse<CurrentUser> response = new ApiResponse<>();
@@ -59,7 +60,7 @@ public class ApplicationRestController {
 
         CurrentUser currentUser = new CurrentUser();
         currentUser.setName(userSecurityUser.getUserNickname());
-
+        currentUser.setUserid(session.getId());
         response.setData(currentUser);
         return response;
     }

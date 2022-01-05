@@ -1,15 +1,19 @@
 package io.github.xbeeant.eoffice.socket;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import io.github.xbeeant.eoffice.config.WebSocketGetHttpSessionConfigurator;
 import io.github.xbeeant.eoffice.util.PakoGzipHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpSession;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,10 +24,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author xiaobiao
  * @date 2022/1/5
  */
-@ServerEndpoint(value = "/api/socket/lucksheet/{rid}")
+@ServerEndpoint(value = "/api/socket/sheet/{rid}", configurator = WebSocketGetHttpSessionConfigurator.class)
 @Component
-public class LucksheetWebSocketServer {
-    private static final Logger logger = LoggerFactory.getLogger(LucksheetWebSocketServer.class);
+public class LuckysheetWebSocketServer {
+    private static final Logger logger = LoggerFactory.getLogger(LuckysheetWebSocketServer.class);
 
     /**
      * 静态变量，用来记录当前连接数
@@ -33,8 +37,8 @@ public class LucksheetWebSocketServer {
     /**
      * concurrent线程安全set，用来存放每个客户端对应的MyWebSocketServer对象
      */
-    private static CopyOnWriteArraySet<LucksheetWebSocketServer> webSockets = new CopyOnWriteArraySet<>();
-    private static ConcurrentHashMap<String, LucksheetWebSocketServer> tokenMap = new ConcurrentHashMap<>();
+    private static CopyOnWriteArraySet<LuckysheetWebSocketServer> webSockets = new CopyOnWriteArraySet<>();
+    private static ConcurrentHashMap<String, LuckysheetWebSocketServer> tokenMap = new ConcurrentHashMap<>();
     /**
      * 与每个客户端的连接会话，需要通过它来给客户端发送数据
      */
@@ -54,8 +58,8 @@ public class LucksheetWebSocketServer {
     public void onOpen(Session session, EndpointConfig config, @PathParam("rid") String rid) {
         //正常情况下，可以用登录的用户名或者token来作为userId
 //        如下可以获取到httpSession，与当前的session(socket)不是一样的
-//        HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-//        userId = String.valueOf(httpSession.getAttribute("你的token key"));
+        HttpSession httpSession = (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
+        userId = String.valueOf(httpSession.getAttribute("你的token key"));
         userId = rid;
         webSockets.add(this);
         if (tokenMap.get(userId) == null) {
@@ -88,30 +92,31 @@ public class LucksheetWebSocketServer {
 
         for (String key : tokenMap.keySet()) {
 //            if (!key.equals(userId)) {
-            LucksheetWebSocketServer socketServer = tokenMap.get(key);
+            LuckysheetWebSocketServer socketServer = tokenMap.get(key);
             LucksheetWsVo wsResultBean = new LucksheetWsVo();
             wsResultBean.setData(uncompress);
             wsResultBean.setStatus(0);
-            wsResultBean.setUsername(userId);
+            wsResultBean.setUsername((new Date()).toString());
+            // id
             wsResultBean.setId(wsResultBean.getUsername());
             wsResultBean.setReturnMessage("success");
-            wsResultBean.setCreateTime("");
+            wsResultBean.setCreateTime(String.valueOf((new Date()).getTime()));
 
-//                DBObject bson = null;
-//                try {
-//                    bson = (DBObject) JsonHelper.toObject(wsResultBean.getData());
-//                } catch (Exception ex) {
-//                    return;
-//                }
-//                if (bson != null) {
-//                    if (bson.get("t").equals("mv")) {
-//                        更新选区显示
-//                        wsResultBean.setType(3);
-//                    } else {
-//                        更新数据
-//                        wsResultBean.setType(2);
-//                    }
-//                }
+            JSONObject bson;
+            try {
+                bson = JSON.parseObject(wsResultBean.getData());
+            } catch (Exception ex) {
+                return;
+            }
+            if (bson != null) {
+                if ("mv".equals(bson.get("t"))) {
+                    // 更新选区显示
+                    wsResultBean.setType(3);
+                } else {
+                    // 更新数据
+                    wsResultBean.setType(2);
+                }
+            }
             socketServer.sendMessage(wsResultBean, socketServer.session);
         }
 //        }
@@ -136,7 +141,7 @@ public class LucksheetWebSocketServer {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        LucksheetWebSocketServer that = (LucksheetWebSocketServer) o;
+        LuckysheetWebSocketServer that = (LuckysheetWebSocketServer) o;
         return Objects.equals(session, that.session);
     }
 
@@ -154,7 +159,7 @@ public class LucksheetWebSocketServer {
 
     // 此为广播消息
     public void sendAllMessage(String message) {
-        for (LucksheetWebSocketServer webSocket : webSockets) {
+        for (LuckysheetWebSocketServer webSocket : webSockets) {
             try {
                 webSocket.session.getAsyncRemote().sendText(message);
             } catch (Exception e) {
@@ -167,8 +172,8 @@ public class LucksheetWebSocketServer {
      * 全部踢下线
      */
     public void clear() {
-        for (Map.Entry<String, LucksheetWebSocketServer> item : tokenMap.entrySet()) {
-            LucksheetWebSocketServer socketServer = item.getValue();
+        for (Map.Entry<String, LuckysheetWebSocketServer> item : tokenMap.entrySet()) {
+            LuckysheetWebSocketServer socketServer = item.getValue();
             try {
                 socketServer.session.close();
             } catch (IOException e) {

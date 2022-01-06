@@ -69,8 +69,17 @@ public class ResourceRestController {
         return apiResponse;
     }
 
+    /**
+     * 资源详情
+     *
+     * @param authentication 身份验证
+     * @param rid            资源ID
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see ResourceVo
+     */
     @GetMapping("detail")
-    public ApiResponse<ResourceVo> resources(Authentication authentication, Long rid) {
+    public ApiResponse<ResourceVo> detail(Authentication authentication, Long rid) {
         ApiResponse<ResourceVo> resourceInfo = resourceService.detail(rid);
 
         // 权限
@@ -79,6 +88,16 @@ public class ResourceRestController {
         return resourceInfo;
     }
 
+    /**
+     * 保存
+     *
+     * @param authentication 身份验证
+     * @param rid            资源ID
+     * @param value          值
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see String
+     */
     @PostMapping("")
     public ApiResponse<String> save(Authentication authentication, Long rid, String value) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
@@ -132,13 +151,43 @@ public class ResourceRestController {
         return attachmentResponse;
     }
 
+    /**
+     * 下载
+     *
+     * @param rid      资源ID
+     * @param sid      存储ID
+     * @param request  请求
+     * @param response 响应
+     */
     @RequestMapping(value = "s", method = {RequestMethod.GET, RequestMethod.POST})
     public void download(Long rid, Long sid, HttpServletRequest request, HttpServletResponse response) {
         resourceService.download(rid, sid, request, response);
     }
 
+    /**
+     * 附件下载
+     *
+     * @param rid      资源ID
+     * @param aid      附件ID
+     * @param request  请求
+     * @param response 响应
+     */
     @GetMapping("attachment")
     public void attachment(Long rid, Long aid, HttpServletRequest request, HttpServletResponse response) {
         resourceService.downloadAttachment(rid, aid, request, response);
+    }
+
+    /**
+     * 资源新建
+     *
+     * @param type 类型
+     * @param cid  cid
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see ResourceVo
+     */
+    @PostMapping("add")
+    public ApiResponse<ResourceVo> add(String type, Long cid) {
+        return new ApiResponse<>();
     }
 }

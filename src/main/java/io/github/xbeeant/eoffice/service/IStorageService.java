@@ -33,5 +33,5 @@ public interface IStorageService extends IMybatisPageHelperService<Storage, Long
      * @param uid   uid
      * @return {@link Storage}
      */
-    Storage insert(String value, String name, String uid) throws NoSuchAlgorithmException;
+    Storage insert(String value, String name, String uid) throws NoSuchAlgorithmException, IOException;
 }

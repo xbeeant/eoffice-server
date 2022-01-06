@@ -20,37 +20,30 @@ package io.github.xbeeant.eoffice.socket;
 public class LucksheetWsVo {
     /**
      * create time
-     *
      */
     private String createTime;
     /**
      * 数据
-     *
      */
     private String data;
     /**
      * id
-     *
      */
     private String id;
     /**
      * return message
-     *
      */
     private String returnMessage;
     /**
      * 状态
-     *
      */
     private int status;
     /**
-     * 类型
-     *
+     * 类型， 0：连接成功，1.发送给发送信息用户，2.发送信息给其他用户，3.发送选区位置信息 999、用户连接断开
      */
     private int type;
     /**
      * 用户名
-     *
      */
     private String username;
 

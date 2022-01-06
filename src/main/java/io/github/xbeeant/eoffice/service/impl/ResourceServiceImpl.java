@@ -12,6 +12,7 @@ import io.github.xbeeant.eoffice.model.*;
 import io.github.xbeeant.eoffice.po.FullPerm;
 import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
 import io.github.xbeeant.eoffice.service.*;
+import io.github.xbeeant.eoffice.service.storage.StorageFactory;
 import io.github.xbeeant.eoffice.util.FileHelper;
 import io.github.xbeeant.http.Requests;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
@@ -81,7 +82,9 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         // todo 权益校验
         ApiResponse<Resource> resourceApiResponse = selectByPrimaryKey(rid);
         ApiResponse<Storage> storageApiResponse = storageService.selectByPrimaryKey(sid);
-        FileHelper.download(storageApiResponse.getData(), resourceApiResponse.getData(), response, request);
+        if (storageApiResponse.getSuccess()) {
+            StorageFactory.getStorage(storageApiResponse.getData().getExtension()).download(storageApiResponse.getData(), resourceApiResponse.getData(), response, request);
+        }
     }
 
     @Override

@@ -45,7 +45,7 @@ public class ResourceRestController {
      * 资源列表
      *
      * @param authentication 身份验证
-     * @param fid            支撑材
+     * @param fid            文件ID
      * @param pageRequest    pageRequest
      * @return {@link ApiResponse}
      * @see ApiResponse
@@ -89,7 +89,7 @@ public class ResourceRestController {
      * 资源上传
      *
      * @param authentication 身份验证
-     * @param fid            支撑材
+     * @param fid            文件ID
      * @param file           文件
      * @return {@link ApiResponse}
      * @see ApiResponse

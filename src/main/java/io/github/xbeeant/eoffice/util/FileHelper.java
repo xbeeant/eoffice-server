@@ -204,7 +204,7 @@ public class FileHelper {
             logger.error(e.getMessage(), e);
             return;
         }
-        OutputStream out = null;
+        OutputStream out;
         try (InputStream in = new FileInputStream(f.getAbsolutePath())) {
             //获取要下载的文件输入流
             int len = 0;

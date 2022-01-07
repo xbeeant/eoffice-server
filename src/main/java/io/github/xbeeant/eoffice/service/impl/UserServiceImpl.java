@@ -8,6 +8,7 @@ import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.eoffice.service.IUserService;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import io.github.xbeeant.spring.security.SecurityUser;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,23 +18,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 
  * eoffice_user
  */
 @Service
 public class UserServiceImpl extends AbstractSecurityMybatisPageHelperServiceImpl<User, Long> implements IUserService {
     /**
+     * password encoder
+     */
+    private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
+    /**
      * user mapper
-     *
      */
     @Autowired
     private UserMapper userMapper;
-
-    /**
-     * password encoder
-     *
-     */
-    private static BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     public IMybatisPageHelperDao<User, Long> getRepositoryDao() {
@@ -41,9 +38,13 @@ public class UserServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
     }
 
     @Override
-    public void setDefaults(User record) {
-        if (record.getUid() == null) {
-            record.setUid(IdWorker.getId());
+    public void setDefaults(User user) {
+        if (user.getUid() == null) {
+            user.setUid(IdWorker.getId());
+        }
+        // 密码加密存储
+        if (!StringUtils.isEmpty(user.getPassword())) {
+            user.setPassword(PASSWORD_ENCODER.encode(user.getPassword()));
         }
     }
 
@@ -64,6 +65,6 @@ public class UserServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
 
     @Override
     public boolean verifyPassword(String rawPassword, String encodedPassword) {
-        return passwordEncoder.matches(rawPassword, encodedPassword);
+        return PASSWORD_ENCODER.matches(rawPassword, encodedPassword);
     }
 }

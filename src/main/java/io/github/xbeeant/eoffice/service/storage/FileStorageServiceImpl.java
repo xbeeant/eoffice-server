@@ -83,4 +83,9 @@ public class FileStorageServiceImpl implements AbstractStorageService {
     public void download(Storage storage, Resource resource, HttpServletResponse response, HttpServletRequest request) {
         FileHelper.download(storage, resource, response, request);
     }
+
+    @Override
+    public Storage add(String type, Long fid, String uid) {
+        return null;
+    }
 }

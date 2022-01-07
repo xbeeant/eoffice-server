@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.xbeeant.eoffice.mapper.ConfigMapper">
+    <select id="valueOf" resultType="java.lang.String">
+        select cvalue
+        from eoffice_config
+        where module = #{module,jdbcType=VARCHAR}
+          and ckey= #{ckey,jdbcType=VARCHAR}
+    </select>
+</mapper>

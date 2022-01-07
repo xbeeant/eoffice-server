@@ -1,6 +1,7 @@
 package io.github.xbeeant.eoffice.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.page.PageMethod;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
@@ -103,9 +104,9 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     public ApiResponse<List<Resource>> hasPermissionResources(Long fid, String uid, PageBounds pageBounds) {
         ApiResponse<List<Resource>> result = new ApiResponse<>();
         if (!StringUtils.isEmpty(pageBounds.getOrders())) {
-            PageHelper.orderBy(pageBounds.getOrders());
+            PageMethod.orderBy(pageBounds.getOrders());
         } else {
-            PageHelper.orderBy("create_at desc");
+            PageMethod.orderBy("create_at desc");
         }
         List<Resource> resources = resourceMapper.hasPermissionResources(fid, uid);
         result.setData(resources);
@@ -148,7 +149,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     }
 
     @Override
-    public ApiResponse<Resource> insert(MultipartFile file, Long fid, String uid) {
+    public ApiResponse<Resource> upload(MultipartFile file, Long fid, String uid) {
         Storage storage;
         try {
             storage = storageService.insert(file, uid);
@@ -156,6 +157,13 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             throw new FileSaveFailedException();
         }
 
+        Resource resource = saveResource(fid, uid, storage);
+        ApiResponse<Resource> result = new ApiResponse<>();
+        result.setData(resource);
+        return result;
+    }
+
+    private ResourceVo saveResource(Long fid, String uid, Storage storage) {
         //
         Folder folder = new Folder();
         if(fid == null || 0L == fid) {
@@ -167,9 +175,8 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             folder = folderService.selectByPrimaryKey(fid).getData();
         }
 
-
         // 写入资源信息
-        Resource resource = new Resource();
+        ResourceVo resource = new ResourceVo();
         resource.setPath(folder.getPath());
         resource.setName(storage.getName());
         resource.setExtension(storage.getExtension());
@@ -179,6 +186,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         resource.setUpdateBy(uid);
         resource.setFid(fid);
         insertSelective(resource);
+
         // 写入权益信息
         Perm perm = new FullPerm();
         perm.setCreateBy(uid);
@@ -186,8 +194,19 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         perm.setUid(Long.valueOf(uid));
         perm.setType(PermTypeConstant.RESOURCE);
         permService.insertSelective(perm);
-        ApiResponse<Resource> result = new ApiResponse<>();
-        result.setData(resource);
-        return result;
+
+        resource.setPerm(perm);
+        return resource;
+    }
+
+    @Override
+    public Perm permission(Long rid, Long userId) {
+        return permService.perm(rid, userId, 0);
+    }
+
+    @Override
+    public ResourceVo add(String type, Long fid, String uid) {
+        Storage storage = StorageFactory.getStorage(type).add(type, fid, uid);
+        return saveResource(fid, uid, storage);
     }
 }

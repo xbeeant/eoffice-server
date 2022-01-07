@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.xbeeant.eoffice.mapper.PermMapper">
+    <select id="perm" resultMap="BaseResultMap">
+        select download, edit, print, `view`, comment, share
+        from eoffice_perm
+        where target_id = #{targetId,jdbcType=BIGINT}
+          and uid = #{uid,jdbcType=BIGINT}
+          and `type` = #{type}
+    </select>
+</mapper>

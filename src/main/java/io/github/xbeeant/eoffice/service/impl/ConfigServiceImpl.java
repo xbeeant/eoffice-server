@@ -29,4 +29,9 @@ public class ConfigServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
             record.setCid(IdWorker.getId());
         }
     }
+
+    @Override
+    public String valueOf(String module, String ckey) {
+        return configMapper.valueOf(module, ckey);
+    }
 }

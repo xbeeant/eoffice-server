@@ -6,10 +6,12 @@ import io.github.xbeeant.eoffice.exception.FileSaveFailedException;
 import io.github.xbeeant.eoffice.model.ContentStorage;
 import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.eoffice.model.Storage;
+import io.github.xbeeant.eoffice.service.IConfigService;
 import io.github.xbeeant.eoffice.service.IContentStorageService;
 import io.github.xbeeant.eoffice.service.IStorageService;
 import io.github.xbeeant.eoffice.util.FileHelper;
 import io.github.xbeeant.http.Requests;
+import io.github.xbeeant.spring.web.SpringContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,7 @@ import java.security.NoSuchAlgorithmException;
  */
 @Component("databaseStorageService")
 public class DatabaseStorageServiceImpl implements AbstractStorageService {
-    private static final Logger logger = LoggerFactory.getLogger(FileStorageServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseStorageServiceImpl.class);
 
     @Autowired
     private IContentStorageService contentStorageService;
@@ -84,5 +86,17 @@ public class DatabaseStorageServiceImpl implements AbstractStorageService {
     public void download(Storage storage, Resource resource, HttpServletResponse response, HttpServletRequest request) {
         ApiResponse<ContentStorage> contentStorageResponse = contentStorageService.selectByPrimaryKey(storage.getSid());
         Requests.writeJson(response, contentStorageResponse.getData().getContent());
+    }
+
+    @Override
+    public Storage add(String type, Long fid, String uid) {
+        IConfigService configService = SpringContextProvider.getBean(IConfigService.class);
+        String value = configService.valueOf("template", type);
+        if (null == value) {
+            value = "";
+        }
+
+
+        return save(value, "新建文档." + type, uid);
     }
 }

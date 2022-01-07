@@ -25,9 +25,9 @@ public class AntDesignUtil {
         Map<String, String> map = JsonHelper.toObject(sorter, MAP_TYPE);
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> item : map.entrySet()) {
-            sb.append(JavaBeansHelper.toUnderline(item.getValue()));
+            sb.append(JavaBeansHelper.toUnderline(item.getKey()));
             sb.append("_");
-            sb.append("ascend".equals(map.get(item.getValue())) ? "asc" : "desc");
+            sb.append("ascend".equals(item.getValue()) ? "asc" : "desc");
             sb.append(",");
         }
         sb.deleteCharAt(sb.length() - 1);

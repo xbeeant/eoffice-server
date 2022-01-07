@@ -1,7 +1,9 @@
 package io.github.xbeeant.eoffice.service;
 
 import io.github.xbeeant.core.ApiResponse;
+import io.github.xbeeant.eoffice.model.Perm;
 import io.github.xbeeant.eoffice.model.Resource;
+import io.github.xbeeant.eoffice.model.Storage;
 import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperService;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
@@ -18,7 +20,7 @@ import java.util.List;
 public interface IResourceService extends IMybatisPageHelperService<Resource, Long> {
 
     /**
-     * 插入
+     * 上传资源
      *
      * @param file 文件
      * @param fid  目录ID
@@ -27,7 +29,7 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * @see ApiResponse
      * @see Resource
      */
-    ApiResponse<Resource> insert(MultipartFile file, Long fid, String uid);
+    ApiResponse<Resource> upload(MultipartFile file, Long fid, String uid);
 
     /**
      * has permission resources
@@ -74,12 +76,31 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
     /**
      * 保存
      *
-     * @param rid    资源ID
-     * @param value  值
-     * @param uid 操作人ID
+     * @param rid   资源ID
+     * @param value 值
+     * @param uid   操作人ID
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see String
      */
     ApiResponse<String> save(Long rid, String value, String uid);
+
+    /**
+     * 权限
+     *
+     * @param rid    资源ID
+     * @param userId 用户标识
+     */
+    Perm permission(Long rid, Long userId);
+
+    /**
+     * 添加/创建资源
+     *
+     * @param type 类型
+     * @param fid  目录ID
+     * @param uid  用户标识
+     * @return {@link Storage}
+     * @see Storage
+     */
+    ResourceVo add(String type, Long fid, String uid);
 }

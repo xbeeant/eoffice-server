@@ -1,5 +1,6 @@
 package io.github.xbeeant.eoffice.service.impl;
 
+import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
 import io.github.xbeeant.eoffice.mapper.PermMapper;
@@ -28,5 +29,15 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
         if (record.getPid() == null) {
             record.setPid(IdWorker.getId());
         }
+    }
+
+    @Override
+    public Perm perm(Long targetId, Long uid, int type) {
+        Perm perm = permMapper.perm(targetId, uid, type);
+        if (null != perm) {
+            return perm;
+        }
+
+        return new Perm();
     }
 }

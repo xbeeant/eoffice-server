@@ -32,4 +32,16 @@ public interface AbstractStorageService {
      * @param response 响应
      */
     void download(Storage storage, Resource resource, HttpServletResponse response, HttpServletRequest request);
+
+
+    /**
+     * 添加资源
+     *
+     * @param type 类型
+     * @param fid  目录ID
+     * @param uid  uid
+     * @return {@link Storage}
+     * @see Storage
+     */
+    Storage add(String type, Long fid, String uid);
 }

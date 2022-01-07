@@ -1,10 +1,9 @@
 package io.github.xbeeant.eoffice.rest;
 
+import io.github.xbeeant.antdesign.TableRequest;
 import io.github.xbeeant.core.ApiResponse;
-import io.github.xbeeant.eoffice.model.Resource;
-import io.github.xbeeant.eoffice.model.ResourceAttachment;
-import io.github.xbeeant.eoffice.model.Storage;
-import io.github.xbeeant.eoffice.model.User;
+import io.github.xbeeant.core.ErrorCodeConstant;
+import io.github.xbeeant.eoffice.model.*;
 import io.github.xbeeant.eoffice.rest.vo.AttachmentResponse;
 import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
 import io.github.xbeeant.eoffice.service.IResourceAttachmentService;
@@ -81,10 +80,14 @@ public class ResourceRestController {
     @GetMapping("detail")
     public ApiResponse<ResourceVo> detail(Authentication authentication, Long rid) {
         ApiResponse<ResourceVo> resourceInfo = resourceService.detail(rid);
-
+        if (!resourceInfo.getSuccess()) {
+            resourceInfo.setResult(ErrorCodeConstant.NO_MATCH, "文件已经丢失");
+            return resourceInfo;
+        }
         // 权限
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
-
+        Perm permission = resourceService.permission(rid, Long.valueOf(userSecurityUser.getUserId()));
+        resourceInfo.getData().setPerm(permission);
         return resourceInfo;
     }
 
@@ -120,7 +123,7 @@ public class ResourceRestController {
                                         MultipartFile file) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
-        return resourceService.insert(file, fid, userSecurityUser.getUserId());
+        return resourceService.upload(file, fid, userSecurityUser.getUserId());
     }
 
     /**
@@ -181,13 +184,17 @@ public class ResourceRestController {
      * 资源新建
      *
      * @param type 类型
-     * @param cid  cid
+     * @param fid  目录ID
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see ResourceVo
      */
     @PostMapping("add")
-    public ApiResponse<ResourceVo> add(String type, Long cid) {
+    public ApiResponse<ResourceVo> add(String type,
+                                       @RequestParam(defaultValue = "0", required = false) Long fid,
+                                       Authentication authentication) {
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+        resourceService.add(type, fid, userSecurityUser.getUserId());
         return new ApiResponse<>();
     }
 }

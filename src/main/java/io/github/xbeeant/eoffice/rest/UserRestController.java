@@ -2,6 +2,7 @@ package io.github.xbeeant.eoffice.rest;
 
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
+import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.eoffice.service.IUserService;
 import io.github.xbeeant.http.Requests;
@@ -50,10 +51,14 @@ public class UserRestController {
             result.setResult(ErrorCodeConstant.CONFLICT, "手机号已注册");
             return result;
         }
-
+        Long userId = IdWorker.getId();
         user.emptySensitiveInfo();
         user.setStatus(true);
         user.setRegip(Requests.getIp(request));
+        String sUserId = String.valueOf(userId);
+        user.setCreateBy(sUserId);
+        user.setUpdateBy(sUserId);
+        user.setAuthType("DFAULT");
         userService.insertSelective(user);
 
         return result;

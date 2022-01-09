@@ -8,4 +8,13 @@
           and uid = #{uid,jdbcType=BIGINT}
           and `type` = #{type}
     </select>
+
+    <select id="users" resultMap="io.github.xbeeant.eoffice.mapper.UserMapper.BaseResultMap">
+        select eu.nickname,
+               eu.uid,
+               eu.username
+        from eoffice_perm ep
+                     left join eoffice_user eu on eu.uid = ep.uid
+        where target_id = #{targetId,jdbcType=BIGINT}
+    </select>
 </mapper>

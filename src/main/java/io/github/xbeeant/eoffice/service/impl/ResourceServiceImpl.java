@@ -1,6 +1,5 @@
 package io.github.xbeeant.eoffice.service.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.page.PageMethod;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.IdWorker;
@@ -166,7 +165,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     private ResourceVo saveResource(Long fid, String uid, Storage storage) {
         //
         Folder folder = new Folder();
-        if(fid == null || 0L == fid) {
+        if (fid == null || 0L == fid) {
             // 为空，我的地盘
             folder.setFid(0L);
             folder.setPath("/");
@@ -208,5 +207,10 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     public ResourceVo add(String type, Long fid, String uid) {
         Storage storage = StorageFactory.getStorage(type).add(type, fid, uid);
         return saveResource(fid, uid, storage);
+    }
+
+    @Override
+    public List<User> users(Long rid) {
+        return permService.users(rid);
     }
 }

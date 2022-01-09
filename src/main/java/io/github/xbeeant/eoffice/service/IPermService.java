@@ -1,7 +1,10 @@
 package io.github.xbeeant.eoffice.service;
 
 import io.github.xbeeant.eoffice.model.Perm;
+import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperService;
+
+import java.util.List;
 
 /**
  * @author mybatis code generator
@@ -18,4 +21,6 @@ public interface IPermService extends IMybatisPageHelperService<Perm, Long> {
      * @see Perm
      */
     Perm perm(Long targetId, Long uid, int type);
+
+    List<User> users(Long targetId);
 }

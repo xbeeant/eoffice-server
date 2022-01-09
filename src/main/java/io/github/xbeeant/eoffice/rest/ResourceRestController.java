@@ -1,14 +1,16 @@
 package io.github.xbeeant.eoffice.rest;
 
-import io.github.xbeeant.antdesign.TableRequest;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
+import io.github.xbeeant.core.JsonHelper;
 import io.github.xbeeant.eoffice.model.*;
 import io.github.xbeeant.eoffice.rest.vo.AttachmentResponse;
+import io.github.xbeeant.eoffice.rest.vo.ResourceInfo;
 import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
 import io.github.xbeeant.eoffice.service.IResourceAttachmentService;
 import io.github.xbeeant.eoffice.service.IResourceService;
 import io.github.xbeeant.eoffice.service.IStorageService;
+import io.github.xbeeant.eoffice.service.IUserService;
 import io.github.xbeeant.eoffice.util.AntDesignUtil;
 import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
 import io.github.xbeeant.spring.security.SecurityUser;
@@ -30,6 +32,9 @@ import java.util.List;
 @RestController
 @RequestMapping("api/resource")
 public class ResourceRestController {
+
+    @Autowired
+    private IUserService userService;
 
     @Autowired
     private IResourceService resourceService;
@@ -66,6 +71,38 @@ public class ResourceRestController {
         apiResponse.setCode(0);
 
         return apiResponse;
+    }
+
+    /**
+     * 资源信息
+     *
+     * @param authentication 身份验证
+     * @param rid            资源ID
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see ResourceVo
+     */
+    @GetMapping("info")
+    public ApiResponse<ResourceInfo> info(Authentication authentication, Long rid) {
+        ApiResponse<ResourceInfo> result = new ApiResponse<>();
+        ApiResponse<ResourceVo> resourceVo = resourceService.detail(rid);
+        if (!resourceVo.getSuccess()) {
+            resourceVo.setResult(ErrorCodeConstant.NO_MATCH, "文件已经丢失");
+            return result;
+        }
+
+        // 获取创建人信息，替换为创建人姓名
+        ResourceInfo resourceInfo = JsonHelper.copy(resourceVo.getData(), ResourceInfo.class);
+        ApiResponse<User> userApiResponse = userService.selectByPrimaryKey(Long.valueOf(resourceInfo.getCreateBy()));
+        if (userApiResponse.getSuccess()) {
+            resourceInfo.setCreateBy(userApiResponse.getData().getNickname());
+        }
+
+        // 当前资源已授权的用户
+        List<User> users = resourceService.users(rid);
+        resourceInfo.setUsers(users);
+        result.setData(resourceInfo);
+        return result;
     }
 
     /**

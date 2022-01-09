@@ -1,11 +1,16 @@
 package io.github.xbeeant.eoffice.rest;
 
+import com.github.pagehelper.Page;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
 import io.github.xbeeant.core.IdWorker;
+import io.github.xbeeant.core.service.IAbstractService;
 import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.eoffice.service.IUserService;
 import io.github.xbeeant.http.Requests;
+import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
+import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
+import io.github.xbeeant.spring.mybatis.rest.AbstractPagehelperRestFormController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,10 +24,15 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequestMapping("api/user")
-public class UserRestController {
+public class UserRestController extends AbstractPagehelperRestFormController<User, Long> {
 
     @Autowired
     private IUserService userService;
+
+    @Override
+    public IAbstractService<User, Long, PageBounds, PageResponse<User>, Page<User>> getService() {
+        return userService;
+    }
 
     @PostMapping("register")
     public ApiResponse<String> register(User user, HttpServletRequest request) {

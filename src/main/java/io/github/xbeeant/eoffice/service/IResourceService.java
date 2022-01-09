@@ -4,6 +4,7 @@ import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.eoffice.model.Perm;
 import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.eoffice.model.Storage;
+import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperService;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
@@ -103,4 +104,14 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * @see Storage
      */
     ResourceVo add(String type, Long fid, String uid);
+
+    /**
+     * 用户
+     *
+     * @param rid 资源ID
+     * @return {@link List}
+     * @see List
+     * @see User
+     */
+    List<User> users(Long rid);
 }

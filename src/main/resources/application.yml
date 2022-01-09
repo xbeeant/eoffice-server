@@ -13,7 +13,7 @@ mybatis:
 
 spring:
   datasource:
-    username: app
+    username: root
     password:
     url: jdbc:mysql://localhost:3306/eoffice?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&allowMultiQueries=true&autoReconnect=true
     driver-class-name: org.mariadb.jdbc.Driver

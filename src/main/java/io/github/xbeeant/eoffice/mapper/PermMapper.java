@@ -1,9 +1,12 @@
 package io.github.xbeeant.eoffice.mapper;
 
 import io.github.xbeeant.eoffice.model.Perm;
+import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @author mybatis code generator
@@ -21,4 +24,14 @@ public interface PermMapper extends IMybatisPageHelperDao<Perm, Long> {
      * @see Perm
      */
     Perm perm(@Param("targetId") Long targetId, @Param("uid") Long uid, @Param("type") int type);
+
+    /**
+     * 用户
+     *
+     * @param targetId targetId
+     * @return {@link List}
+     * @see List
+     * @see User
+     */
+    List<User> users(@Param("targetId") Long targetId);
 }

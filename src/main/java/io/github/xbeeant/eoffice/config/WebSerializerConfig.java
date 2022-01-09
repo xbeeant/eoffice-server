@@ -3,9 +3,9 @@ package io.github.xbeeant.eoffice.config;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import io.github.xbeeant.core.date.DateTime;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +16,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 
 /**
  * 全局WEB序列化配置
@@ -35,7 +37,14 @@ public class WebSerializerConfig {
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
         // 转成字符串类型防止js溢出
         SerializeConfig serializeConfig = new SerializeConfig();
-        serializeConfig.put(Long.class, ToStringSerializer.instance);
+        serializeConfig.put(Long.class, (serializer, object, fieldName, fieldType, features) -> {
+            SerializeWriter out = serializer.out;
+            if (object == null) {
+                out.writeNull();
+                return;
+            }
+            out.writeString(String.valueOf(object));
+        });
         // 加入的locadatetime序列化，也可以不加（但是要用@JSONField(format = "yyyy-MM-dd HH:mm:ss")）格式化
         serializeConfig.put(LocalDateTime.class, (serializer, object, fieldName, fieldType, features) -> {
             SerializeWriter out = serializer.out;
@@ -44,6 +53,21 @@ public class WebSerializerConfig {
                 return;
             }
             out.writeString(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format((LocalDateTime) object));
+        });
+        serializeConfig.put(DateTime.class, (serializer, object, fieldName, fieldType, features) -> {
+            SerializeWriter out = serializer.out;
+            if (object == null) {
+                out.writeNull();
+                return;
+            }
+            DateTime dateTime = (DateTime) (object);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(dateTime);
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(calendar.toInstant(), ZoneId.systemDefault());
+            String format = DateTimeFormatter
+                    .ofPattern("yyyy-MM-dd HH:mm:ss")
+                    .format(localDateTime);
+            out.writeString(format);
         });
         serializeConfig.put(LocalDate.class, (serializer, object, fieldName, fieldType, features) -> {
             SerializeWriter out = serializer.out;

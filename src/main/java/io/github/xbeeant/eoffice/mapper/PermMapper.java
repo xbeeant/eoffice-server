@@ -34,4 +34,15 @@ public interface PermMapper extends IMybatisPageHelperDao<Perm, Long> {
      * @see User
      */
     List<User> users(@Param("targetId") Long targetId);
+
+    /**
+     * 已存在的授权
+     *
+     * @param uids     用户ID列表
+     * @param targetId targetId
+     * @return {@link List}
+     * @see List
+     * @see Perm
+     */
+    List<Perm> exists(@Param("uids") List<Long> uids, @Param("targetId") Long targetId);
 }

@@ -17,4 +17,16 @@
                      left join eoffice_user eu on eu.uid = ep.uid
         where target_id = #{targetId,jdbcType=BIGINT}
     </select>
+
+    <select id="exists" resultMap="BaseResultMap">
+        select *
+        from eoffice_perm
+        <where>
+            target_id = #{targetId,jdbcType=BIGINT}
+                    and uid in
+            <foreach collection="uids" item="uid" open="(" close=")" separator=",">
+                #{uid,jdbcType=BIGINT}
+            </foreach>
+        </where>
+    </select>
 </mapper>

@@ -144,6 +144,15 @@ public class ResourceRestController {
         return resourceService.save(rid, value, userSecurityUser.getUserId());
     }
 
+    @PostMapping("perm")
+    public ApiResponse<String> perm(Authentication authentication,
+                                      @RequestParam(value = "users") List<Long> users,
+                                      @RequestParam(value = "perm") List<String> perm,
+                                      Long rid) {
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+        return resourceService.perm(users, perm, rid, userSecurityUser.getUserId());
+    }
+
     /**
      * 资源上传
      *

@@ -12,11 +12,13 @@ import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import io.github.xbeeant.spring.mybatis.rest.AbstractPagehelperRestFormController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author xiaobiao
@@ -72,5 +74,10 @@ public class UserRestController extends AbstractPagehelperRestFormController<Use
         userService.insertSelective(user);
 
         return result;
+    }
+
+    @GetMapping("search")
+    public ApiResponse<List<User>> search(String s) {
+        return userService.search("%" + s + "%");
     }
 }

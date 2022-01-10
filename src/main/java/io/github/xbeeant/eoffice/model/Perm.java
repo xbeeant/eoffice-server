@@ -1,7 +1,10 @@
 package io.github.xbeeant.eoffice.model;
 
 import io.github.xbeeant.core.BaseModelObject;
+import io.github.xbeeant.core.JavaBeansHelper;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * eoffice_perm
@@ -55,6 +58,19 @@ public class Perm extends BaseModelObject<Long> implements Serializable {
      * @mbg.generated Sat Oct 30 18:44:43 CST 2021
      */
     private static final long serialVersionUID = 1L;
+
+    public Perm() {
+    }
+
+    public Perm(List<String> perms, Long uid, Long targetId, Integer type) {
+        this.uid = uid;
+        this.targetId = targetId;
+        this.type = type;
+
+        for (String perm: perms) {
+            JavaBeansHelper.setter(this, perm, true);
+        }
+    }
 
     /**
      * get field ID

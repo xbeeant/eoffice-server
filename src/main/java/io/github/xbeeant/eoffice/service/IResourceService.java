@@ -114,4 +114,17 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * @see User
      */
     List<User> users(Long rid);
+
+    /**
+     * 授权
+     *
+     * @param users   用户
+     * @param perm    权限
+     * @param rid     资源ID
+     * @param actorId actorId
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see String
+     */
+    ApiResponse<String> perm(List<Long> users, List<String> perm, Long rid, String actorId);
 }

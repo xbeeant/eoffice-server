@@ -1,8 +1,11 @@
 package io.github.xbeeant.eoffice.service;
 
+import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperService;
 import io.github.xbeeant.spring.security.SecurityUser;
+
+import java.util.List;
 
 /**
  * @author mybatis code generator
@@ -27,4 +30,14 @@ public interface IUserService extends IMybatisPageHelperService<User, Long> {
      * @return {@link boolean}
      */
     boolean verifyPassword(String rawPassword, String encodedPassword);
+
+    /**
+     * 搜索
+     *
+     * @param search 搜索
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see List
+     */
+    ApiResponse<List<User>> search(String search);
 }

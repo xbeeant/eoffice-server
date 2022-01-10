@@ -2,6 +2,7 @@ package io.github.xbeeant.eoffice.service.impl;
 
 import com.github.pagehelper.page.PageMethod;
 import io.github.xbeeant.core.ApiResponse;
+import io.github.xbeeant.core.ErrorCodeConstant;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
 import io.github.xbeeant.eoffice.enums.PermTypeConstant;
@@ -212,5 +213,17 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     @Override
     public List<User> users(Long rid) {
         return permService.users(rid);
+    }
+
+    @Override
+    public ApiResponse<String> perm(List<Long> users, List<String> perm, Long rid, String actorId) {
+        ApiResponse<Resource> resourceApiResponse = selectByPrimaryKey(rid);
+        if (!resourceApiResponse.getSuccess()) {
+            ApiResponse<String> result = new ApiResponse<>();
+            result.setResult(ErrorCodeConstant.NO_MATCH, "资源已被删除");
+            return result;
+        }
+        Integer type = "folder".equals(resourceApiResponse.getData().getExtension()) ? 1 : 0;
+        return permService.perm(users, perm, rid, type, actorId);
     }
 }

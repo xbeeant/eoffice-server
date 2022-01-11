@@ -1,18 +1,18 @@
 package io.github.xbeeant.eoffice.rest;
 
+import io.github.xbeeant.antdesign.TableResponse;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
 import io.github.xbeeant.core.JsonHelper;
 import io.github.xbeeant.eoffice.model.*;
 import io.github.xbeeant.eoffice.rest.vo.AttachmentResponse;
 import io.github.xbeeant.eoffice.rest.vo.ResourceInfo;
+import io.github.xbeeant.eoffice.rest.vo.ResourcePerm;
 import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
-import io.github.xbeeant.eoffice.service.IResourceAttachmentService;
-import io.github.xbeeant.eoffice.service.IResourceService;
-import io.github.xbeeant.eoffice.service.IStorageService;
-import io.github.xbeeant.eoffice.service.IUserService;
+import io.github.xbeeant.eoffice.service.*;
 import io.github.xbeeant.eoffice.util.AntDesignUtil;
 import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
+import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -41,6 +41,9 @@ public class ResourceRestController {
 
     @Autowired
     private IStorageService storageService;
+
+    @Autowired
+    private IPermService permService;
 
     @Autowired
     private IResourceAttachmentService resourceAttachmentService;
@@ -144,6 +147,11 @@ public class ResourceRestController {
         return resourceService.save(rid, value, userSecurityUser.getUserId());
     }
 
+    @DeleteMapping("perm")
+    public ApiResponse<Integer> removePerm(Long pid) {
+        return permService.deleteByPrimaryKey(pid);
+    }
+
     @PostMapping("perm")
     public ApiResponse<String> perm(Authentication authentication,
                                       @RequestParam(value = "users") List<Long> users,
@@ -151,6 +159,24 @@ public class ResourceRestController {
                                       Long rid) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         return resourceService.perm(users, perm, rid, userSecurityUser.getUserId());
+    }
+
+    @GetMapping("perm")
+    public ApiResponse<TableResponse<ResourcePerm>> perm(Long rid, PageRequest pageRequest) {
+        ApiResponse<TableResponse<ResourcePerm>> apiResponse  = new ApiResponse<>();
+        ApiResponse<PageResponse<ResourcePerm>> list = resourceService.permed(rid, pageRequest.getPageBounds());
+
+        if (!list.getSuccess()) {
+            apiResponse.setResult(ErrorCodeConstant.NO_MATCH, ErrorCodeConstant.NO_MATCH_MSG);
+            return apiResponse;
+        }
+
+        TableResponse<ResourcePerm> pageResponse = new TableResponse<>();
+        pageResponse.setList(list.getData());
+        pageResponse.setPagination(list.getData().getPagination());
+        apiResponse.setData(pageResponse);
+
+        return apiResponse;
     }
 
     /**

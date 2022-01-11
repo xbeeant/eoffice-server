@@ -3,6 +3,7 @@ package io.github.xbeeant.eoffice.service;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.eoffice.model.Perm;
 import io.github.xbeeant.eoffice.model.User;
+import io.github.xbeeant.eoffice.po.PermType;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperService;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public interface IPermService extends IMybatisPageHelperService<Perm, Long> {
      * @return {@link Perm}
      * @see Perm
      */
-    Perm perm(Long targetId, Long uid, int type);
+    Perm perm(Long targetId, Long uid, PermType type);
 
     /**
      * 用户

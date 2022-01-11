@@ -5,7 +5,9 @@ import io.github.xbeeant.eoffice.model.Perm;
 import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.eoffice.model.Storage;
 import io.github.xbeeant.eoffice.model.User;
+import io.github.xbeeant.eoffice.rest.vo.ResourcePerm;
 import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
+import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperService;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import org.springframework.web.multipart.MultipartFile;
@@ -127,4 +129,15 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * @see String
      */
     ApiResponse<String> perm(List<Long> users, List<String> perm, Long rid, String actorId);
+
+    /**
+     * 烫
+     *
+     * @param rid 掉
+     * @param pageBounds pageBounds
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see PageResponse
+     */
+    ApiResponse<PageResponse<ResourcePerm>> permed(Long rid, PageBounds pageBounds);
 }

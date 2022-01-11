@@ -1,5 +1,6 @@
 package io.github.xbeeant.eoffice.service.impl;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
@@ -11,11 +12,14 @@ import io.github.xbeeant.eoffice.exception.ResourceMissingException;
 import io.github.xbeeant.eoffice.mapper.ResourceMapper;
 import io.github.xbeeant.eoffice.model.*;
 import io.github.xbeeant.eoffice.po.FullPerm;
+import io.github.xbeeant.eoffice.po.PermType;
+import io.github.xbeeant.eoffice.rest.vo.ResourcePerm;
 import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
 import io.github.xbeeant.eoffice.service.*;
 import io.github.xbeeant.eoffice.service.storage.StorageFactory;
 import io.github.xbeeant.eoffice.util.FileHelper;
 import io.github.xbeeant.http.Requests;
+import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import org.apache.commons.lang3.StringUtils;
@@ -108,7 +112,22 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         } else {
             PageMethod.orderBy("create_at desc");
         }
-        List<Resource> resources = resourceMapper.hasPermissionResources(fid, uid);
+
+        // 如果fid = 0 ，在首页，获取已经授权的文件夹 否则 判断是否已经授权了文件夹
+        List<Resource> resources;
+        if (fid == 0) {
+            resources = resourceMapper.hasPermissionResources(fid, uid);
+        } else {
+            Perm perm = permService.perm(fid, Long.valueOf(uid), PermType.FOLDER);
+            if (Boolean.FALSE.equals(perm.hasPermission())) {
+                result.setResult(ErrorCodeConstant.NO_MATCH, ErrorCodeConstant.NO_MATCH_MSG);
+                return result;
+            }
+            resources = resourceMapper.folderResources(fid);
+        }
+
+
+
         result.setData(resources);
         return result;
     }
@@ -201,7 +220,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
 
     @Override
     public Perm permission(Long rid, Long userId) {
-        return permService.perm(rid, userId, 0);
+        return permService.perm(rid, userId, PermType.FILE);
     }
 
     @Override
@@ -225,5 +244,23 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         }
         Integer type = "folder".equals(resourceApiResponse.getData().getExtension()) ? 1 : 0;
         return permService.perm(users, perm, rid, type, actorId);
+    }
+
+    @Override
+    public ApiResponse<PageResponse<ResourcePerm>> permed(Long rid, PageBounds pageBounds) {
+
+        ApiResponse<PageResponse<ResourcePerm>> apiResponse = new ApiResponse<>();
+
+        PageMethod.orderBy(pageBounds.getOrders());
+        PageMethod.startPage(pageBounds.getPage(), pageBounds.getLimit());
+        Page<ResourcePerm> result = resourceMapper.permed(rid);
+        if (result.isEmpty()) {
+            apiResponse.setResult(ErrorCodeConstant.NO_MATCH, ErrorCodeConstant.NO_MATCH_MSG);
+            return apiResponse;
+        }
+        PageResponse<ResourcePerm> pageList = new PageResponse<>(result, result.getTotal(), pageBounds.getPage());
+        apiResponse.setData(pageList);
+
+        return apiResponse;
     }
 }

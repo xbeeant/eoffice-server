@@ -15,7 +15,7 @@ public class StorageFactory {
 
     static {
         SERVICE_MAP.put("pdf", SpringContextProvider.getBean(FileStorageServiceImpl.class));
-        SERVICE_MAP.put("markdown", SpringContextProvider.getBean(DatabaseStorageServiceImpl.class));
+        SERVICE_MAP.put("md", SpringContextProvider.getBean(DatabaseStorageServiceImpl.class));
         SERVICE_MAP.put("sheet", SpringContextProvider.getBean(DatabaseStorageServiceImpl.class));
     }
 

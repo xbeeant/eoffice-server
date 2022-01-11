@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.github.xbeeant.eoffice.mapper.ResourceMapper">
+    <select id="folderResources" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from eoffice_resource
+        where fid = #{fid,jdbcType=BIGINT}
+    </select>
+
     <select id="hasPermissionResources" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -12,5 +19,20 @@
                 where uid = #{uid}
                   and (download = 1 or edit = 1 or print = 1 or view = 1 or share = 1)
                 )
+    </select>
+
+    <select id="permed" resultType="io.github.xbeeant.eoffice.rest.vo.ResourcePerm">
+        select u.nickname,
+               u.username,
+               p.pid,
+               p.download,
+               p.edit,
+               p.print,
+               p.view,
+               p.comment,
+               p.share
+        from eoffice_perm p
+                     left join eoffice_user u on u.uid = p.uid
+        where p.target_id = #{targetId,jdbcType=BIGINT}
     </select>
 </mapper>

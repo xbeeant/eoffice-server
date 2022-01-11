@@ -29,4 +29,16 @@
             </foreach>
         </where>
     </select>
+
+    <delete id="removeExists">
+        delete
+        from eoffice_perm
+        <where>
+            target_id = #{targetId,jdbcType=BIGINT}
+            and uid in
+            <foreach collection="uids" item="uid" open="(" close=")" separator=",">
+                #{uid,jdbcType=BIGINT}
+            </foreach>
+        </where>
+    </delete>
 </mapper>

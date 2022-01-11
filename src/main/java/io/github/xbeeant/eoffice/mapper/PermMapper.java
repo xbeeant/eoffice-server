@@ -45,4 +45,14 @@ public interface PermMapper extends IMybatisPageHelperDao<Perm, Long> {
      * @see Perm
      */
     List<Perm> exists(@Param("uids") List<Long> uids, @Param("targetId") Long targetId);
+
+    /**
+     * remove exists
+     *
+     * @param uids     uid
+     * @param targetId targetId
+     * @return {@link Integer}
+     * @see Integer
+     */
+    Integer removeExists(@Param("uids") List<Long> uids, @Param("targetId") Long targetId);
 }

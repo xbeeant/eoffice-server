@@ -4,12 +4,12 @@ import io.github.xbeeant.antdesign.MenuItem;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
-import io.github.xbeeant.eoffice.enums.PermTypeConstant;
 import io.github.xbeeant.eoffice.mapper.FolderMapper;
 import io.github.xbeeant.eoffice.model.Folder;
 import io.github.xbeeant.eoffice.model.Perm;
 import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.eoffice.po.FullPerm;
+import io.github.xbeeant.eoffice.po.PermType;
 import io.github.xbeeant.eoffice.service.IFolderService;
 import io.github.xbeeant.eoffice.service.IPermService;
 import io.github.xbeeant.eoffice.service.IResourceService;
@@ -84,7 +84,7 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         // 设置权益信息
         Perm perm = new FullPerm();
         perm.setTargetId(record.getFid());
-        perm.setType(PermTypeConstant.FOLDER);
+        perm.setType(PermType.FOLDER.getType());
         perm.setUid(uid);
         perm.setCreateBy(record.getCreateBy());
         perm.setUpdateBy(record.getCreateBy());
@@ -94,7 +94,7 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
     }
 
     @Override
-    public MenuItem parents(Long fid) {
+    public MenuItem menuItem(Long fid) {
         List<Folder> parents = folderMapper.parents(fid);
         // 移除重复的
         Set<Folder> cleanedFolders = new TreeSet<>(Comparator.comparing(Folder::getFid));
@@ -106,6 +106,20 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
     @Override
     public List<Folder> breadcrumb(Long fid) {
         return folderMapper.parents(fid);
+    }
+
+    @Override
+    public void updateSize(Long fid, Long size) {
+        List<Folder> parents = folderMapper.parents(fid);
+        List<Long> parentIds = new ArrayList<>(parents.size());
+        for (Folder folder : parents) {
+            parentIds.add(folder.getFid());
+        }
+        if(size > 0) {
+            folderMapper.updateSize(parentIds, size);
+        } else {
+            folderMapper.decreaseSize(parentIds, Math.abs(size));
+        }
     }
 
     @Override

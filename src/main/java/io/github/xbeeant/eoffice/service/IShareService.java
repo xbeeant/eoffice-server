@@ -33,10 +33,21 @@ public interface IShareService extends IMybatisPageHelperService<Share, Long> {
      * @param perm    权限
      * @param rid     资源ID
      * @param endtime
-     * @param actorId 用户标识
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see Share
      */
     ApiResponse<Share> share(List<Long> users, List<String> perm, Long rid, Date endtime);
+
+    /**
+     * myshare
+     *
+     * @param userId 用户标识
+     * @param pageBounds pageBounds
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see PageResponse
+     */
+    ApiResponse<PageResponse<ShareResourceVo>> myshare(String userId, PageBounds pageBounds);
+
 }

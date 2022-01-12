@@ -38,13 +38,13 @@
     </if>
     <if test="createAt != null">
       <if test="createAt.start == null and createAt.end == null">
-        and `create_at` = #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` = #{createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="createAt.start != null">
-        and `create_at` &gt;= #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &gt;= #{createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="createAt.end != null">
-        and `create_at` &lt;= #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &lt;= #{createAt,jdbcType=TIMESTAMP}
       </if>
     </if>
     <if test="createBy != null">
@@ -74,13 +74,13 @@
     </if>
     <if test="example.createAt != null">
       <if test="example.createAt.start == null and example.createAt.end == null">
-        and `create_at` = #{example.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` = #{example.createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.createAt.start != null">
-        and `create_at` &gt;= #{example.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &gt;= #{example.createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.createAt.end != null">
-        and `create_at` &lt;= #{example.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &lt;= #{example.createAt,jdbcType=TIMESTAMP}
       </if>
     </if>
     <if test="example.createBy != null">
@@ -149,7 +149,7 @@
       `size`, `create_at`, 
       `create_by`)
     values (#{vid,jdbcType=BIGINT}, #{rid,jdbcType=BIGINT}, #{sid,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
-      #{size,jdbcType=BIGINT}, #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}, 
+      #{size,jdbcType=BIGINT}, #{createAt,jdbcType=TIMESTAMP},
       #{createBy,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.github.xbeeant.eoffice.model.ResourceVersion">
@@ -199,7 +199,7 @@
         #{size,jdbcType=BIGINT},
       </if>
       <if test="createAt != null">
-        #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        #{createAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createBy != null">
         #{createBy,jdbcType=BIGINT},
@@ -241,7 +241,7 @@
         `size` = #{record.size,jdbcType=BIGINT},
       </if>
       <if test="record.createAt != null">
-        `create_at` = #{record.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `create_at` = #{record.createAt,jdbcType=TIMESTAMP},
       </if>
       <if test="record.createBy != null">
         `create_by` = #{record.createBy,jdbcType=BIGINT},
@@ -263,7 +263,7 @@
     `sid` = #{record.sid,jdbcType=BIGINT},
     `name` = #{record.name,jdbcType=VARCHAR},
     `size` = #{record.size,jdbcType=BIGINT},
-    `create_at` = #{record.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+    `create_at` = #{record.createAt,jdbcType=TIMESTAMP},
     `create_by` = #{record.createBy,jdbcType=BIGINT}
     <where>
       <include refid="Prefixed_Example_Where_Clause" />
@@ -290,7 +290,7 @@
         `size` = #{size,jdbcType=BIGINT},
       </if>
       <if test="createAt != null">
-        `create_at` = #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `create_at` = #{createAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createBy != null">
         `create_by` = #{createBy,jdbcType=BIGINT},
@@ -309,7 +309,7 @@
     `sid` = #{sid,jdbcType=BIGINT},
     `name` = #{name,jdbcType=VARCHAR},
     `size` = #{size,jdbcType=BIGINT},
-    `create_at` = #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+    `create_at` = #{createAt,jdbcType=TIMESTAMP},
     `create_by` = #{createBy,jdbcType=BIGINT}
     where
     `vid` = #{vid,jdbcType=BIGINT}
@@ -339,7 +339,7 @@
           size = #{item.size,jdbcType=BIGINT},
         </if>
         <if test="item.createAt != null ">
-          create_at = #{item.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          create_at = #{item.createAt,jdbcType=TIMESTAMP},
         </if>
         <if test="item.createBy != null ">
           create_by = #{item.createBy,jdbcType=BIGINT},
@@ -387,7 +387,7 @@
           `size` = #{item.size,jdbcType=BIGINT},
         </if>
         <if test="item.createAt != null">
-          `create_at` = #{item.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          `create_at` = #{item.createAt,jdbcType=TIMESTAMP},
         </if>
         <if test="item.createBy != null">
           `create_by` = #{item.createBy,jdbcType=BIGINT},

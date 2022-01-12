@@ -5,6 +5,7 @@ import io.github.xbeeant.eoffice.model.Share;
 import io.github.xbeeant.eoffice.rest.vo.ShareResourceVo;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @author mybatis code generator
@@ -22,4 +23,14 @@ public interface ShareMapper extends IMybatisPageHelperDao<Share, Long> {
      * @see ShareResourceVo
      */
     Page<ShareResourceVo> sharedToUser(String userId);
+
+    /**
+     * myshare
+     *
+     * @param userId 用户标识
+     * @return {@link Page}
+     * @see Page
+     * @see ShareResourceVo
+     */
+    Page<ShareResourceVo> myshare(@Param("userId") String userId);
 }

@@ -1,6 +1,5 @@
 package io.github.xbeeant.eoffice.rest;
 
-import io.github.xbeeant.antdesign.MenuItem;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.eoffice.model.Folder;
 import io.github.xbeeant.eoffice.model.User;
@@ -44,7 +43,6 @@ public class FolderRestController {
         folder.setName(name);
         folder.setPfid(pfid);
         folder.setCreateBy(principal.getUserId());
-
         return folderService.insertSelective(folder);
     }
 

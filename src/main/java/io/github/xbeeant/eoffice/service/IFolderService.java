@@ -24,12 +24,12 @@ public interface IFolderService extends IMybatisPageHelperService<Folder, Long> 
     /**
      * 所有父节点
      *
-     * @param fid 支撑材
+     * @param fid 目录ID
      * @return {@link List}
      * @see List
      * @see Folder
      */
-    MenuItem parents(Long fid);
+    MenuItem menuItem(Long fid);
 
     /**
      * 面包屑
@@ -40,4 +40,12 @@ public interface IFolderService extends IMybatisPageHelperService<Folder, Long> 
      * @see Folder
      */
     List<Folder> breadcrumb(Long fid);
+
+    /**
+     * update size
+     *
+     * @param fid 目录ID
+     * @param size 大小
+     */
+    void updateSize(Long fid, Long size);
 }

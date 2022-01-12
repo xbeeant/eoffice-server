@@ -32,7 +32,7 @@ spring:
         enabled: true
         url-pattern: "/druid/*"
         # IP白名单(没有配置或者为空，则允许所有访问)
-        allow: localhost
+        allow: localhost,127.0.0.1,10.113.10.2, 10.112.73.220
         # IP黑名单 (存在共同时，deny优先于allow)
         #deny: 192.168.1.100
         #  禁用HTML页面上的“Reset All”功能
@@ -47,7 +47,7 @@ spring:
             multi-statement-allow: true
             delete-where-none-check: true
             update-where-none-check: true
-      validation-query: SELECT 1
+          enabled: true
   session:
     store-type: jdbc
     jdbc:

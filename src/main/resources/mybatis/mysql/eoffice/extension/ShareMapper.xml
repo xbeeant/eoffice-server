@@ -11,6 +11,7 @@
         <association property="resource" javaType="io.github.xbeeant.eoffice.rest.vo.ResourceVo">
             <result column="fid" jdbcType="BIGINT" property="fid"/>
             <result column="sid" jdbcType="BIGINT" property="sid"/>
+            <result column="rid" jdbcType="BIGINT" property="rid"/>
             <result column="name" jdbcType="VARCHAR" property="name"/>
             <result column="extension" jdbcType="VARCHAR" property="extension"/>
             <result column="size" jdbcType="BIGINT" property="size"/>
@@ -30,6 +31,37 @@
             </association>
         </association>
     </resultMap>
+
+    <select id="myshare" resultMap="ShareResourceMap">
+        select es.share_id,
+               es.auth_code,
+               es.url,
+               es.type,
+               es.endtime,
+               er.fid,
+               er.rid,
+               er.sid,
+               er.name,
+               er.extension,
+               er.size,
+               er.display_order,
+               er.path,
+               er.create_at,
+               er.create_by,
+               er.update_at,
+               ep.pid,
+               ep.download,
+               ep.edit,
+               ep.print,
+               ep.view,
+               ep.comment,
+               ep.share
+        from eoffice_share es
+                     left join eoffice_resource er on er.rid = es.target_id
+                     left join eoffice_perm ep on ep.target_id = es.share_id
+        where es.deleted = 0
+          and es.create_by = #{userId,jdbcType=VARCHAR}
+    </select>
 
     <select id="sharedToUser" resultMap="ShareResourceMap">
         select es.share_id,
@@ -58,14 +90,15 @@
         from eoffice_share es
                      left join eoffice_resource er on er.rid = es.target_id
                      left join eoffice_perm ep on ep.target_id = es.share_id
-        where es.deleted = 0 and es.share_id in (
+        where es.deleted = 0
+          and es.share_id in (
                 select share_id
                 from eoffice_share_range
-                where es.target_id = #{userId,jdbcType=VARCHAR}
+                where target_id = #{userId,jdbcType=VARCHAR}
                 union
                 select share_id
                 from eoffice_share_range
-                where es.target_id in (
+                where target_id in (
                         select gid
                         from eoffice_user_group
                         where uid = #{userId,jdbcType=VARCHAR}

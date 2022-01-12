@@ -16,6 +16,7 @@ import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -47,6 +49,9 @@ public class ResourceRestController {
 
     @Autowired
     private IResourceAttachmentService resourceAttachmentService;
+
+    @Autowired
+    private IFolderService folderService;
 
     @PostMapping("rename")
     public ApiResponse<Resource> update(String name, Long rid) {
@@ -77,7 +82,6 @@ public class ResourceRestController {
         String sorter = AntDesignUtil.translateOrder(pageRequest.getSorter());
         pageRequest.setSorter(sorter);
 
-        // todo 权益
         apiResponse = resourceService.hasPermissionResources(fid, userSecurityUser.getUserId(), pageRequest.getPageBounds());
         apiResponse.setCode(0);
 
@@ -155,6 +159,50 @@ public class ResourceRestController {
         return resourceService.save(rid, value, userSecurityUser.getUserId());
     }
 
+    /**
+     * 删除
+     *
+     * @param rid 资源ID
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see Integer
+     */
+    @DeleteMapping("")
+    @Transactional
+    public ApiResponse<Integer> delete(@RequestParam(value = "rid") List<Long> rids) {
+        for (Long rid : rids) {
+            // 判断资源的类型，如果是文件夹，先要求清空文件夹后再删除文件夹
+            ApiResponse<Resource> resourceApiResponse = resourceService.selectByPrimaryKey(rid);
+            if (!resourceApiResponse.getSuccess()) {
+                return new ApiResponse<>();
+            }
+
+            Resource data = resourceApiResponse.getData();
+            if ("folder".equals(data.getExtension())) {
+                Resource example = new Resource();
+                example.setDeleted(false);
+                example.setFid(rid);
+                ApiResponse<Resource> childItemResponse = resourceService.selectOneByExample(example);
+                if (childItemResponse.getSuccess()) {
+                    ApiResponse<Integer> response = new ApiResponse<>();
+                    response.setResult(ErrorCodeConstant.CONFLICT, resourceApiResponse.getData().getName() + "文件夹下还有文件（夹），请先删除该文件夹下的文件（夹）！");
+                    return response;
+                }
+            }
+
+            Resource resource = new Resource();
+            resource.setRid(rid);
+            resource.setDeleted(true);
+            resource.setDeleteAt(new Date());
+            resourceService.updateByPrimaryKeySelective(resource);
+
+            // 文件夹的空间减少
+            folderService.updateSize(data.getFid(), -data.getSize());
+        }
+
+        return new ApiResponse<>();
+    }
+
     @DeleteMapping("perm")
     public ApiResponse<Integer> removePerm(Long pid) {
         return permService.deleteByPrimaryKey(pid);
@@ -162,15 +210,15 @@ public class ResourceRestController {
 
     @PostMapping("perm")
     public ApiResponse<String> perm(Authentication authentication,
-                                      @RequestParam(value = "users") List<Long> users,
-                                      @RequestParam(value = "perm") List<String> perm,
-                                      Long rid) {
+                                    @RequestParam(value = "users") List<Long> users,
+                                    @RequestParam(value = "perm") List<String> perm,
+                                    Long rid) {
         return resourceService.perm(users, perm, rid);
     }
 
     @GetMapping("perm")
     public ApiResponse<TableResponse<ResourcePerm>> perm(Long rid, PageRequest pageRequest) {
-        ApiResponse<TableResponse<ResourcePerm>> apiResponse  = new ApiResponse<>();
+        ApiResponse<TableResponse<ResourcePerm>> apiResponse = new ApiResponse<>();
         ApiResponse<PageResponse<ResourcePerm>> list = resourceService.permed(rid, pageRequest.getPageBounds());
 
         if (!list.getSuccess()) {

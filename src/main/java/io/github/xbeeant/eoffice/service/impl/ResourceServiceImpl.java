@@ -7,7 +7,6 @@ import io.github.xbeeant.core.ErrorCodeConstant;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.core.JsonHelper;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
-import io.github.xbeeant.eoffice.enums.PermTypeConstant;
 import io.github.xbeeant.eoffice.exception.FileSaveFailedException;
 import io.github.xbeeant.eoffice.exception.ResourceMissingException;
 import io.github.xbeeant.eoffice.mapper.ResourceMapper;
@@ -106,21 +105,27 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     @Override
     public ApiResponse<List<Resource>> hasPermissionResources(Long fid, String uid, PageBounds pageBounds) {
         ApiResponse<List<Resource>> result = new ApiResponse<>();
-        if (!StringUtils.isEmpty(pageBounds.getOrders())) {
-            PageMethod.orderBy(pageBounds.getOrders());
-        } else {
-            PageMethod.orderBy("create_at desc");
-        }
+
 
         // 如果fid = 0 ，在首页，获取已经授权的文件夹 否则 判断是否已经授权了文件夹
         List<Resource> resources;
         if (fid == 0) {
+            if (!StringUtils.isEmpty(pageBounds.getOrders())) {
+                PageMethod.orderBy(pageBounds.getOrders());
+            } else {
+                PageMethod.orderBy("create_at desc");
+            }
             resources = resourceMapper.hasPermissionResources(fid, uid);
         } else {
             Perm perm = permService.perm(fid, Long.valueOf(uid), PermType.FOLDER);
             if (Boolean.FALSE.equals(perm.hasPermission())) {
                 result.setResult(ErrorCodeConstant.NO_MATCH, ErrorCodeConstant.NO_MATCH_MSG);
                 return result;
+            }
+            if (!StringUtils.isEmpty(pageBounds.getOrders())) {
+                PageMethod.orderBy(pageBounds.getOrders());
+            } else {
+                PageMethod.orderBy("create_at desc");
             }
             resources = resourceMapper.folderResources(fid);
         }
@@ -209,8 +214,11 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         perm.setCreateBy(uid);
         perm.setTargetId(resource.getRid());
         perm.setUid(Long.valueOf(uid));
-        perm.setType(PermTypeConstant.RESOURCE);
+        perm.setType(PermType.FILE.getType());
         permService.insertSelective(perm);
+
+        // 更新文件夹的存储空间
+        folderService.updateSize(fid, resource.getSize());
 
         resource.setPerm(perm);
         return resource;

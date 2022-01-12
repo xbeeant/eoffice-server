@@ -22,6 +22,7 @@ import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -95,11 +96,27 @@ public class ShareServiceImpl extends AbstractSecurityMybatisPageHelperServiceIm
         ShareRange shareRange;
         for (Long uid : users) {
             shareRange = new ShareRange();
+            shareRange.setShareId(share.getShareId());
             shareRange.setTargetId(uid);
             shareRange.setType(PermType.SHARE_FOLDER.getType());
             shareRanges.add(shareRange);
         }
         shareRangeService.batchInsertSelective(shareRanges);
         return new ApiResponse<>();
+    }
+
+    @Override
+    public ApiResponse<PageResponse<ShareResourceVo>> myshare(String userId, PageBounds pageBounds) {
+        ApiResponse<PageResponse<ShareResourceVo>> apiResponse = new ApiResponse<>();
+        PageMethod.orderBy(pageBounds.getOrders());
+        PageMethod.startPage(pageBounds.getPage(), pageBounds.getLimit());
+        Page<ShareResourceVo> result = shareMapper.myshare(userId);
+        if (result.isEmpty()) {
+            apiResponse.setResult(ErrorCodeConstant.NO_MATCH, ErrorCodeConstant.NO_MATCH_MSG);
+            return apiResponse;
+        }
+        PageResponse<ShareResourceVo> pageList = new PageResponse<>(result, result.getTotal(), pageBounds.getPage());
+        apiResponse.setData(pageList);
+        return apiResponse;
     }
 }

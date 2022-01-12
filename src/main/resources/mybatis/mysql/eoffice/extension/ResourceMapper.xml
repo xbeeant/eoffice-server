@@ -5,14 +5,14 @@
         select
         <include refid="Base_Column_List"/>
         from eoffice_resource
-        where fid = #{fid,jdbcType=BIGINT}
+        where fid = #{fid,jdbcType=BIGINT} and deleted = 0
     </select>
 
     <select id="hasPermissionResources" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from eoffice_resource
-        where fid = #{fid,jdbcType=BIGINT}
+        where fid = #{fid,jdbcType=BIGINT} and deleted = 0
           and rid in (
                 select target_id
                 from eoffice_perm

@@ -1,6 +1,5 @@
 package io.github.xbeeant.eoffice.rest;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import io.github.xbeeant.antdesign.TableResponse;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
@@ -29,6 +28,30 @@ public class ShareRestController {
 
     @Autowired
     private IShareService shareService;
+
+    @GetMapping("myshare")
+    public ApiResponse<TableResponse<ShareResourceVo>> myshare(Authentication authentication, PageRequest pageRequest) {
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+
+        ApiResponse<TableResponse<ShareResourceVo>> apiResponse = new ApiResponse<>();
+
+        String sorter = AntDesignUtil.translateOrder(pageRequest.getSorter());
+        pageRequest.setSorter(sorter);
+
+        ApiResponse<PageResponse<ShareResourceVo>> list = shareService.myshare(userSecurityUser.getUserId(), pageRequest.getPageBounds());
+
+        if (!list.getSuccess()) {
+            apiResponse.setResult(ErrorCodeConstant.NO_MATCH, ErrorCodeConstant.NO_MATCH_MSG);
+            return apiResponse;
+        }
+
+        TableResponse<ShareResourceVo> pageResponse = new TableResponse<>();
+        pageResponse.setList(list.getData());
+        pageResponse.setPagination(list.getData().getPagination());
+        apiResponse.setData(pageResponse);
+
+        return apiResponse;
+    }
 
     @GetMapping("")
     public ApiResponse<TableResponse<ShareResourceVo>> list(Authentication authentication, PageRequest pageRequest) {

@@ -5,7 +5,7 @@
         select fid, pfid, name, icon, path, display_order
         from eoffice_folder
         where deleted = 0
-          and fid in (select target_id from eoffice_perm where type = 1 and uid = #{userId,jdbcType=VARCHAR})
+          and fid in (select target_id from eoffice_perm where type = 10 and uid = #{userId,jdbcType=VARCHAR})
     </select>
 
     <select id="subFolders" resultMap="BaseResultMap">
@@ -27,15 +27,35 @@
     <select id="parents" resultMap="BaseResultMap">
         SELECT t2.*
         FROM (
-                     SELECT @r AS _id,
-		( SELECT @r := pfid FROM eoffice_folder WHERE fid = _id ) AS pfid,
-		@l := @l + 1 AS lvl
-                     FROM
-                             ( SELECT @r := #{fid,jdbcType=BIGINT}, @l := 0 ) vars,
-                             eoffice_folder AS h
-                     WHERE
-                             @r &lt;&gt; 0
+                     SELECT @r                                                      AS _id,
+                            (SELECT @r := pfid FROM eoffice_folder WHERE fid = _id) AS pfid,
+                            @l := @l + 1                                            AS lvl
+                     FROM (SELECT @r := #{fid,jdbcType=BIGINT}, @l := 0) vars,
+                          eoffice_folder AS h
+                     WHERE @r &lt;&gt; 0
                      ) t1
                      JOIN eoffice_folder t2 ON t1._id = t2.fid
     </select>
+
+    <update id="updateSize">
+        <foreach collection="fids" item="fid">
+            update eoffice_folder
+            set size = size + #{size,jdbcType=BIGINT}
+            where fid = #{fid,jdbcType=BIGINT};
+                    update eoffice_resource
+                    set size = size + #{size,jdbcType=BIGINT}
+                    where rid = #{fid,jdbcType=BIGINT};
+        </foreach>
+    </update>
+
+    <update id="decreaseSize">
+        <foreach collection="fids" item="fid">
+            update eoffice_folder
+            set size = size - #{size,jdbcType=BIGINT}
+            where fid = #{fid,jdbcType=BIGINT};
+            update eoffice_resource
+            set size = size - #{size,jdbcType=BIGINT}
+            where rid = #{fid,jdbcType=BIGINT};
+        </foreach>
+    </update>
 </mapper>

@@ -12,9 +12,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class WebCorsConfig implements WebMvcConfigurer {
+    static final String[] ORIGINS = new String[]{"GET", "POST", "PUT", "DELETE"};
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**");
+        registry.addMapping("/api/**").allowedOrigins("*").allowedMethods(ORIGINS);
     }
 }

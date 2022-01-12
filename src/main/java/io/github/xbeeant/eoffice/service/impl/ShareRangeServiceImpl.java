@@ -27,8 +27,8 @@ public class ShareRangeServiceImpl extends AbstractSecurityMybatisPageHelperServ
 
     @Override
     public void setDefaults(ShareRange sharerange) {
-        if (sharerange.getShareId() == null) {
-            sharerange.setShareId(IdWorker.getId());
+        if (sharerange.getSrid() == null) {
+            sharerange.setSrid(IdWorker.getId());
         }
     }
 }

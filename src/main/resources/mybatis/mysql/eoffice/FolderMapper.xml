@@ -14,11 +14,11 @@
     <result column="icon" jdbcType="VARCHAR" property="icon" />
     <result column="path" jdbcType="VARCHAR" property="path" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
-    <result column="create_at" jdbcType="TIMESTAMP" property="createAt" typeHandler="io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler" />
+    <result column="create_at" jdbcType="TIMESTAMP" property="createAt"  />
     <result column="create_by" jdbcType="BIGINT" property="createBy" />
-    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" typeHandler="io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"  />
     <result column="update_by" jdbcType="BIGINT" property="updateBy" />
-    <result column="delete_at" jdbcType="TIMESTAMP" property="deleteAt" typeHandler="io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler" />
+    <result column="delete_at" jdbcType="TIMESTAMP" property="deleteAt"  />
   </resultMap>
   <sql id="Example_Where_Clause">
     <!--
@@ -49,13 +49,13 @@
     </if>
     <if test="createAt != null">
       <if test="createAt.start == null and createAt.end == null">
-        and `create_at` = #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` = #{createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="createAt.start != null">
-        and `create_at` &gt;= #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &gt;= #{createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="createAt.end != null">
-        and `create_at` &lt;= #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &lt;= #{createAt,jdbcType=TIMESTAMP}
       </if>
     </if>
     <if test="createBy != null">
@@ -63,13 +63,13 @@
     </if>
     <if test="updateAt != null">
       <if test="updateAt.start == null and updateAt.end == null">
-        and `update_at` = #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `update_at` = #{updateAt,jdbcType=TIMESTAMP}
       </if>
       <if test="updateAt.start != null">
-        and `update_at` &gt;= #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `update_at` &gt;= #{updateAt,jdbcType=TIMESTAMP}
       </if>
       <if test="updateAt.end != null">
-        and `update_at` &lt;= #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `update_at` &lt;= #{updateAt,jdbcType=TIMESTAMP}
       </if>
     </if>
     <if test="updateBy != null">
@@ -77,13 +77,13 @@
     </if>
     <if test="deleteAt != null">
       <if test="deleteAt.start == null and deleteAt.end == null">
-        and `delete_at` = #{deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `delete_at` = #{deleteAt,jdbcType=TIMESTAMP}
       </if>
       <if test="deleteAt.start != null">
-        and `delete_at` &gt;= #{deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `delete_at` &gt;= #{deleteAt,jdbcType=TIMESTAMP}
       </if>
       <if test="deleteAt.end != null">
-        and `delete_at` &lt;= #{deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `delete_at` &lt;= #{deleteAt,jdbcType=TIMESTAMP}
       </if>
     </if>
   </sql>
@@ -116,13 +116,13 @@
     </if>
     <if test="example.createAt != null">
       <if test="example.createAt.start == null and example.createAt.end == null">
-        and `create_at` = #{example.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` = #{example.createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.createAt.start != null">
-        and `create_at` &gt;= #{example.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &gt;= #{example.createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.createAt.end != null">
-        and `create_at` &lt;= #{example.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &lt;= #{example.createAt,jdbcType=TIMESTAMP}
       </if>
     </if>
     <if test="example.createBy != null">
@@ -130,13 +130,13 @@
     </if>
     <if test="example.updateAt != null">
       <if test="example.updateAt.start == null and example.updateAt.end == null">
-        and `update_at` = #{example.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `update_at` = #{example.updateAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.updateAt.start != null">
-        and `update_at` &gt;= #{example.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `update_at` &gt;= #{example.updateAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.updateAt.end != null">
-        and `update_at` &lt;= #{example.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `update_at` &lt;= #{example.updateAt,jdbcType=TIMESTAMP}
       </if>
     </if>
     <if test="example.updateBy != null">
@@ -144,13 +144,13 @@
     </if>
     <if test="example.deleteAt != null">
       <if test="example.deleteAt.start == null and example.deleteAt.end == null">
-        and `delete_at` = #{example.deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `delete_at` = #{example.deleteAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.deleteAt.start != null">
-        and `delete_at` &gt;= #{example.deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `delete_at` &gt;= #{example.deleteAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.deleteAt.end != null">
-        and `delete_at` &lt;= #{example.deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `delete_at` &lt;= #{example.deleteAt,jdbcType=TIMESTAMP}
       </if>
     </if>
   </sql>
@@ -221,9 +221,9 @@
       )
     values (#{fid,jdbcType=BIGINT}, #{pfid,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
       #{displayOrder,jdbcType=SMALLINT}, #{icon,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
-      #{deleted,jdbcType=BIT}, #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}, 
-      #{createBy,jdbcType=BIGINT}, #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}, 
-      #{updateBy,jdbcType=BIGINT}, #{deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+      #{deleted,jdbcType=BIT}, #{createAt,jdbcType=TIMESTAMP},
+      #{createBy,jdbcType=BIGINT}, #{updateAt,jdbcType=TIMESTAMP},
+      #{updateBy,jdbcType=BIGINT}, #{deleteAt,jdbcType=TIMESTAMP}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.github.xbeeant.eoffice.model.Folder">
@@ -294,19 +294,19 @@
         #{deleted,jdbcType=BIT},
       </if>
       <if test="createAt != null">
-        #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        #{createAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createBy != null">
         #{createBy,jdbcType=BIGINT},
       </if>
       <if test="updateAt != null">
-        #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        #{updateAt,jdbcType=TIMESTAMP},
       </if>
       <if test="updateBy != null">
         #{updateBy,jdbcType=BIGINT},
       </if>
       <if test="deleteAt != null">
-        #{deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        #{deleteAt,jdbcType=TIMESTAMP},
       </if>
     </trim>
   </insert>
@@ -351,19 +351,19 @@
         `deleted` = #{record.deleted,jdbcType=BIT},
       </if>
       <if test="record.createAt != null">
-        `create_at` = #{record.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `create_at` = #{record.createAt,jdbcType=TIMESTAMP},
       </if>
       <if test="record.createBy != null">
         `create_by` = #{record.createBy,jdbcType=BIGINT},
       </if>
       <if test="record.updateAt != null">
-        `update_at` = #{record.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `update_at` = #{record.updateAt,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateBy != null">
         `update_by` = #{record.updateBy,jdbcType=BIGINT},
       </if>
       <if test="record.deleteAt != null">
-        `delete_at` = #{record.deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `delete_at` = #{record.deleteAt,jdbcType=TIMESTAMP},
       </if>
     </set>
     <where>
@@ -384,11 +384,11 @@
     `icon` = #{record.icon,jdbcType=VARCHAR},
     `path` = #{record.path,jdbcType=VARCHAR},
     `deleted` = #{record.deleted,jdbcType=BIT},
-    `create_at` = #{record.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+    `create_at` = #{record.createAt,jdbcType=TIMESTAMP},
     `create_by` = #{record.createBy,jdbcType=BIGINT},
-    `update_at` = #{record.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+    `update_at` = #{record.updateAt,jdbcType=TIMESTAMP},
     `update_by` = #{record.updateBy,jdbcType=BIGINT},
-    `delete_at` = #{record.deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+    `delete_at` = #{record.deleteAt,jdbcType=TIMESTAMP}
     <where>
       <include refid="Prefixed_Example_Where_Clause" />
     </where>
@@ -420,19 +420,19 @@
         `deleted` = #{deleted,jdbcType=BIT},
       </if>
       <if test="createAt != null">
-        `create_at` = #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `create_at` = #{createAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createBy != null">
         `create_by` = #{createBy,jdbcType=BIGINT},
       </if>
       <if test="updateAt != null">
-        `update_at` = #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `update_at` = #{updateAt,jdbcType=TIMESTAMP},
       </if>
       <if test="updateBy != null">
         `update_by` = #{updateBy,jdbcType=BIGINT},
       </if>
       <if test="deleteAt != null">
-        `delete_at` = #{deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `delete_at` = #{deleteAt,jdbcType=TIMESTAMP},
       </if>
     </set>
     where `fid` = #{key,jdbcType=BIGINT}
@@ -450,11 +450,11 @@
     `icon` = #{icon,jdbcType=VARCHAR},
     `path` = #{path,jdbcType=VARCHAR},
     `deleted` = #{deleted,jdbcType=BIT},
-    `create_at` = #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+    `create_at` = #{createAt,jdbcType=TIMESTAMP},
     `create_by` = #{createBy,jdbcType=BIGINT},
-    `update_at` = #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+    `update_at` = #{updateAt,jdbcType=TIMESTAMP},
     `update_by` = #{updateBy,jdbcType=BIGINT},
-    `delete_at` = #{deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+    `delete_at` = #{deleteAt,jdbcType=TIMESTAMP}
     where
     `fid` = #{fid,jdbcType=BIGINT}
   </update>
@@ -489,19 +489,19 @@
           deleted = #{item.deleted,jdbcType=BIT},
         </if>
         <if test="item.createAt != null ">
-          create_at = #{item.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          create_at = #{item.createAt,jdbcType=TIMESTAMP},
         </if>
         <if test="item.createBy != null ">
           create_by = #{item.createBy,jdbcType=BIGINT},
         </if>
         <if test="item.updateAt != null ">
-          update_at = #{item.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          update_at = #{item.updateAt,jdbcType=TIMESTAMP},
         </if>
         <if test="item.updateBy != null ">
           update_by = #{item.updateBy,jdbcType=BIGINT},
         </if>
         <if test="item.deleteAt != null ">
-          delete_at = #{item.deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          delete_at = #{item.deleteAt,jdbcType=TIMESTAMP},
         </if>
       </set>
     </foreach>
@@ -552,19 +552,19 @@
           `deleted` = #{item.deleted,jdbcType=BIT},
         </if>
         <if test="item.createAt != null">
-          `create_at` = #{item.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          `create_at` = #{item.createAt,jdbcType=TIMESTAMP},
         </if>
         <if test="item.createBy != null">
           `create_by` = #{item.createBy,jdbcType=BIGINT},
         </if>
         <if test="item.updateAt != null">
-          `update_at` = #{item.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          `update_at` = #{item.updateAt,jdbcType=TIMESTAMP},
         </if>
         <if test="item.updateBy != null">
           `update_by` = #{item.updateBy,jdbcType=BIGINT},
         </if>
         <if test="item.deleteAt != null">
-          `delete_at` = #{item.deleteAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          `delete_at` = #{item.deleteAt,jdbcType=TIMESTAMP},
         </if>
       </set>
       where `fid` = #{item.key,jdbcType=BIGINT}

@@ -13,7 +13,7 @@
     <result column="md5" jdbcType="VARCHAR" property="md5" />
     <result column="extension" jdbcType="VARCHAR" property="extension" />
     <result column="path" jdbcType="VARCHAR" property="path" />
-    <result column="create_at" jdbcType="TIMESTAMP" property="createAt" typeHandler="io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler" />
+    <result column="create_at" jdbcType="TIMESTAMP" property="createAt"  />
   </resultMap>
   <sql id="Example_Where_Clause">
     <!--
@@ -41,13 +41,13 @@
     </if>
     <if test="createAt != null">
       <if test="createAt.start == null and createAt.end == null">
-        and `create_at` = #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` = #{createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="createAt.start != null">
-        and `create_at` &gt;= #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &gt;= #{createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="createAt.end != null">
-        and `create_at` &lt;= #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &lt;= #{createAt,jdbcType=TIMESTAMP}
       </if>
     </if>
   </sql>
@@ -77,13 +77,13 @@
     </if>
     <if test="example.createAt != null">
       <if test="example.createAt.start == null and example.createAt.end == null">
-        and `create_at` = #{example.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` = #{example.createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.createAt.start != null">
-        and `create_at` &gt;= #{example.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &gt;= #{example.createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.createAt.end != null">
-        and `create_at` &lt;= #{example.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &lt;= #{example.createAt,jdbcType=TIMESTAMP}
       </if>
     </if>
   </sql>
@@ -151,7 +151,7 @@
       )
     values (#{sid,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, 
       #{md5,jdbcType=VARCHAR}, #{extension,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
-      #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+      #{createAt,jdbcType=TIMESTAMP}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.github.xbeeant.eoffice.model.Storage">
@@ -204,7 +204,7 @@
         #{path,jdbcType=VARCHAR},
       </if>
       <if test="createAt != null">
-        #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        #{createAt,jdbcType=TIMESTAMP},
       </if>
     </trim>
   </insert>
@@ -246,7 +246,7 @@
         `path` = #{record.path,jdbcType=VARCHAR},
       </if>
       <if test="record.createAt != null">
-        `create_at` = #{record.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `create_at` = #{record.createAt,jdbcType=TIMESTAMP},
       </if>
     </set>
     <where>
@@ -266,7 +266,7 @@
     `md5` = #{record.md5,jdbcType=VARCHAR},
     `extension` = #{record.extension,jdbcType=VARCHAR},
     `path` = #{record.path,jdbcType=VARCHAR},
-    `create_at` = #{record.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+    `create_at` = #{record.createAt,jdbcType=TIMESTAMP}
     <where>
       <include refid="Prefixed_Example_Where_Clause" />
     </where>
@@ -295,7 +295,7 @@
         `path` = #{path,jdbcType=VARCHAR},
       </if>
       <if test="createAt != null">
-        `create_at` = #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `create_at` = #{createAt,jdbcType=TIMESTAMP},
       </if>
     </set>
     where `sid` = #{key,jdbcType=BIGINT}
@@ -312,7 +312,7 @@
     `md5` = #{md5,jdbcType=VARCHAR},
     `extension` = #{extension,jdbcType=VARCHAR},
     `path` = #{path,jdbcType=VARCHAR},
-    `create_at` = #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+    `create_at` = #{createAt,jdbcType=TIMESTAMP}
     where
     `sid` = #{sid,jdbcType=BIGINT}
   </update>
@@ -344,7 +344,7 @@
           path = #{item.path,jdbcType=VARCHAR},
         </if>
         <if test="item.createAt != null ">
-          create_at = #{item.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          create_at = #{item.createAt,jdbcType=TIMESTAMP},
         </if>
       </set>
     </foreach>
@@ -392,7 +392,7 @@
           `path` = #{item.path,jdbcType=VARCHAR},
         </if>
         <if test="item.createAt != null">
-          `create_at` = #{item.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          `create_at` = #{item.createAt,jdbcType=TIMESTAMP},
         </if>
       </set>
       where `sid` = #{item.key,jdbcType=BIGINT}

@@ -46,5 +46,5 @@ public interface IPermService extends IMybatisPageHelperService<Perm, Long> {
      * @see ApiResponse
      * @see String
      */
-    ApiResponse<String> perm(List<Long> users, List<String> perm, Long targetId, Integer type, String actorId);
+    ApiResponse<String> perm(List<Long> users, List<String> perm, Long targetId, PermType type);
 }

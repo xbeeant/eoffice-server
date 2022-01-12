@@ -48,6 +48,14 @@ public class ResourceRestController {
     @Autowired
     private IResourceAttachmentService resourceAttachmentService;
 
+    @PostMapping("rename")
+    public ApiResponse<Resource> update(String name, Long rid) {
+        Resource resource = new Resource();
+        resource.setRid(rid);
+        resource.setName(name);
+        return resourceService.updateByPrimaryKeySelective(resource);
+    }
+
     /**
      * 资源列表
      *
@@ -157,8 +165,7 @@ public class ResourceRestController {
                                       @RequestParam(value = "users") List<Long> users,
                                       @RequestParam(value = "perm") List<String> perm,
                                       Long rid) {
-        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
-        return resourceService.perm(users, perm, rid, userSecurityUser.getUserId());
+        return resourceService.perm(users, perm, rid);
     }
 
     @GetMapping("perm")

@@ -5,8 +5,10 @@ package io.github.xbeeant.eoffice.po;
  * @date 2022/1/11
  */
 public enum PermType {
-    FOLDER(1),
-    FILE(0);
+    FOLDER(10),
+    SHARE_FOLDER(11),
+    FILE(20),
+    SHARE_FILE(21);
 
     private Integer type;
 

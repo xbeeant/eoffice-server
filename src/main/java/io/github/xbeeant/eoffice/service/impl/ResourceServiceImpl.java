@@ -5,6 +5,7 @@ import com.github.pagehelper.page.PageMethod;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
 import io.github.xbeeant.core.IdWorker;
+import io.github.xbeeant.core.JsonHelper;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
 import io.github.xbeeant.eoffice.enums.PermTypeConstant;
 import io.github.xbeeant.eoffice.exception.FileSaveFailedException;
@@ -23,7 +24,6 @@ import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -75,8 +75,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         if (!resourceApiResponse.getSuccess()) {
             throw new ResourceMissingException("文件丢了");
         }
-        ResourceVo resourceVo = new ResourceVo();
-        BeanUtils.copyProperties(resourceApiResponse.getData(), resourceVo);
+        ResourceVo resourceVo = JsonHelper.copy(resourceApiResponse.getData(), ResourceVo.class);
         resourceVo.setUrl("/api/resource/s?sid=" + resourceApiResponse.getData().getSid() + "&rid=" + rid);
         result.setData(resourceVo);
         return result;
@@ -125,7 +124,6 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             }
             resources = resourceMapper.folderResources(fid);
         }
-
 
 
         result.setData(resources);
@@ -235,15 +233,15 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     }
 
     @Override
-    public ApiResponse<String> perm(List<Long> users, List<String> perm, Long rid, String actorId) {
+    public ApiResponse<String> perm(List<Long> users, List<String> perm, Long rid) {
         ApiResponse<Resource> resourceApiResponse = selectByPrimaryKey(rid);
         if (!resourceApiResponse.getSuccess()) {
             ApiResponse<String> result = new ApiResponse<>();
             result.setResult(ErrorCodeConstant.NO_MATCH, "资源已被删除");
             return result;
         }
-        Integer type = "folder".equals(resourceApiResponse.getData().getExtension()) ? 1 : 0;
-        return permService.perm(users, perm, rid, type, actorId);
+        PermType type = "folder".equals(resourceApiResponse.getData().getExtension()) ? PermType.FOLDER : PermType.FILE;
+        return permService.perm(users, perm, rid, type);
     }
 
     @Override

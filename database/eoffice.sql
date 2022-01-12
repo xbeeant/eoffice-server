@@ -11,7 +11,7 @@
  Target Server Version : 100604
  File Encoding         : 65001
 
- Date: 06/01/2022 16:08:20
+ Date: 12/01/2022 14:51:56
 */
 
 SET NAMES utf8mb4;
@@ -25,7 +25,7 @@ CREATE TABLE `eoffice_config` (
   `cid` bigint(20) NOT NULL,
   `module` varchar(50) DEFAULT NULL COMMENT '模块',
   `ckey` varchar(50) DEFAULT NULL COMMENT '配置key',
-  `cvalue` varchar(100) DEFAULT NULL COMMENT '配置value',
+  `cvalue` text DEFAULT NULL COMMENT '配置value',
   `create_at` datetime DEFAULT NULL,
   `create_by` bigint(20) DEFAULT NULL,
   `update_at` datetime DEFAULT NULL,
@@ -95,6 +95,23 @@ CREATE TABLE `eoffice_folder` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='目录';
 
 -- ----------------------------
+-- Table structure for eoffice_group
+-- ----------------------------
+DROP TABLE IF EXISTS `eoffice_group`;
+CREATE TABLE `eoffice_group` (
+  `gid` bigint(20) NOT NULL COMMENT '分组ID',
+  `name` varchar(50) DEFAULT NULL COMMENT '分组名称',
+  `pgid` bigint(20) unsigned DEFAULT 0 COMMENT '父分组ID',
+  `type` int(1) DEFAULT NULL COMMENT '0 系统分组 1 用户自定义分组',
+  `create_at` datetime DEFAULT NULL,
+  `create_by` bigint(20) DEFAULT NULL,
+  `update_at` datetime DEFAULT NULL,
+  `update_by` bigint(20) DEFAULT NULL,
+  `extra_id` varchar(36) DEFAULT '' COMMENT '外部系统的ID',
+  PRIMARY KEY (`gid`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='分组';
+
+-- ----------------------------
 -- Table structure for eoffice_perm
 -- ----------------------------
 DROP TABLE IF EXISTS `eoffice_perm`;
@@ -107,8 +124,8 @@ CREATE TABLE `eoffice_perm` (
   `edit` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '编辑',
   `print` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '打印',
   `view` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '查看',
-  `comment` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '是否删除',
-  `share` tinyint(1) NOT NULL COMMENT '分享',
+  `comment` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '注释',
+  `share` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '分享',
   `create_at` datetime NOT NULL COMMENT '创建时间',
   `create_by` bigint(20) unsigned NOT NULL COMMENT '创建人ID',
   `update_at` datetime NOT NULL COMMENT '更新时间',
@@ -165,6 +182,36 @@ CREATE TABLE `eoffice_resource_version` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='资源（文件）';
 
 -- ----------------------------
+-- Table structure for eoffice_share
+-- ----------------------------
+DROP TABLE IF EXISTS `eoffice_share`;
+CREATE TABLE `eoffice_share` (
+  `share_id` bigint(20) unsigned NOT NULL,
+  `target_id` bigint(20) unsigned DEFAULT NULL,
+  `type` int(4) DEFAULT NULL COMMENT '类型 0 资源 1 文件夹',
+  `url` varchar(255) DEFAULT NULL COMMENT '访问地址',
+  `auth_code` varchar(10) DEFAULT '' COMMENT '授权码， 空表示不需要授权码',
+  `endtime` datetime DEFAULT NULL COMMENT '截止日期， 0000-00-00 00:00:00 表示永久有效',
+  `create_at` datetime DEFAULT NULL,
+  `update_at` datetime DEFAULT NULL,
+  `create_by` bigint(20) DEFAULT NULL,
+  `update_by` bigint(20) DEFAULT NULL,
+  `deleted` tinyint(1) unsigned DEFAULT 0 COMMENT '是否删除',
+  PRIMARY KEY (`share_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分享';
+
+-- ----------------------------
+-- Table structure for eoffice_share_range
+-- ----------------------------
+DROP TABLE IF EXISTS `eoffice_share_range`;
+CREATE TABLE `eoffice_share_range` (
+  `share_id` bigint(20) unsigned NOT NULL,
+  `target_id` bigint(20) unsigned DEFAULT NULL,
+  `type` int(4) DEFAULT NULL COMMENT '类型 0 用户 1 分组',
+  PRIMARY KEY (`share_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分享范围';
+
+-- ----------------------------
 -- Table structure for eoffice_storage
 -- ----------------------------
 DROP TABLE IF EXISTS `eoffice_storage`;
@@ -202,6 +249,17 @@ CREATE TABLE `eoffice_user` (
   UNIQUE KEY `email` (`email`) USING BTREE,
   KEY `username` (`username`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户表';
+
+-- ----------------------------
+-- Table structure for eoffice_user_group
+-- ----------------------------
+DROP TABLE IF EXISTS `eoffice_user_group`;
+CREATE TABLE `eoffice_user_group` (
+  `id` bigint(20) NOT NULL,
+  `uid` bigint(20) DEFAULT NULL COMMENT '用户ID',
+  `gid` bigint(20) DEFAULT NULL COMMENT '分组ID',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='用户分组关系表';
 
 -- ----------------------------
 -- Table structure for spring_session

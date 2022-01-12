@@ -53,7 +53,7 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
     }
 
     @Override
-    public ApiResponse<String> perm(List<Long> users, List<String> perm, Long targetId, Integer type, String actorId) {
+    public ApiResponse<String> perm(List<Long> users, List<String> perm, Long targetId, PermType type) {
 
         // 获取已有的用户ID，权限进行权限重写
         permMapper.removeExists(users, targetId);
@@ -61,7 +61,7 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
         List<Perm> inserts = new ArrayList<>();
 
         for (Long uid : users) {
-            inserts.add(new Perm(perm, uid, targetId, type));
+            inserts.add(new Perm(perm, uid, targetId, type.getType()));
         }
 
         // 写入新的授权

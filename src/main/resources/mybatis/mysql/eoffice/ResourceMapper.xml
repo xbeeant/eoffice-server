@@ -16,11 +16,11 @@
     <result column="display_order" jdbcType="SMALLINT" property="displayOrder" />
     <result column="path" jdbcType="VARCHAR" property="path" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
-    <result column="create_at" jdbcType="TIMESTAMP" property="createAt" typeHandler="io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler" />
+    <result column="create_at" jdbcType="TIMESTAMP" property="createAt"  />
     <result column="create_by" jdbcType="BIGINT" property="createBy" />
-    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" typeHandler="io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"  />
     <result column="update_by" jdbcType="BIGINT" property="updateBy" />
-    <result column="delete_at" jdbcType="TIMESTAMP" property="deleteAt" typeHandler="io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler" />
+    <result column="delete_at" jdbcType="TIMESTAMP" property="deleteAt"  />
   </resultMap>
   <sql id="Example_Where_Clause">
     <!--

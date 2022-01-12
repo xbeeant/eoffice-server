@@ -128,7 +128,7 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * @see ApiResponse
      * @see String
      */
-    ApiResponse<String> perm(List<Long> users, List<String> perm, Long rid, String actorId);
+    ApiResponse<String> perm(List<Long> users, List<String> perm, Long rid);
 
     /**
      * 烫

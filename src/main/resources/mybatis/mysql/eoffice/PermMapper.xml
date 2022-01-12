@@ -17,9 +17,9 @@
     <result column="view" jdbcType="BIT" property="view" />
     <result column="comment" jdbcType="BIT" property="comment" />
     <result column="share" jdbcType="BIT" property="share" />
-    <result column="create_at" jdbcType="TIMESTAMP" property="createAt" typeHandler="io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler" />
+    <result column="create_at" jdbcType="TIMESTAMP" property="createAt"  />
     <result column="create_by" jdbcType="BIGINT" property="createBy" />
-    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" typeHandler="io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"  />
     <result column="update_by" jdbcType="BIGINT" property="updateBy" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -60,13 +60,13 @@
     </if>
     <if test="createAt != null">
       <if test="createAt.start == null and createAt.end == null">
-        and `create_at` = #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` = #{createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="createAt.start != null">
-        and `create_at` &gt;= #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &gt;= #{createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="createAt.end != null">
-        and `create_at` &lt;= #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &lt;= #{createAt,jdbcType=TIMESTAMP}
       </if>
     </if>
     <if test="createBy != null">
@@ -74,13 +74,13 @@
     </if>
     <if test="updateAt != null">
       <if test="updateAt.start == null and updateAt.end == null">
-        and `update_at` = #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `update_at` = #{updateAt,jdbcType=TIMESTAMP}
       </if>
       <if test="updateAt.start != null">
-        and `update_at` &gt;= #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `update_at` &gt;= #{updateAt,jdbcType=TIMESTAMP}
       </if>
       <if test="updateAt.end != null">
-        and `update_at` &lt;= #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `update_at` &lt;= #{updateAt,jdbcType=TIMESTAMP}
       </if>
     </if>
     <if test="updateBy != null">
@@ -125,13 +125,13 @@
     </if>
     <if test="example.createAt != null">
       <if test="example.createAt.start == null and example.createAt.end == null">
-        and `create_at` = #{example.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` = #{example.createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.createAt.start != null">
-        and `create_at` &gt;= #{example.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &gt;= #{example.createAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.createAt.end != null">
-        and `create_at` &lt;= #{example.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `create_at` &lt;= #{example.createAt,jdbcType=TIMESTAMP}
       </if>
     </if>
     <if test="example.createBy != null">
@@ -139,13 +139,13 @@
     </if>
     <if test="example.updateAt != null">
       <if test="example.updateAt.start == null and example.updateAt.end == null">
-        and `update_at` = #{example.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `update_at` = #{example.updateAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.updateAt.start != null">
-        and `update_at` &gt;= #{example.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `update_at` &gt;= #{example.updateAt,jdbcType=TIMESTAMP}
       </if>
       <if test="example.updateAt.end != null">
-        and `update_at` &lt;= #{example.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}
+        and `update_at` &lt;= #{example.updateAt,jdbcType=TIMESTAMP}
       </if>
     </if>
     <if test="example.updateBy != null">
@@ -218,8 +218,8 @@
       `update_by`)
     values (#{pid,jdbcType=BIGINT}, #{targetId,jdbcType=BIGINT}, #{uid,jdbcType=BIGINT}, 
       #{type,jdbcType=TINYINT}, #{download,jdbcType=BIT}, #{edit,jdbcType=BIT}, #{print,jdbcType=BIT}, 
-      #{view,jdbcType=BIT}, #{comment,jdbcType=BIT}, #{share,jdbcType=BIT}, #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}, 
-      #{createBy,jdbcType=BIGINT}, #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler}, 
+      #{view,jdbcType=BIT}, #{comment,jdbcType=BIT}, #{share,jdbcType=BIT}, #{createAt,jdbcType=TIMESTAMP},
+      #{createBy,jdbcType=BIGINT}, #{updateAt,jdbcType=TIMESTAMP},
       #{updateBy,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.github.xbeeant.eoffice.model.Perm">
@@ -305,13 +305,13 @@
         #{share,jdbcType=BIT},
       </if>
       <if test="createAt != null">
-        #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        #{createAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createBy != null">
         #{createBy,jdbcType=BIGINT},
       </if>
       <if test="updateAt != null">
-        #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        #{updateAt,jdbcType=TIMESTAMP},
       </if>
       <if test="updateBy != null">
         #{updateBy,jdbcType=BIGINT},
@@ -368,13 +368,13 @@
         `share` = #{record.share,jdbcType=BIT},
       </if>
       <if test="record.createAt != null">
-        `create_at` = #{record.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `create_at` = #{record.createAt,jdbcType=TIMESTAMP},
       </if>
       <if test="record.createBy != null">
         `create_by` = #{record.createBy,jdbcType=BIGINT},
       </if>
       <if test="record.updateAt != null">
-        `update_at` = #{record.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `update_at` = #{record.updateAt,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateBy != null">
         `update_by` = #{record.updateBy,jdbcType=BIGINT},
@@ -401,9 +401,9 @@
     `view` = #{record.view,jdbcType=BIT},
     `comment` = #{record.comment,jdbcType=BIT},
     `share` = #{record.share,jdbcType=BIT},
-    `create_at` = #{record.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+    `create_at` = #{record.createAt,jdbcType=TIMESTAMP},
     `create_by` = #{record.createBy,jdbcType=BIGINT},
-    `update_at` = #{record.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+    `update_at` = #{record.updateAt,jdbcType=TIMESTAMP},
     `update_by` = #{record.updateBy,jdbcType=BIGINT}
     <where>
       <include refid="Prefixed_Example_Where_Clause" />
@@ -445,13 +445,13 @@
         `share` = #{share,jdbcType=BIT},
       </if>
       <if test="createAt != null">
-        `create_at` = #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `create_at` = #{createAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createBy != null">
         `create_by` = #{createBy,jdbcType=BIGINT},
       </if>
       <if test="updateAt != null">
-        `update_at` = #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+        `update_at` = #{updateAt,jdbcType=TIMESTAMP},
       </if>
       <if test="updateBy != null">
         `update_by` = #{updateBy,jdbcType=BIGINT},
@@ -475,9 +475,9 @@
     `view` = #{view,jdbcType=BIT},
     `comment` = #{comment,jdbcType=BIT},
     `share` = #{share,jdbcType=BIT},
-    `create_at` = #{createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+    `create_at` = #{createAt,jdbcType=TIMESTAMP},
     `create_by` = #{createBy,jdbcType=BIGINT},
-    `update_at` = #{updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+    `update_at` = #{updateAt,jdbcType=TIMESTAMP},
     `update_by` = #{updateBy,jdbcType=BIGINT}
     where
     `pid` = #{pid,jdbcType=BIGINT}
@@ -522,13 +522,13 @@
           share = #{item.share,jdbcType=BIT},
         </if>
         <if test="item.createAt != null ">
-          create_at = #{item.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          create_at = #{item.createAt,jdbcType=TIMESTAMP},
         </if>
         <if test="item.createBy != null ">
           create_by = #{item.createBy,jdbcType=BIGINT},
         </if>
         <if test="item.updateAt != null ">
-          update_at = #{item.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          update_at = #{item.updateAt,jdbcType=TIMESTAMP},
         </if>
         <if test="item.updateBy != null ">
           update_by = #{item.updateBy,jdbcType=BIGINT},
@@ -591,13 +591,13 @@
           `share` = #{item.share,jdbcType=BIT},
         </if>
         <if test="item.createAt != null">
-          `create_at` = #{item.createAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          `create_at` = #{item.createAt,jdbcType=TIMESTAMP},
         </if>
         <if test="item.createBy != null">
           `create_by` = #{item.createBy,jdbcType=BIGINT},
         </if>
         <if test="item.updateAt != null">
-          `update_at` = #{item.updateAt,jdbcType=TIMESTAMP,typeHandler=io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler},
+          `update_at` = #{item.updateAt,jdbcType=TIMESTAMP},
         </if>
         <if test="item.updateBy != null">
           `update_by` = #{item.updateBy,jdbcType=BIGINT},

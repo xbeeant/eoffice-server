@@ -15,9 +15,9 @@
     <result column="password" jdbcType="VARCHAR" property="password" />
     <result column="status" jdbcType="BIT" property="status" />
     <result column="regip" jdbcType="VARCHAR" property="regip" />
-    <result column="create_at" jdbcType="TIMESTAMP" property="createAt" typeHandler="io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler" />
+    <result column="create_at" jdbcType="TIMESTAMP" property="createAt"  />
     <result column="create_by" jdbcType="BIGINT" property="createBy" />
-    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt" typeHandler="io.github.xbeeant.spring.mybatis.typehandler.DateTimeResultHandler" />
+    <result column="update_at" jdbcType="TIMESTAMP" property="updateAt"  />
     <result column="update_by" jdbcType="BIGINT" property="updateBy" />
     <result column="auth_type" jdbcType="VARCHAR" property="authType" />
   </resultMap>

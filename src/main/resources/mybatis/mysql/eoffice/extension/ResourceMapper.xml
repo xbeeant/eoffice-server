@@ -14,9 +14,9 @@
         from eoffice_resource
         where fid = #{fid,jdbcType=BIGINT} and deleted = 0
           and rid in (
-                select target_id
+                select rid
                 from eoffice_perm
-                where uid = #{uid} and (type = 10 or type = 20)
+                where target_id = #{uid} and (type = 10 or type = 20)
                   and (download = 1 or edit = 1 or print = 1 or view = 1 or share = 1)
                 )
     </select>
@@ -32,7 +32,7 @@
                p.comment,
                p.share
         from eoffice_perm p
-                     left join eoffice_user u on u.uid = p.uid
-        where p.target_id = #{targetId,jdbcType=BIGINT}
+                     left join eoffice_user u on u.uid = p.target_id
+        where p.rid = #{targetId,jdbcType=BIGINT}
     </select>
 </mapper>

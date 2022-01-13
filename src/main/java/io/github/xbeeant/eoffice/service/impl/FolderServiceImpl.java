@@ -1,6 +1,7 @@
 package io.github.xbeeant.eoffice.service.impl;
 
 import io.github.xbeeant.antdesign.MenuItem;
+import io.github.xbeeant.antdesign.TreeNode;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
@@ -50,9 +51,9 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
     }
 
     @Override
-    public void setDefaults(Folder record) {
-        if (record.getFid() == null) {
-            record.setFid(IdWorker.getId());
+    public void setDefaults(Folder folder) {
+        if (folder.getFid() == null) {
+            folder.setFid(IdWorker.getId());
         }
     }
 
@@ -83,9 +84,9 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
 
         // 设置权益信息
         Perm perm = new FullPerm();
-        perm.setTargetId(record.getFid());
+        perm.setRid(record.getFid());
         perm.setType(PermType.FOLDER.getType());
-        perm.setUid(uid);
+        perm.setTargetId(uid);
         perm.setCreateBy(record.getCreateBy());
         perm.setUpdateBy(record.getCreateBy());
         permService.insertSelective(perm);
@@ -115,16 +116,19 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         for (Folder folder : parents) {
             parentIds.add(folder.getFid());
         }
-        if(size > 0) {
-            folderMapper.updateSize(parentIds, size);
-        } else {
-            folderMapper.decreaseSize(parentIds, Math.abs(size));
+        if (!CollectionUtils.isEmpty(parentIds)) {
+            if(size > 0) {
+                folderMapper.updateSize(parentIds, size);
+            } else {
+                folderMapper.decreaseSize(parentIds, Math.abs(size));
+            }
         }
     }
 
-    @Override
-    public List<MenuItem> hasPermissionFolders(String userId) {
 
+
+    @Override
+    public List<MenuItem> hasPermissionMenus(String userId) {
         List<Folder> folders = folderMapper.hasPermissionFolders(userId);
         // 没有数据 返回空list
         if (CollectionUtils.isEmpty(folders)) {
@@ -147,6 +151,58 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         cleanedFolders.addAll(permedFolders);
 
         return toTreeMenu(cleanedFolders);
+    }
+
+    @Override
+    public List<TreeNode> hasPermissionFolders(String userId) {
+        List<Folder> folders = folderMapper.hasPermissionFolders(userId);
+        // 没有数据 返回空list
+        if (CollectionUtils.isEmpty(folders)) {
+            return Collections.emptyList();
+        }
+
+        List<Folder> permedFolders = new ArrayList<>(folders);
+
+        // 遍历有权限的目录，获取其子目录
+        List<Folder> subFolders;
+        for (Folder folder : folders) {
+            subFolders = subFolders(folder.getFid());
+            if (CollectionUtils.isNotEmpty(subFolders)) {
+                permedFolders.addAll(subFolders);
+            }
+        }
+
+        // 移除重复的
+        Set<Folder> cleanedFolders = new TreeSet<>(Comparator.comparing(Folder::getFid));
+        cleanedFolders.addAll(permedFolders);
+
+        return toTreeNode(cleanedFolders);
+    }
+
+    private List<TreeNode> toTreeNode(Set<Folder> cleanedFolders) {
+        // 对象转换
+        List<TreeNode> treeNodes = new ArrayList<>();
+        TreeNode treeNode;
+        for (Folder folder : cleanedFolders) {
+            treeNode = new TreeNode();
+            treeNode.setKey(folder.getFid());
+            treeNode.setpKey(folder.getPfid());
+            treeNode.setTitle(folder.getName());
+            treeNodes.add(treeNode);
+        }
+
+        // 树形结构处理
+        for (TreeNode node : treeNodes) {
+            for (TreeNode subNode : treeNodes) {
+                if (subNode.getpKey().equals(node.getKey())) {
+                    subNode.setLeaf(false);
+                    node.addChildren(subNode);
+                }
+            }
+        }
+
+        treeNodes.removeIf(node -> !(0L == node.getpKey()));
+        return treeNodes;
     }
 
     private List<MenuItem> toTreeMenu(Set<Folder> cleanedFolders) {
@@ -181,7 +237,8 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         return treeNodes;
     }
 
-    private List<Folder> subFolders(Long fid) {
+    @Override
+    public List<Folder> subFolders(Long fid) {
         return folderMapper.subFolders(fid);
     }
 }

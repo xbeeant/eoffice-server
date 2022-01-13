@@ -1,6 +1,7 @@
 package io.github.xbeeant.eoffice.rest;
 
 import io.github.xbeeant.antdesign.TableResponse;
+import io.github.xbeeant.antdesign.TreeNode;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
 import io.github.xbeeant.core.JsonHelper;
@@ -11,6 +12,7 @@ import io.github.xbeeant.eoffice.rest.vo.ResourcePerm;
 import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
 import io.github.xbeeant.eoffice.service.*;
 import io.github.xbeeant.eoffice.util.AntDesignUtil;
+import io.github.xbeeant.eoffice.util.SecurityHelper;
 import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.security.SecurityUser;
@@ -98,7 +100,7 @@ public class ResourceRestController {
      * @see ResourceVo
      */
     @GetMapping("info")
-    public ApiResponse<ResourceInfo> info(Authentication authentication, Long rid) {
+    public ApiResponse<ResourceInfo> info(Long rid) {
         ApiResponse<ResourceInfo> result = new ApiResponse<>();
         ApiResponse<ResourceVo> resourceVo = resourceService.detail(rid);
         if (!resourceVo.getSuccess()) {
@@ -160,9 +162,23 @@ public class ResourceRestController {
     }
 
     /**
+     * 文件移动（支持批量移动）
+     *
+     * @param rids 资源id
+     * @param fid  目录ID
+     * @return 返回移动的文件列表
+     */
+    @PostMapping("move")
+    public ApiResponse<Integer> move(@RequestParam(value = "rid") List<Long> rids,
+                                     Long fid,
+                                     @RequestParam(defaultValue = "0", required = false) Long fromFid) {
+        return resourceService.move(rids, fid, fromFid);
+    }
+
+    /**
      * 删除
      *
-     * @param rid 资源ID
+     * @param rids 资源ID
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see Integer
@@ -188,6 +204,12 @@ public class ResourceRestController {
                     response.setResult(ErrorCodeConstant.CONFLICT, resourceApiResponse.getData().getName() + "文件夹下还有文件（夹），请先删除该文件夹下的文件（夹）！");
                     return response;
                 }
+                // 删除文件夹
+                Folder folder = new Folder();
+                folder.setFid(rid);
+                folder.setDeleted(true);
+                folder.setDeleteAt(new Date());
+                folderService.updateByPrimaryKeySelective(folder);
             }
 
             Resource resource = new Resource();
@@ -210,10 +232,16 @@ public class ResourceRestController {
 
     @PostMapping("perm")
     public ApiResponse<String> perm(Authentication authentication,
-                                    @RequestParam(value = "users") List<Long> users,
+                                    @RequestParam(value = "users", required = false) List<Long> users,
+                                    @RequestParam(value = "team", required = false) List<Long> team,
                                     @RequestParam(value = "perm") List<String> perm,
+                                    String type,
                                     Long rid) {
-        return resourceService.perm(users, perm, rid);
+        if ("member".equals(type)) {
+            return resourceService.perm(users, perm, rid);
+        }
+
+        return resourceService.perm(team, perm,  rid);
     }
 
     @GetMapping("perm")
@@ -292,6 +320,12 @@ public class ResourceRestController {
     @RequestMapping(value = "s", method = {RequestMethod.GET, RequestMethod.POST})
     public void download(Long rid, Long sid, HttpServletRequest request, HttpServletResponse response) {
         resourceService.download(rid, sid, request, response);
+    }
+
+    @GetMapping("folder")
+    public List<TreeNode> folder() {
+        SecurityUser<User> userSecurityUser = SecurityHelper.currentUser();
+        return folderService.hasPermissionFolders(userSecurityUser.getUserId());
     }
 
     /**

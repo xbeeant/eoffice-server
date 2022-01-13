@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.xbeeant.eoffice.mapper.GroupMapper">
+    <select id="groups" resultMap="BaseResultMap">
+        select gid, name, pgid, type, extra_id
+        from eoffice_group
+        <where>
+            type = #{type,jdbcType=INTEGER}
+            <if test="userId != null">
+                and create_by = #{userId,jdbcType=BIGINT}
+            </if>
+        </where>
+    </select>
+
+    <select id="parentIds" resultType="java.lang.Long">
+        SELECT T2.gid
+        FROM (
+                     SELECT @r                                                     AS _id,
+                            (SELECT @r := pgid FROM eoffice_group WHERE gid = _id) AS pgid,
+                            @l := @l + 1                                           AS lvl
+                     FROM (SELECT @r := #{gid,jdbcType=BIGINT}, @l := 0) vars,
+                          eoffice_group h
+                     WHERE @r &lt;&gt; 0
+                       AND pgid > 0
+                     ) T1
+                     JOIN eoffice_group T2 ON T1._id = T2.gid
+        ORDER BY T1.lvl ASC
+    </select>
+
+    <select id="checkExistName" resultType="java.lang.String">
+        select name
+        from eoffice_group
+        where binary name = #{name,jdbcType=VARCHAR}
+          and create_by = #{userId,jdbcType=BIGINT}
+    </select>
+
+    <select id="getSubGroupIds" resultType="java.lang.Long">
+        select gid
+        from eoffice_group
+        where pgid = #{gid,jdbcType=BIGINT}
+    </select>
+
+    <select id="unlinkedUsers" resultType="io.github.xbeeant.eoffice.model.User">
+        select *
+        from eoffice_user
+        <where>
+            <if test="example.nickname != null and example.nickname != ''">
+                AND nickname like concat('%', #{example.nickname,jdbcType=VARCHAR}, '%')
+            </if>
+            <if test="example.username != null and example.username != ''">
+                AND username like concat('%', #{example.username,jdbcType=VARCHAR}, '%')
+            </if>
+            <if test="gid != null">
+                and uid not in (
+                        select uid
+                        from eoffice_user_group
+                        where gid = #{gid,jdbcType=BIGINT})
+            </if>
+        </where>
+    </select>
+
+    <select id="users" resultMap="io.github.xbeeant.eoffice.mapper.UserMapper.BaseResultMap">
+        select eu.*
+        from eoffice_user_group eug
+                     LEFT JOIN eoffice_user eu
+                on eug.uid = eu.uid
+        where eug.gid = #{gid,jdbcType=BIGINT}
+    </select>
+
+    <select id="outoffGroupUsers" resultMap="io.github.xbeeant.eoffice.mapper.UserMapper.BaseResultMap">
+        select *
+        from eoffice_user
+        <where>
+            <if test="user.nickname != null and user.nickname != ''">
+                AND nickname like concat('%', #{user.nickname,jdbcType=VARCHAR}, '%')
+            </if>
+            <if test="user.username != null and user.username != ''">
+                AND username like concat('%', #{user.username,jdbcType=VARCHAR}, '%')
+            </if>
+            <if test="gid != null">
+                and uid not in (
+                        select uid
+                        from eoffice_user_group
+                        where gid = #{gid,jdbcType=BIGINT})
+            </if>
+        </where>
+    </select>
+</mapper>

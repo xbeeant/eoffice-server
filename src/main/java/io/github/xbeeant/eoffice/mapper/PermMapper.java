@@ -17,42 +17,42 @@ public interface PermMapper extends IMybatisPageHelperDao<Perm, Long> {
     /**
      * 权益
      *
+     * @param rid      rid
      * @param targetId targetId
-     * @param uid      uid
      * @param type     类型
      * @return {@link Perm}
      * @see Perm
      */
-    Perm perm(@Param("targetId") Long targetId, @Param("uid") Long uid, @Param("type") int type);
+    Perm perm(@Param("rid") Long rid, @Param("targetId") Long targetId, @Param("type") int type);
 
     /**
      * 用户
      *
-     * @param targetId targetId
+     * @param rid rid
      * @return {@link List}
      * @see List
      * @see User
      */
-    List<User> users(@Param("targetId") Long targetId);
+    List<User> users(@Param("rid") Long rid);
 
     /**
      * 已存在的授权
      *
-     * @param uids     用户ID列表
-     * @param targetId targetId
+     * @param targetIds 用户ID列表
+     * @param rid       rid
      * @return {@link List}
      * @see List
      * @see Perm
      */
-    List<Perm> exists(@Param("uids") List<Long> uids, @Param("targetId") Long targetId);
+    List<Perm> exists(@Param("targetIds") List<Long> targetIds, @Param("rid") Long rid);
 
     /**
      * remove exists
      *
-     * @param uids     uid
-     * @param targetId targetId
+     * @param targetIds     uid
+     * @param rid rid
      * @return {@link Integer}
      * @see Integer
      */
-    Integer removeExists(@Param("uids") List<Long> uids, @Param("targetId") Long targetId);
+    Integer removeExists(@Param("targetIds") List<Long> targetIds, @Param("rid") Long rid);
 }

@@ -1,6 +1,7 @@
 package io.github.xbeeant.eoffice.service;
 
 import io.github.xbeeant.antdesign.MenuItem;
+import io.github.xbeeant.antdesign.TreeNode;
 import io.github.xbeeant.eoffice.model.Folder;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperService;
 
@@ -19,8 +20,17 @@ public interface IFolderService extends IMybatisPageHelperService<Folder, Long> 
      * @see List
      * @see MenuItem
      */
-    List<MenuItem> hasPermissionFolders(String userId);
+    List<TreeNode> hasPermissionFolders(String userId);
 
+    /**
+     * has permission folders
+     *
+     * @param userId 用户标识
+     * @return {@link List}
+     * @see List
+     * @see MenuItem
+     */
+    List<MenuItem> hasPermissionMenus(String userId);
     /**
      * 所有父节点
      *
@@ -48,4 +58,6 @@ public interface IFolderService extends IMybatisPageHelperService<Folder, Long> 
      * @param size 大小
      */
     void updateSize(Long fid, Long size);
+
+    List<Folder> subFolders(Long fid);
 }

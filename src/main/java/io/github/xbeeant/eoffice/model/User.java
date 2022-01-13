@@ -1,5 +1,6 @@
 package io.github.xbeeant.eoffice.model;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import io.github.xbeeant.core.BaseModelObject;
 import java.io.Serializable;
 
@@ -18,12 +19,14 @@ public class User extends BaseModelObject<Long> implements Serializable {
      * 
      * 用户邮箱
      */
+    @JSONField(serialize = false)
     private String email;
 
     /**
      * 
      * 用户手机
      */
+    @JSONField(serialize = false)
     private String phone;
 
     /**
@@ -42,6 +45,7 @@ public class User extends BaseModelObject<Long> implements Serializable {
      * 
      * 用户密码
      */
+    @JSONField(serialize = false)
     private String password;
 
     /**
@@ -54,12 +58,14 @@ public class User extends BaseModelObject<Long> implements Serializable {
      * 
      * 注册的IP
      */
+    @JSONField(serialize = false)
     private String regip;
 
     /**
      * 
      * 认证方式
      */
+    @JSONField(serialize = false)
     private String authType;
 
     /**

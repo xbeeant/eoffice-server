@@ -45,7 +45,7 @@ public class ApplicationRestController {
         folder.setPath("/");
         folder.setKey("0");
 
-        return folderService.hasPermissionFolders(userSecurityUser.getUserId());
+        return folderService.hasPermissionMenus(userSecurityUser.getUserId());
     }
 
     @GetMapping("currentUser")

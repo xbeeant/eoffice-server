@@ -86,6 +86,7 @@ CREATE TABLE `eoffice_folder`  (
   `icon` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '1' COMMENT '目录图标',
   `path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '路径',
   `deleted` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '是否删除',
+  `size` bigint(20) UNSIGNED NULL DEFAULT 0 COMMENT '大小',
   `create_at` datetime(0) NOT NULL COMMENT '创建时间',
   `create_by` bigint(20) UNSIGNED NOT NULL COMMENT '创建人ID',
   `update_at` datetime(0) NOT NULL COMMENT '更新时间',
@@ -118,7 +119,7 @@ DROP TABLE IF EXISTS `eoffice_perm`;
 CREATE TABLE `eoffice_perm`  (
   `pid` bigint(20) UNSIGNED NOT NULL COMMENT 'ID',
   `target_id` bigint(20) UNSIGNED NOT NULL COMMENT '目标ID',
-  `uid` bigint(20) UNSIGNED NULL DEFAULT NULL COMMENT '用户ID',
+  `rid` bigint(20) UNSIGNED NULL DEFAULT NULL COMMENT '资源ID',
   `type` tinyint(2) UNSIGNED NOT NULL DEFAULT 10 COMMENT '类型',
   `download` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '下载',
   `edit` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '编辑',

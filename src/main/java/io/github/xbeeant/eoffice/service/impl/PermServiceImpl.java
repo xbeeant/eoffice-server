@@ -38,8 +38,8 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
     }
 
     @Override
-    public Perm perm(Long targetId, Long uid, PermType type) {
-        Perm perm = permMapper.perm(targetId, uid, type.getType());
+    public Perm perm(Long targetId, Long rid, PermType type) {
+        Perm perm = permMapper.perm(targetId, rid, type.getType());
         if (null != perm) {
             return perm;
         }
@@ -48,20 +48,20 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
     }
 
     @Override
-    public List<User> users(Long targetId) {
-        return permMapper.users(targetId);
+    public List<User> users(Long uid) {
+        return permMapper.users(uid);
     }
 
     @Override
-    public ApiResponse<String> perm(List<Long> users, List<String> perm, Long targetId, PermType type) {
+    public ApiResponse<String> perm(List<Long> targetIds, List<String> perm, Long rid, PermType type) {
 
         // 获取已有的用户ID，权限进行权限重写
-        permMapper.removeExists(users, targetId);
+        permMapper.removeExists(targetIds, rid);
 
         List<Perm> inserts = new ArrayList<>();
 
-        for (Long uid : users) {
-            inserts.add(new Perm(perm, uid, targetId, type.getType()));
+        for (Long uid : targetIds) {
+            inserts.add(new Perm(perm, rid, uid, type.getType()));
         }
 
         // 写入新的授权

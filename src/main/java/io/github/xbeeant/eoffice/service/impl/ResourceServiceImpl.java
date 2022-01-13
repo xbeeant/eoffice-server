@@ -8,6 +8,7 @@ import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.core.JsonHelper;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
 import io.github.xbeeant.eoffice.exception.FileSaveFailedException;
+import io.github.xbeeant.eoffice.exception.InvalidResourceMoveException;
 import io.github.xbeeant.eoffice.exception.ResourceMissingException;
 import io.github.xbeeant.eoffice.mapper.ResourceMapper;
 import io.github.xbeeant.eoffice.model.*;
@@ -117,7 +118,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             }
             resources = resourceMapper.hasPermissionResources(fid, uid);
         } else {
-            Perm perm = permService.perm(fid, Long.valueOf(uid), PermType.FOLDER);
+            Perm perm = permService.perm(Long.valueOf(uid), fid, PermType.FOLDER);
             if (Boolean.FALSE.equals(perm.hasPermission())) {
                 result.setResult(ErrorCodeConstant.NO_MATCH, ErrorCodeConstant.NO_MATCH_MSG);
                 return result;
@@ -212,8 +213,8 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         // 写入权益信息
         Perm perm = new FullPerm();
         perm.setCreateBy(uid);
-        perm.setTargetId(resource.getRid());
-        perm.setUid(Long.valueOf(uid));
+        perm.setRid(resource.getRid());
+        perm.setTargetId(Long.valueOf(uid));
         perm.setType(PermType.FILE.getType());
         permService.insertSelective(perm);
 
@@ -226,7 +227,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
 
     @Override
     public Perm permission(Long rid, Long userId) {
-        return permService.perm(rid, userId, PermType.FILE);
+        return permService.perm(userId, rid, PermType.FILE);
     }
 
     @Override
@@ -241,7 +242,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     }
 
     @Override
-    public ApiResponse<String> perm(List<Long> users, List<String> perm, Long rid) {
+    public ApiResponse<String> perm(List<Long> targetId, List<String> perm, Long rid) {
         ApiResponse<Resource> resourceApiResponse = selectByPrimaryKey(rid);
         if (!resourceApiResponse.getSuccess()) {
             ApiResponse<String> result = new ApiResponse<>();
@@ -249,7 +250,73 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             return result;
         }
         PermType type = "folder".equals(resourceApiResponse.getData().getExtension()) ? PermType.FOLDER : PermType.FILE;
-        return permService.perm(users, perm, rid, type);
+        return permService.perm(targetId, perm, rid, type);
+    }
+
+    @Override
+    public ApiResponse<Integer> move(List<Long> rids, Long targetFid, Long fromFid) {
+        ApiResponse<Integer> response = new ApiResponse<>();
+
+        // 判断是否为源文件夹的创建人
+        Folder sourceFolder = new Folder();
+        if (0L != fromFid) {
+            ApiResponse<Folder> sourceFolderResponse = folderService.selectByPrimaryKey(fromFid);
+            sourceFolder = sourceFolderResponse.getData();
+            if (Boolean.FALSE.equals(sourceFolderResponse.getSuccess())) {
+                response.setResult(ErrorCodeConstant.NO_MATCH, "操作失败，找不到当前所属文件夹信息。");
+                return response;
+            }
+        }
+        ApiResponse<Folder> targetFolderResponse = folderService.selectByPrimaryKey(targetFid);
+
+        if (!targetFolderResponse.getSuccess() || targetFolderResponse.getData().getDeleted()) {
+            response.setResult(100, "目标文件夹已经被删除");
+            return response;
+        }
+
+        Integer moveFailedCount = moveFolder(rids, targetFolderResponse.getData(), sourceFolder);
+        if (moveFailedCount > 0) {
+            response.setResult(ErrorCodeConstant.UPDATE_NONE, "移动失败");
+            return response;
+        }
+        response.setCode(0);
+        return response;
+    }
+
+    private Integer moveFolder(List<Long> rids, Folder targetFolder, Folder sourceFolder) {
+        // 目标文件夹不能是源文件夹的子文件夹
+        List<Folder> subFolders = folderService.subFolders(sourceFolder.getFid());
+
+        for (Long rid : rids) {
+            ApiResponse<Resource> resourceApiResponse = selectByPrimaryKey(rid);
+            if (resourceApiResponse.getSuccess()) {
+                Resource resource = resourceApiResponse.getData();
+
+                // 移动文件（夹）
+                Resource updateResource = new Resource();
+                updateResource.setRid(rid);
+                updateResource.setFid(targetFolder.getFid());
+                updateResource.setPath(targetFolder.getPath());
+                // todo path赋值存在问题，当文件夹移动到其他文件夹下的时候
+                if ("folder".equals(resource.getExtension())) {
+                    for (Folder folder : subFolders) {
+                        if (folder.getFid().equals(targetFolder.getFid())) {
+                            throw new InvalidResourceMoveException("不能移动到子文件夹中");
+                        }
+                    }
+                    // 更新folder信息
+                    Folder updateFolder = new Folder();
+                    updateFolder.setFid(rid);
+                    updateFolder.setPfid(targetFolder.getFid());
+                    updateFolder.setPath(targetFolder.getPath() + "/" + resource.getName());
+                    folderService.updateByPrimaryKeySelective(updateFolder);
+                    updateResource.setPath(updateFolder.getPath());
+                }
+                updateByPrimaryKeySelective(updateResource);
+            }
+        }
+
+        return 0;
     }
 
     @Override

@@ -17,34 +17,33 @@ public interface IPermService extends IMybatisPageHelperService<Perm, Long> {
      * 资源权益
      *
      * @param targetId 目标对象ID
-     * @param uid      用户ID
+     * @param rid      资源ID
      * @param type     类型
      * @return {@link Perm}
      * @see Perm
      */
-    Perm perm(Long targetId, Long uid, PermType type);
+    Perm perm(Long targetId, Long rid, PermType type);
 
     /**
      * 用户
      *
-     * @param targetId targetId
+     * @param uid uid
      * @return {@link List}
      * @see List
      * @see User
      */
-    List<User> users(Long targetId);
+    List<User> users(Long uid);
 
     /**
      * 授权
      *
-     * @param users    用户
-     * @param perm     权限
-     * @param targetId 目标ID
-     * @param type     类型
-     * @param actorId  actorId
+     * @param targetIds 目标ID
+     * @param perm      权限
+     * @param rid       资源ID
+     * @param type      类型
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see String
      */
-    ApiResponse<String> perm(List<Long> users, List<String> perm, Long targetId, PermType type);
+    ApiResponse<String> perm(List<Long> targetIds, List<String> perm, Long rid, PermType type);
 }

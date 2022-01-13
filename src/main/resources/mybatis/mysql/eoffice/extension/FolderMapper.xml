@@ -5,7 +5,7 @@
         select fid, pfid, name, icon, path, display_order
         from eoffice_folder
         where deleted = 0
-          and fid in (select target_id from eoffice_perm where type = 10 and uid = #{userId,jdbcType=VARCHAR})
+          and fid in (select rid from eoffice_perm where type = 10 and target_id = #{userId,jdbcType=VARCHAR})
     </select>
 
     <select id="subFolders" resultMap="BaseResultMap">

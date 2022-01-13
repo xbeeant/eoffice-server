@@ -120,24 +120,35 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
     /**
      * 授权
      *
-     * @param users   用户
+     * @param targetId   用户
      * @param perm    权限
      * @param rid     资源ID
-     * @param actorId actorId
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see String
      */
-    ApiResponse<String> perm(List<Long> users, List<String> perm, Long rid);
+    ApiResponse<String> perm(List<Long> targetId, List<String> perm,Long rid);
 
     /**
      * 烫
      *
-     * @param rid 掉
+     * @param rid        掉
      * @param pageBounds pageBounds
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see PageResponse
      */
     ApiResponse<PageResponse<ResourcePerm>> permed(Long rid, PageBounds pageBounds);
+
+    /**
+     * 移动
+     *
+     * @param rids    rid
+     * @param fid     文件ID
+     * @param fromFid fromFid
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see Integer
+     */
+    ApiResponse<Integer> move(List<Long> rids, Long fid, Long fromFid);
 }

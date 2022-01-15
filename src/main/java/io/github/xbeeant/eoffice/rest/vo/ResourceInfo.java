@@ -1,7 +1,6 @@
 package io.github.xbeeant.eoffice.rest.vo;
 
 import io.github.xbeeant.eoffice.model.Resource;
-import io.github.xbeeant.eoffice.model.User;
 
 import java.util.List;
 
@@ -11,24 +10,13 @@ import java.util.List;
  */
 public class ResourceInfo extends Resource {
 
-    private List<User> users;
+    private List<ResourcePerm> permed;
 
-
-    /**
-     * get field
-     *
-     * @return users
-     */
-    public List<User> getUsers() {
-        return this.users;
+    public List<ResourcePerm> getPermed() {
+        return permed;
     }
 
-    /**
-     * set field
-     *
-     * @param users
-     */
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void setPermed(List<ResourcePerm> permed) {
+        this.permed = permed;
     }
 }

@@ -6,6 +6,7 @@ import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperService
 import io.github.xbeeant.eoffice.mapper.PermMapper;
 import io.github.xbeeant.eoffice.model.Perm;
 import io.github.xbeeant.eoffice.model.User;
+import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.po.PermType;
 import io.github.xbeeant.eoffice.service.IPermService;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
@@ -53,7 +54,7 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
     }
 
     @Override
-    public ApiResponse<String> perm(List<Long> targetIds, List<String> perm, Long rid, PermType type) {
+    public ApiResponse<String> perm(List<Long> targetIds, List<String> perm, Long rid, PermType type, PermTargetType targetType) {
 
         // 获取已有的用户ID，权限进行权限重写
         permMapper.removeExists(targetIds, rid);
@@ -61,7 +62,7 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
         List<Perm> inserts = new ArrayList<>();
 
         for (Long uid : targetIds) {
-            inserts.add(new Perm(perm, rid, uid, type.getType()));
+            inserts.add(new Perm(perm, rid, uid, type, targetType));
         }
 
         // 写入新的授权

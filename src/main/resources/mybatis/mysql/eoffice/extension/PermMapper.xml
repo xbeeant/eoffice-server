@@ -15,7 +15,7 @@
                eu.username
         from eoffice_perm ep
                      left join eoffice_user eu on eu.uid = ep.target_id
-        where rid = #{rid,jdbcType=BIGINT}
+        where rid = #{rid,jdbcType=BIGINT} and target_type = 0
     </select>
 
     <select id="exists" resultMap="BaseResultMap">

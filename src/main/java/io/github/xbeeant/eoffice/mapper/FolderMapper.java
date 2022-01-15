@@ -51,7 +51,7 @@ public interface FolderMapper extends IMybatisPageHelperDao<Folder, Long> {
      * @return {@link Integer}
      * @see Integer
      */
-    Integer updateSize(@Param("fids") List<Long> fids, @Param("size") Long size);
+    Integer increaseSize(@Param("fids") List<Long> fids, @Param("size") Long size);
 
     /**
      * decrease size
@@ -62,4 +62,15 @@ public interface FolderMapper extends IMybatisPageHelperDao<Folder, Long> {
      * @see Integer
      */
     Integer decreaseSize(@Param("fids") List<Long> fids, @Param("size") Long size);
+
+    /**
+     * update size
+     *
+     * @param fids    目录ID
+     * @param oldSize oldSize
+     * @param newSize newSize
+     * @return {@link Integer}
+     * @see Integer
+     */
+    Integer updateSize(@Param("fids") List<Long> fids, @Param("oldSize") Long oldSize, @Param("newSize") Long newSize);
 }

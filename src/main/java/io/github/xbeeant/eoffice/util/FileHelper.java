@@ -57,6 +57,9 @@ public class FileHelper {
             return "";
         }
         int idx = filename.lastIndexOf(".");
+        if (idx == -1) {
+            return "";
+        }
         return filename.substring(idx + 1);
     }
 

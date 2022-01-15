@@ -13,6 +13,7 @@ import io.github.xbeeant.eoffice.exception.ResourceMissingException;
 import io.github.xbeeant.eoffice.mapper.ResourceMapper;
 import io.github.xbeeant.eoffice.model.*;
 import io.github.xbeeant.eoffice.po.FullPerm;
+import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.po.PermType;
 import io.github.xbeeant.eoffice.rest.vo.ResourcePerm;
 import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
@@ -118,7 +119,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             }
             resources = resourceMapper.hasPermissionResources(fid, uid);
         } else {
-            Perm perm = permService.perm(Long.valueOf(uid), fid, PermType.FOLDER);
+            Perm perm = permService.perm(fid, Long.valueOf(uid), PermType.FOLDER);
             if (Boolean.FALSE.equals(perm.hasPermission())) {
                 result.setResult(ErrorCodeConstant.NO_MATCH, ErrorCodeConstant.NO_MATCH_MSG);
                 return result;
@@ -130,7 +131,6 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             }
             resources = resourceMapper.folderResources(fid);
         }
-
 
         result.setData(resources);
         return result;
@@ -172,7 +172,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     }
 
     @Override
-    public ApiResponse<Resource> upload(MultipartFile file, Long fid, String uid) {
+    public ApiResponse<Storage> upload(MultipartFile file, Long fid, String uid) {
         Storage storage;
         try {
             storage = storageService.insert(file, uid);
@@ -180,13 +180,36 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             throw new FileSaveFailedException();
         }
 
-        Resource resource = saveResource(fid, uid, storage);
-        ApiResponse<Resource> result = new ApiResponse<>();
-        result.setData(resource);
+        ApiResponse<Storage> result = new ApiResponse<>();
+        result.setData(storage);
         return result;
     }
 
-    private ResourceVo saveResource(Long fid, String uid, Storage storage) {
+    @Override
+    public ResourceVo overwriteResource(Long rid, String uid, Storage storage) {
+        ApiResponse<Resource> resourceApiResponse = selectByPrimaryKey(rid);
+        Resource dbResource = resourceApiResponse.getData();
+
+        // 写入资源信息
+        ResourceVo resource = new ResourceVo();
+        resource.setRid(rid);
+        resource.setName(storage.getName());
+        resource.setExtension(storage.getExtension());
+        resource.setSid(storage.getSid());
+        resource.setSize(storage.getSize());
+        resource.setCreateBy(uid);
+        resource.setUpdateBy(uid);
+        updateByPrimaryKeySelective(resource);
+
+        // todo 版本信息记录
+        // 更新文件夹的存储空间
+        folderService.updateSize(dbResource.getFid(), dbResource.getSize(), resource.getSize());
+
+        return resource;
+    }
+
+    @Override
+    public ResourceVo saveResource(Long fid, String uid, Storage storage) {
         //
         Folder folder = new Folder();
         if (fid == null || 0L == fid) {
@@ -216,6 +239,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         perm.setRid(resource.getRid());
         perm.setTargetId(Long.valueOf(uid));
         perm.setType(PermType.FILE.getType());
+        perm.setTargetType(PermTargetType.MEMBER.getType());
         permService.insertSelective(perm);
 
         // 更新文件夹的存储空间
@@ -242,7 +266,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     }
 
     @Override
-    public ApiResponse<String> perm(List<Long> targetId, List<String> perm, Long rid) {
+    public ApiResponse<String> perm(List<Long> targetId, List<String> perm, PermTargetType targetType, Long rid) {
         ApiResponse<Resource> resourceApiResponse = selectByPrimaryKey(rid);
         if (!resourceApiResponse.getSuccess()) {
             ApiResponse<String> result = new ApiResponse<>();
@@ -250,7 +274,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             return result;
         }
         PermType type = "folder".equals(resourceApiResponse.getData().getExtension()) ? PermType.FOLDER : PermType.FILE;
-        return permService.perm(targetId, perm, rid, type);
+        return permService.perm(targetId, perm, rid, type, targetType);
     }
 
     @Override

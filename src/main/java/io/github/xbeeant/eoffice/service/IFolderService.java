@@ -60,4 +60,6 @@ public interface IFolderService extends IMybatisPageHelperService<Folder, Long> 
     void updateSize(Long fid, Long size);
 
     List<Folder> subFolders(Long fid);
+
+    void updateSize(Long fid, Long oldSize, Long newSize);
 }

@@ -1,11 +1,13 @@
 package io.github.xbeeant.eoffice.rest;
 
+import com.alibaba.fastjson.JSON;
 import io.github.xbeeant.antdesign.TableResponse;
 import io.github.xbeeant.antdesign.TreeNode;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
 import io.github.xbeeant.core.JsonHelper;
 import io.github.xbeeant.eoffice.model.*;
+import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.rest.vo.AttachmentResponse;
 import io.github.xbeeant.eoffice.rest.vo.ResourceInfo;
 import io.github.xbeeant.eoffice.rest.vo.ResourcePerm;
@@ -15,6 +17,7 @@ import io.github.xbeeant.eoffice.util.AntDesignUtil;
 import io.github.xbeeant.eoffice.util.SecurityHelper;
 import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
+import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import io.github.xbeeant.spring.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -93,8 +96,7 @@ public class ResourceRestController {
     /**
      * 资源信息
      *
-     * @param authentication 身份验证
-     * @param rid            资源ID
+     * @param rid 资源ID
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see ResourceVo
@@ -116,8 +118,8 @@ public class ResourceRestController {
         }
 
         // 当前资源已授权的用户
-        List<User> users = resourceService.users(rid);
-        resourceInfo.setUsers(users);
+        ApiResponse<PageResponse<ResourcePerm>> permed = resourceService.permed(rid, new PageBounds(0, 10000));
+        resourceInfo.setPermed(permed.getData());
         result.setData(resourceInfo);
         return result;
     }
@@ -238,10 +240,10 @@ public class ResourceRestController {
                                     String type,
                                     Long rid) {
         if ("member".equals(type)) {
-            return resourceService.perm(users, perm, rid);
+            return resourceService.perm(users, perm, PermTargetType.MEMBER, rid);
         }
 
-        return resourceService.perm(team, perm,  rid);
+        return resourceService.perm(team, perm, PermTargetType.TEAM, rid);
     }
 
     @GetMapping("perm")
@@ -273,12 +275,52 @@ public class ResourceRestController {
      * @see Resource
      */
     @PostMapping("upload")
-    public ApiResponse<Resource> upload(Authentication authentication,
-                                        Long fid,
-                                        MultipartFile file) {
+    public ApiResponse<Storage> upload(Authentication authentication,
+                                       Long fid,
+                                       MultipartFile file) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
         return resourceService.upload(file, fid, userSecurityUser.getUserId());
+    }
+
+    /**
+     * 资源上传
+     *
+     * @param fid       文件ID
+     * @param filesJson 文件
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see Resource
+     */
+    @PostMapping("upload/save")
+    public ApiResponse<String> uploadSave(Authentication authentication, Long fid, @RequestParam(value = "files") String filesJson) {
+        List<Storage> files = JSON.parseArray(filesJson, Storage.class);
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+        for (Storage storage : files) {
+            resourceService.saveResource(fid, userSecurityUser.getUserId(), storage);
+        }
+
+        return new ApiResponse<>();
+    }
+
+    /**
+     * 资源上传
+     *
+     * @param filesJson 文件
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see Resource
+     */
+    @PostMapping("upload/overwrite")
+    public ApiResponse<String> overwrite(Authentication authentication, Long rid, @RequestParam(value = "files") String filesJson) {
+        List<Storage> files = JSON.parseArray(filesJson, Storage.class);
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+
+        for (Storage storage : files) {
+            resourceService.overwriteResource(rid, userSecurityUser.getUserId(), storage);
+        }
+
+        return new ApiResponse<>();
     }
 
     /**

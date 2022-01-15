@@ -1,7 +1,6 @@
 package io.github.xbeeant.eoffice.rest.vo;
 
 import io.github.xbeeant.eoffice.model.Perm;
-import io.github.xbeeant.eoffice.model.User;
 
 /**
  * @author xiaobiao
@@ -10,30 +9,28 @@ import io.github.xbeeant.eoffice.model.User;
 public class ResourcePerm extends Perm {
 
     /**
-     * 用户名
-     *
+     * 目标名称（昵称、群组名称）
      */
-    private String username;
+    private String targetName;
 
-    /**
-     * 昵称
-     *
-     */
-    private String nickname;
 
-    public String getUsername() {
-        return username;
+    private Integer targetType;
+
+    @Override
+    public Integer getTargetType() {
+        return targetType;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    @Override
+    public void setTargetType(Integer targetType) {
+        this.targetType = targetType;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getTargetName() {
+        return targetName;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setTargetName(String targetName) {
+        this.targetName = targetName;
     }
 }

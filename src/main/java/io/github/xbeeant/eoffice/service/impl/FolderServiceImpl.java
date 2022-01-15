@@ -117,15 +117,25 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
             parentIds.add(folder.getFid());
         }
         if (!CollectionUtils.isEmpty(parentIds)) {
-            if(size > 0) {
-                folderMapper.updateSize(parentIds, size);
+            if (size > 0) {
+                folderMapper.increaseSize(parentIds, size);
             } else {
                 folderMapper.decreaseSize(parentIds, Math.abs(size));
             }
         }
     }
 
-
+    @Override
+    public void updateSize(Long fid, Long oldSize, Long newSize) {
+        List<Folder> parents = folderMapper.parents(fid);
+        List<Long> parentIds = new ArrayList<>(parents.size());
+        for (Folder folder : parents) {
+            parentIds.add(folder.getFid());
+        }
+        if (!CollectionUtils.isEmpty(parentIds)) {
+            folderMapper.updateSize(parentIds, oldSize, newSize);
+        }
+    }
 
     @Override
     public List<MenuItem> hasPermissionMenus(String userId) {
@@ -195,7 +205,7 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         for (TreeNode node : treeNodes) {
             for (TreeNode subNode : treeNodes) {
                 if (subNode.getpKey().equals(node.getKey())) {
-                    subNode.setLeaf(false);
+                    subNode.setIsLeaf(false);
                     node.addChildren(subNode);
                 }
             }
@@ -241,4 +251,6 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
     public List<Folder> subFolders(Long fid) {
         return folderMapper.subFolders(fid);
     }
+
+
 }

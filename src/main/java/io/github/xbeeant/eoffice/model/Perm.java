@@ -2,6 +2,8 @@ package io.github.xbeeant.eoffice.model;
 
 import io.github.xbeeant.core.BaseModelObject;
 import io.github.xbeeant.core.JavaBeansHelper;
+import io.github.xbeeant.eoffice.po.PermTargetType;
+import io.github.xbeeant.eoffice.po.PermType;
 
 import java.io.Serializable;
 import java.util.List;
@@ -24,10 +26,22 @@ public class Perm extends BaseModelObject<Long> implements Serializable {
      */
     private Long pid;
     /**
+     *
+     *
      * 目标ID
      */
     private Long targetId;
+
     /**
+     *
+     *
+     * 目标类型 0 用户 1 群组
+     */
+    private Integer targetType;
+
+    /**
+     *
+     *
      * 资源ID
      */
     private Long rid;
@@ -63,11 +77,11 @@ public class Perm extends BaseModelObject<Long> implements Serializable {
     public Perm() {
     }
 
-    public Perm(List<String> perms, Long rid, Long targetId, Integer type) {
+    public Perm(List<String> perms, Long rid, Long targetId, PermType type, PermTargetType targetType) {
         this.rid = rid;
         this.targetId = targetId;
-        this.type = type;
-
+        this.type = type.getType();
+        this.targetType = targetType.getType();
         for (String perm : perms) {
             JavaBeansHelper.setter(this, perm, true);
         }
@@ -107,6 +121,22 @@ public class Perm extends BaseModelObject<Long> implements Serializable {
      */
     public void setTargetId(Long targetId) {
         this.targetId = targetId;
+    }
+
+    /**
+     * get field 目标类型 0 用户 1 群组
+     * @return targetType 目标类型 0 用户 1 群组
+     */
+    public Integer getTargetType() {
+        return targetType;
+    }
+
+    /**
+     * set filed 目标类型 0 用户 1 群组
+     * @param targetType the value for 目标类型 0 用户 1 群组
+     */
+    public void setTargetType(Integer targetType) {
+        this.targetType = targetType;
     }
 
     /**

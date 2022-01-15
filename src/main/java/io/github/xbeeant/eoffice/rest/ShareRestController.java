@@ -5,6 +5,7 @@ import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
 import io.github.xbeeant.eoffice.model.Share;
 import io.github.xbeeant.eoffice.model.User;
+import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.rest.vo.ShareResourceVo;
 import io.github.xbeeant.eoffice.service.IShareService;
 import io.github.xbeeant.eoffice.util.AntDesignUtil;
@@ -79,10 +80,15 @@ public class ShareRestController {
 
     @PostMapping("")
     public ApiResponse<Share> share(
-            @RequestParam(value = "users") List<Long> users,
-            @RequestParam(value = "perm") List<String> perm,
+            @RequestParam(value = "users", required = false) List<Long> users,
+            @RequestParam(value = "team", required = false) List<Long> teams,
+            @RequestParam(value = "perm", required = false) List<String> perm,
+            String type,
             Long rid,
             Date endtime) {
-        return shareService.share(users, perm, rid, endtime);
+        if ("member".equals(type)) {
+            return shareService.share(users, perm, rid, PermTargetType.MEMBER, endtime);
+        }
+        return shareService.share(teams, perm, rid, PermTargetType.TEAM, endtime);
     }
 }

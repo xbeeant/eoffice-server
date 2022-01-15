@@ -2,10 +2,12 @@ package io.github.xbeeant.eoffice.service;
 
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.eoffice.model.Share;
+import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.rest.vo.ShareResourceVo;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperService;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
+
 import java.util.Date;
 import java.util.List;
 
@@ -29,20 +31,21 @@ public interface IShareService extends IMybatisPageHelperService<Share, Long> {
     /**
      * 分享
      *
-     * @param users   用户
-     * @param perm    权限
-     * @param rid     资源ID
-     * @param endtime
+     * @param users      用户
+     * @param perm       权限
+     * @param rid        资源ID
+     * @param targetType 分享目标类型
+     * @param endtime    截至日期
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see Share
      */
-    ApiResponse<Share> share(List<Long> users, List<String> perm, Long rid, Date endtime);
+    ApiResponse<Share> share(List<Long> users, List<String> perm, Long rid, PermTargetType targetType, Date endtime);
 
     /**
      * myshare
      *
-     * @param userId 用户标识
+     * @param userId     用户标识
      * @param pageBounds pageBounds
      * @return {@link ApiResponse}
      * @see ApiResponse

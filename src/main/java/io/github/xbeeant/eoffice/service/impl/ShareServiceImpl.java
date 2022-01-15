@@ -11,6 +11,7 @@ import io.github.xbeeant.eoffice.mapper.ShareMapper;
 import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.eoffice.model.Share;
 import io.github.xbeeant.eoffice.model.ShareRange;
+import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.po.PermType;
 import io.github.xbeeant.eoffice.rest.vo.ShareResourceVo;
 import io.github.xbeeant.eoffice.service.IPermService;
@@ -75,14 +76,14 @@ public class ShareServiceImpl extends AbstractSecurityMybatisPageHelperServiceIm
     }
 
     @Override
-    public ApiResponse<Share> share(List<Long> users, List<String> perm, Long rid, Date endtime) {
+    public ApiResponse<Share> share(List<Long> users, List<String> perm, Long rid, PermTargetType targetType, Date endtime) {
         ApiResponse<Resource> resourceApiResponse = resourceService.selectByPrimaryKey(rid);
         if (!resourceApiResponse.getSuccess()) {
             ApiResponse<Share> result = new ApiResponse<>();
             result.setResult(ErrorCodeConstant.NO_MATCH, "资源已被删除");
             return result;
         }
-        permService.perm(users, perm, rid, PermType.SHARE_FOLDER);
+        permService.perm(users, perm, rid, PermType.SHARE_FOLDER, targetType);
         // 记录分享操作
         Share share = new Share();
         share.setAuthCode(RandomHelper.random(4));

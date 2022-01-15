@@ -5,6 +5,7 @@ import io.github.xbeeant.eoffice.model.Perm;
 import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.eoffice.model.Storage;
 import io.github.xbeeant.eoffice.model.User;
+import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.rest.vo.ResourcePerm;
 import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
@@ -32,8 +33,9 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * @see ApiResponse
      * @see Resource
      */
-    ApiResponse<Resource> upload(MultipartFile file, Long fid, String uid);
+    ApiResponse<Storage> upload(MultipartFile file, Long fid, String uid);
 
+    ResourceVo saveResource(Long fid, String uid, Storage storage);
     /**
      * has permission resources
      *
@@ -121,13 +123,14 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * 授权
      *
      * @param targetId   用户
-     * @param perm    权限
-     * @param rid     资源ID
+     * @param perm       权限
+     * @param targetType 目标类型
+     * @param rid        资源ID
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see String
      */
-    ApiResponse<String> perm(List<Long> targetId, List<String> perm,Long rid);
+    ApiResponse<String> perm(List<Long> targetId, List<String> perm, PermTargetType targetType, Long rid);
 
     /**
      * 烫
@@ -151,4 +154,6 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * @see Integer
      */
     ApiResponse<Integer> move(List<Long> rids, Long fid, Long fromFid);
+
+    ResourceVo overwriteResource(Long rid, String userId, Storage storage);
 }

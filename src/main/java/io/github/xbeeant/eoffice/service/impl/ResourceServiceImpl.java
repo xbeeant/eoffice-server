@@ -119,7 +119,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             }
             resources = resourceMapper.hasPermissionResources(fid, uid);
         } else {
-            Perm perm = permService.perm(fid, Long.valueOf(uid), PermType.FOLDER);
+            Perm perm = permService.perm(fid, Long.valueOf(uid));
             if (Boolean.FALSE.equals(perm.hasPermission())) {
                 result.setResult(ErrorCodeConstant.NO_MATCH, ErrorCodeConstant.NO_MATCH_MSG);
                 return result;
@@ -251,7 +251,12 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
 
     @Override
     public Perm permission(Long rid, Long userId) {
-        return permService.perm(userId, rid, PermType.FILE);
+        return permService.perm(userId, rid);
+    }
+
+    @Override
+    public Perm sharePermission(Long rid, Long userId, Share share) {
+        return permService.sharePerm(userId, rid, share);
     }
 
     @Override

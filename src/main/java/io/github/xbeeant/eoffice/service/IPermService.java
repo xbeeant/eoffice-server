@@ -2,6 +2,7 @@ package io.github.xbeeant.eoffice.service;
 
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.eoffice.model.Perm;
+import io.github.xbeeant.eoffice.model.Share;
 import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.po.PermType;
@@ -23,8 +24,18 @@ public interface IPermService extends IMybatisPageHelperService<Perm, Long> {
      * @return {@link Perm}
      * @see Perm
      */
-    Perm perm(Long targetId, Long rid, PermType type);
+    Perm perm(Long targetId, Long rid);
 
+    /**
+     * share perm
+     *
+     * @param userId 用户标识
+     * @param rid 掉
+     * @param share 分享
+     * @return {@link Perm}
+     * @see Perm
+     */
+    Perm sharePerm(Long userId, Long rid, Share share);
     /**
      * 用户
      *
@@ -48,4 +59,5 @@ public interface IPermService extends IMybatisPageHelperService<Perm, Long> {
      * @see String
      */
     ApiResponse<String> perm(List<Long> targetIds, List<String> perm, Long rid, PermType type, PermTargetType targetType);
+
 }

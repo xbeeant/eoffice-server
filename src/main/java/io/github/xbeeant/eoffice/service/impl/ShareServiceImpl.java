@@ -8,6 +8,7 @@ import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.core.RandomHelper;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
 import io.github.xbeeant.eoffice.mapper.ShareMapper;
+import io.github.xbeeant.eoffice.model.Perm;
 import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.eoffice.model.Share;
 import io.github.xbeeant.eoffice.model.ShareRange;
@@ -21,6 +22,7 @@ import io.github.xbeeant.eoffice.service.IShareService;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -83,14 +85,19 @@ public class ShareServiceImpl extends AbstractSecurityMybatisPageHelperServiceIm
             result.setResult(ErrorCodeConstant.NO_MATCH, "资源已被删除");
             return result;
         }
-        permService.perm(users, perm, rid, PermType.SHARE_FOLDER, targetType);
+        boolean isFolder = "folder".equals(resourceApiResponse.getData().getExtension());
+        PermType permType = PermType.SHARE_FILE;
+        if (isFolder) {
+            permType = PermType.SHARE_FOLDER;
+        }
+        permService.perm(users, perm, rid, permType, targetType);
         // 记录分享操作
         Share share = new Share();
         share.setAuthCode(RandomHelper.random(4));
         share.setTargetId(rid);
         share.setEndtime(endtime);
         // todo set url
-        share.setType("folder".equals(resourceApiResponse.getData()) ? PermType.SHARE_FOLDER.getType() : PermType.SHARE_FILE.getType());
+        share.setType(permType.getType());
         insertSelective(share);
         // 记录分享的目标群体
         List<ShareRange> shareRanges = new ArrayList<>(users.size());
@@ -99,7 +106,7 @@ public class ShareServiceImpl extends AbstractSecurityMybatisPageHelperServiceIm
             shareRange = new ShareRange();
             shareRange.setShareId(share.getShareId());
             shareRange.setTargetId(uid);
-            shareRange.setType(PermType.SHARE_FOLDER.getType());
+            shareRange.setType(permType.getType());
             shareRanges.add(shareRange);
         }
         shareRangeService.batchInsertSelective(shareRanges);
@@ -119,5 +126,58 @@ public class ShareServiceImpl extends AbstractSecurityMybatisPageHelperServiceIm
         PageResponse<ShareResourceVo> pageList = new PageResponse<>(result, result.getTotal(), pageBounds.getPage());
         apiResponse.setData(pageList);
         return apiResponse;
+    }
+
+    @Override
+    public boolean isShared(Resource resource, Long targetId) {
+        // 个人关系
+        List<Long> shared = shareMapper.isShared(resource.getRid(), targetId);
+        if (!CollectionUtils.isEmpty(shared)) {
+            return true;
+        }
+
+        // 团队关系
+        shared = shareMapper.isTeamShared(resource.getRid(), targetId);
+        if (!CollectionUtils.isEmpty(shared)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public ApiResponse<Resource> avaliable(Long shareId, String authCode, String userId) {
+        ApiResponse<Resource> response = new ApiResponse<>();
+        ApiResponse<Share> shareApiResponse = selectByPrimaryKey(shareId);
+        if (!shareApiResponse.getSuccess()) {
+            return response;
+        }
+
+
+        Share share = shareApiResponse.getData();
+        // 提取码 校验
+        if (!share.getAuthCode().equals(authCode)) {
+            response.setResult(101, "提取码错误");
+            return response;
+        }
+
+        // 是否已经过期
+        if (null != share.getEndtime() && share.getEndtime().before(new Date())) {
+            response.setResult(100, "分享已过期");
+            return response;
+        }
+
+        // 获取资源
+        ApiResponse<Resource> resourceApiResponse = resourceService.selectByPrimaryKey(share.getTargetId());
+        Resource resource = resourceApiResponse.getData();
+
+        Perm permission = resourceService.sharePermission(resource.getRid(), Long.valueOf(userId), share);
+        if (!permission.hasPermission()) {
+            response.setResult(102, "作者已回收所有权限");
+            return response;
+        }
+        response.setData(resource);
+
+        return response;
     }
 }

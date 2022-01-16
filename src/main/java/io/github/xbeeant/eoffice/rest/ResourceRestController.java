@@ -50,6 +50,9 @@ public class ResourceRestController {
     private IStorageService storageService;
 
     @Autowired
+    private IShareService shareService;
+
+    @Autowired
     private IPermService permService;
 
     @Autowired
@@ -77,9 +80,7 @@ public class ResourceRestController {
      * @see List
      */
     @GetMapping
-    public ApiResponse<List<Resource>> resources(Authentication authentication,
-                                                 @RequestParam(defaultValue = "0", required = false) Long fid,
-                                                 PageRequest pageRequest) {
+    public ApiResponse<List<Resource>> resources(Authentication authentication, @RequestParam(defaultValue = "0", required = false) Long fid, PageRequest pageRequest) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
         ApiResponse<List<Resource>> apiResponse;
@@ -129,22 +130,48 @@ public class ResourceRestController {
      *
      * @param authentication 身份验证
      * @param rid            资源ID
+     * @param shareKey       分享访问Key
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see ResourceVo
      */
     @GetMapping("detail")
-    public ApiResponse<ResourceVo> detail(Authentication authentication, Long rid) {
+    public ApiResponse<ResourceVo> detail(Authentication authentication, Long rid, String shareKey) {
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         ApiResponse<ResourceVo> resourceInfo = resourceService.detail(rid);
         if (!resourceInfo.getSuccess()) {
             resourceInfo.setResult(ErrorCodeConstant.NO_MATCH, "文件已经丢失");
             return resourceInfo;
         }
         // 权限
-        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         Perm permission = resourceService.permission(rid, Long.valueOf(userSecurityUser.getUserId()));
         resourceInfo.getData().setPerm(permission);
         return resourceInfo;
+    }
+
+    /**
+     * 资源详情
+     *
+     * @param authentication 身份验证
+     * @param shareId        分享ID
+     * @param authCode       提取码
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see ResourceVo
+     */
+    @PostMapping("share")
+    public ApiResponse<String> share(Authentication authentication, Long shareId, String authCode) {
+        ApiResponse<String> response = new ApiResponse<>();
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+        ApiResponse<Resource> resourceApiResponse = shareService.avaliable(shareId, authCode, userSecurityUser.getUserId());
+
+        if (!resourceApiResponse.getSuccess()) {
+            response.setResult(resourceApiResponse.getCode(), resourceApiResponse.getMsg());
+            return response;
+        }
+
+        response.setData(String.valueOf(resourceApiResponse.getData().getRid()));
+        return response;
     }
 
     /**
@@ -171,9 +198,7 @@ public class ResourceRestController {
      * @return 返回移动的文件列表
      */
     @PostMapping("move")
-    public ApiResponse<Integer> move(@RequestParam(value = "rid") List<Long> rids,
-                                     Long fid,
-                                     @RequestParam(defaultValue = "0", required = false) Long fromFid) {
+    public ApiResponse<Integer> move(@RequestParam(value = "rid") List<Long> rids, Long fid, @RequestParam(defaultValue = "0", required = false) Long fromFid) {
         return resourceService.move(rids, fid, fromFid);
     }
 
@@ -233,12 +258,7 @@ public class ResourceRestController {
     }
 
     @PostMapping("perm")
-    public ApiResponse<String> perm(Authentication authentication,
-                                    @RequestParam(value = "users", required = false) List<Long> users,
-                                    @RequestParam(value = "team", required = false) List<Long> team,
-                                    @RequestParam(value = "perm") List<String> perm,
-                                    String type,
-                                    Long rid) {
+    public ApiResponse<String> perm(Authentication authentication, @RequestParam(value = "users", required = false) List<Long> users, @RequestParam(value = "team", required = false) List<Long> team, @RequestParam(value = "perm") List<String> perm, String type, Long rid) {
         if ("member".equals(type)) {
             return resourceService.perm(users, perm, PermTargetType.MEMBER, rid);
         }
@@ -275,9 +295,7 @@ public class ResourceRestController {
      * @see Resource
      */
     @PostMapping("upload")
-    public ApiResponse<Storage> upload(Authentication authentication,
-                                       Long fid,
-                                       MultipartFile file) {
+    public ApiResponse<Storage> upload(Authentication authentication, Long fid, MultipartFile file) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
         return resourceService.upload(file, fid, userSecurityUser.getUserId());
@@ -333,9 +351,7 @@ public class ResourceRestController {
      * @see Resource
      */
     @PostMapping("attachment")
-    public AttachmentResponse attachment(Authentication authentication,
-                                         Long rid,
-                                         MultipartFile file) throws NoSuchAlgorithmException, IOException {
+    public AttachmentResponse attachment(Authentication authentication, Long rid, MultipartFile file) throws NoSuchAlgorithmException, IOException {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         Storage storage = storageService.insert(file, userSecurityUser.getUserId());
 
@@ -393,9 +409,7 @@ public class ResourceRestController {
      * @see ResourceVo
      */
     @PostMapping("add")
-    public ApiResponse<ResourceVo> add(String type,
-                                       @RequestParam(defaultValue = "0", required = false) Long fid,
-                                       Authentication authentication) {
+    public ApiResponse<ResourceVo> add(String type, @RequestParam(defaultValue = "0", required = false) Long fid, Authentication authentication) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         resourceService.add(type, fid, userSecurityUser.getUserId());
         return new ApiResponse<>();

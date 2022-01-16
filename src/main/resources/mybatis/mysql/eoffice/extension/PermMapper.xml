@@ -9,13 +9,38 @@
           and `type` = #{type}
     </select>
 
+    <select id="sharePerm" resultMap="BaseResultMap">
+        select download, edit, print, `view`, comment, share
+        from eoffice_perm
+        where rid = #{rid,jdbcType=BIGINT}
+        and target_id = #{targetId,jdbcType=BIGINT}
+        and `type` = #{shareType,jdbcType=INTEGER}
+    </select>
+
+    <select id="permGroup" resultMap="BaseResultMap">
+        select download, edit, print, `view`, comment, share
+        from eoffice_perm
+        where rid = #{rid,jdbcType=BIGINT}
+          and target_id in (select gid from eoffice_user_group where uid = #{targetId,jdbcType=BIGINT})
+          and `type` = #{type}
+    </select>
+
+    <select id="sharePermGroup" resultMap="BaseResultMap">
+        select download, edit, print, `view`, comment, share
+        from eoffice_perm
+        where rid = #{rid,jdbcType=BIGINT}
+        and target_id in (select gid from eoffice_user_group where uid = #{targetId,jdbcType=BIGINT})
+        and  `type` = #{shareType,jdbcType=INTEGER}
+    </select>
+
     <select id="users" resultMap="io.github.xbeeant.eoffice.mapper.UserMapper.BaseResultMap">
         select eu.nickname,
                eu.uid,
                eu.username
         from eoffice_perm ep
                      left join eoffice_user eu on eu.uid = ep.target_id
-        where rid = #{rid,jdbcType=BIGINT} and target_type = 0
+        where rid = #{rid,jdbcType=BIGINT}
+          and target_type = 0
     </select>
 
     <select id="exists" resultMap="BaseResultMap">

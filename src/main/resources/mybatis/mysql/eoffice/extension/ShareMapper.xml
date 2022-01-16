@@ -10,12 +10,9 @@
 
         <association property="resource" javaType="io.github.xbeeant.eoffice.rest.vo.ResourceVo">
             <result column="fid" jdbcType="BIGINT" property="fid"/>
-            <result column="sid" jdbcType="BIGINT" property="sid"/>
-            <result column="rid" jdbcType="BIGINT" property="rid"/>
             <result column="name" jdbcType="VARCHAR" property="name"/>
             <result column="extension" jdbcType="VARCHAR" property="extension"/>
             <result column="size" jdbcType="BIGINT" property="size"/>
-            <result column="display_order" jdbcType="SMALLINT" property="displayOrder"/>
             <result column="path" jdbcType="VARCHAR" property="path"/>
             <result column="create_at" jdbcType="TIMESTAMP" property="createAt"/>
             <result column="create_by" jdbcType="BIGINT" property="createBy"/>
@@ -70,12 +67,9 @@
                es.type,
                es.endtime,
                er.fid,
-               er.rid,
-               er.sid,
                er.name,
                er.extension,
                er.size,
-               er.display_order,
                er.path,
                er.create_at,
                er.create_by,
@@ -103,6 +97,31 @@
                         from eoffice_user_group
                         where uid = #{userId,jdbcType=VARCHAR}
                         )
+                )
+    </select>
+
+    <select id="isShared" resultType="java.lang.Long">
+        select srid
+        from eoffice_share_range
+        where target_id = #{targetId,jdbcType=BIGINT}
+          and share_id in (
+                select share_id
+                from eoffice_share
+                where target_id = #{rid,jdbcType=BIGINT}
+                )
+    </select>
+
+    <select id="isTeamShared" resultType="java.lang.Long">
+        select srid
+        from eoffice_share_range
+        where target_id in (
+                select gid
+                from eoffice_user_group
+                where uid = #{targetId,jdbcType=BIGINT})
+          and share_id in (
+                select *
+                from eoffice_share
+                where target_id = #{rid,jdbcType=BIGINT}
                 )
     </select>
 </mapper>

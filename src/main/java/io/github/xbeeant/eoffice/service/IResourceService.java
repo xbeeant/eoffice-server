@@ -1,10 +1,7 @@
 package io.github.xbeeant.eoffice.service;
 
 import io.github.xbeeant.core.ApiResponse;
-import io.github.xbeeant.eoffice.model.Perm;
-import io.github.xbeeant.eoffice.model.Resource;
-import io.github.xbeeant.eoffice.model.Storage;
-import io.github.xbeeant.eoffice.model.User;
+import io.github.xbeeant.eoffice.model.*;
 import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.rest.vo.ResourcePerm;
 import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
@@ -36,6 +33,7 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
     ApiResponse<Storage> upload(MultipartFile file, Long fid, String uid);
 
     ResourceVo saveResource(Long fid, String uid, Storage storage);
+
     /**
      * has permission resources
      *
@@ -90,13 +88,28 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      */
     ApiResponse<String> save(Long rid, String value, String uid);
 
+
     /**
      * 权限
      *
      * @param rid    资源ID
      * @param userId 用户标识
+     * @param share
+     * @return {@link Perm}
+     * @see Perm
      */
     Perm permission(Long rid, Long userId);
+
+
+    /**
+     * share permission
+     *
+     * @param rid 掉
+     * @param userId 用户标识
+     * @return {@link Perm}
+     * @see Perm
+     */
+    Perm sharePermission(Long rid, Long userId, Share share);
 
     /**
      * 添加/创建资源
@@ -133,9 +146,9 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
     ApiResponse<String> perm(List<Long> targetId, List<String> perm, PermTargetType targetType, Long rid);
 
     /**
-     * 烫
+     * 已授权的资源列表
      *
-     * @param rid        掉
+     * @param rid        资源ID
      * @param pageBounds pageBounds
      * @return {@link ApiResponse}
      * @see ApiResponse
@@ -155,5 +168,14 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      */
     ApiResponse<Integer> move(List<Long> rids, Long fid, Long fromFid);
 
+    /**
+     * overwrite resource
+     *
+     * @param rid     资源ID
+     * @param userId  用户标识
+     * @param storage 存储
+     * @return {@link ResourceVo}
+     * @see ResourceVo
+     */
     ResourceVo overwriteResource(Long rid, String userId, Storage storage);
 }

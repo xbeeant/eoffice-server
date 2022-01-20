@@ -3,10 +3,12 @@ package io.github.xbeeant.eoffice.rest;
 import io.github.xbeeant.antdesign.TableResponse;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
+import io.github.xbeeant.eoffice.aspect.annotation.ResourceOwner;
 import io.github.xbeeant.eoffice.model.Share;
 import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.rest.vo.ShareResourceVo;
+import io.github.xbeeant.eoffice.service.IResourceService;
 import io.github.xbeeant.eoffice.service.IShareService;
 import io.github.xbeeant.eoffice.util.AntDesignUtil;
 import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
@@ -79,6 +81,7 @@ public class ShareRestController {
     }
 
     @PostMapping("")
+    @ResourceOwner(id = "rid", selectService = IResourceService.class)
     public ApiResponse<Share> share(
             @RequestParam(value = "users", required = false) List<Long> users,
             @RequestParam(value = "team", required = false) List<Long> teams,

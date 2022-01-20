@@ -61,8 +61,8 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
             for (Group group : list) {
                 treeNode = new TreeNode();
                 treeNode.setTitle(group.getName());
-                treeNode.setKey(group.getGid());
-                treeNode.setpKey(group.getPgid());
+                treeNode.setKey(String.valueOf(group.getGid()));
+                treeNode.setpKey(String.valueOf(group.getPgid()));
                 nodes.add(treeNode);
             }
 
@@ -77,7 +77,7 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
             }
             // 获取grade菜单是1的菜单
             for (TreeNode topMenu : nodes) {
-                if (0 == topMenu.getpKey()) {
+                if ("0".equals(topMenu.getpKey())) {
                     treeNodes.add(topMenu);
                 }
             }

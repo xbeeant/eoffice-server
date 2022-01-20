@@ -21,6 +21,12 @@
                 where target_id = #{uid}
                   and (type = 10 or type = 20)
                   and (download = 1 or edit = 1 or print = 1 or view = 1 or share = 1)
+                union
+                select rid
+                from eoffice_perm
+                where target_id in (select gid from eoffice_user_group where uid = #{uid,jdbcType=VARCHAR})
+                  and (type = 10 or type = 20)
+                  and (download = 1 or edit = 1 or print = 1 or view = 1 or share = 1)
                 )
     </select>
 

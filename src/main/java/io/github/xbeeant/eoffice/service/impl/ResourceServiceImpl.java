@@ -25,6 +25,8 @@ import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +40,8 @@ import java.util.List;
  */
 @Service
 public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServiceImpl<Resource, Long> implements IResourceService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
     @Autowired
     private ResourceMapper resourceMapper;
@@ -119,7 +123,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             }
             resources = resourceMapper.hasPermissionResources(fid, uid);
         } else {
-            Perm perm = permService.perm(fid, Long.valueOf(uid));
+            Perm perm = permService.perm(Long.valueOf(uid), fid);
             if (Boolean.FALSE.equals(perm.hasPermission())) {
                 result.setResult(ErrorCodeConstant.NO_MATCH, ErrorCodeConstant.NO_MATCH_MSG);
                 return result;
@@ -172,11 +176,12 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     }
 
     @Override
-    public ApiResponse<Storage> upload(MultipartFile file, Long fid, String uid) {
+    public ApiResponse<Storage> upload(MultipartFile file, String uid) {
         Storage storage;
         try {
             storage = storageService.insert(file, uid);
         } catch (Exception e) {
+            logger.error("文件存储异常", e);
             throw new FileSaveFailedException();
         }
 
@@ -209,7 +214,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     }
 
     @Override
-    public ResourceVo saveResource(Long fid, String uid, Storage storage) {
+    public ResourceVo saveResource(Long fid, String uid, String filename, Storage storage) {
         //
         Folder folder = new Folder();
         if (fid == null || 0L == fid) {
@@ -221,10 +226,14 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             folder = folderService.selectByPrimaryKey(fid).getData();
         }
 
+        if (!filename.contains(".")) {
+            filename = filename + "." + storage.getExtension();
+        }
+
         // 写入资源信息
         ResourceVo resource = new ResourceVo();
         resource.setPath(folder.getPath());
-        resource.setName(storage.getName());
+        resource.setName(filename);
         resource.setExtension(storage.getExtension());
         resource.setSid(storage.getSid());
         resource.setSize(storage.getSize());
@@ -260,9 +269,9 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     }
 
     @Override
-    public ResourceVo add(String type, Long fid, String uid) {
-        Storage storage = StorageFactory.getStorage(type).add(type, fid, uid);
-        return saveResource(fid, uid, storage);
+    public ResourceVo add(String type, String name, Long fid, Long cid, String uid) {
+        Storage storage = StorageFactory.getStorage(type).add(type, fid, cid, uid);
+        return saveResource(fid, uid, name, storage);
     }
 
     @Override
@@ -279,7 +288,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             return result;
         }
         PermType type = "folder".equals(resourceApiResponse.getData().getExtension()) ? PermType.FOLDER : PermType.FILE;
-        return permService.perm(targetId, perm, rid, type, targetType);
+        return permService.perm(targetId, perm, resourceApiResponse.getData(), type, targetType);
     }
 
     @Override

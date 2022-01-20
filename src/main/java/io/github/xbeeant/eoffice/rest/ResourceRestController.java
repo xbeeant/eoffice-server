@@ -6,12 +6,12 @@ import io.github.xbeeant.antdesign.TreeNode;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
 import io.github.xbeeant.core.JsonHelper;
+import io.github.xbeeant.crypto.asymmetric.RSAUtil;
+import io.github.xbeeant.eoffice.aspect.annotation.ResourceOwner;
+import io.github.xbeeant.eoffice.config.RsaKeyProperties;
 import io.github.xbeeant.eoffice.model.*;
 import io.github.xbeeant.eoffice.po.PermTargetType;
-import io.github.xbeeant.eoffice.rest.vo.AttachmentResponse;
-import io.github.xbeeant.eoffice.rest.vo.ResourceInfo;
-import io.github.xbeeant.eoffice.rest.vo.ResourcePerm;
-import io.github.xbeeant.eoffice.rest.vo.ResourceVo;
+import io.github.xbeeant.eoffice.rest.vo.*;
 import io.github.xbeeant.eoffice.service.*;
 import io.github.xbeeant.eoffice.util.AntDesignUtil;
 import io.github.xbeeant.eoffice.util.SecurityHelper;
@@ -19,16 +19,24 @@ import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import io.github.xbeeant.spring.security.SecurityUser;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +47,9 @@ import java.util.List;
 @RestController
 @RequestMapping("api/resource")
 public class ResourceRestController {
+
+    @Autowired
+    private RsaKeyProperties rsaKeyProperties;
 
     @Autowired
     private IUserService userService;
@@ -62,7 +73,7 @@ public class ResourceRestController {
     private IFolderService folderService;
 
     @PostMapping("rename")
-    public ApiResponse<Resource> update(String name, Long rid) {
+    public ApiResponse<Resource> rename(String name, Long rid) {
         Resource resource = new Resource();
         resource.setRid(rid);
         resource.setName(name);
@@ -130,21 +141,37 @@ public class ResourceRestController {
      *
      * @param authentication 身份验证
      * @param rid            资源ID
-     * @param shareKey       分享访问Key
+     * @param share          分享访问Key
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see ResourceVo
      */
     @GetMapping("detail")
-    public ApiResponse<ResourceVo> detail(Authentication authentication, Long rid, String shareKey) {
+    public ApiResponse<ResourceVo> detail(Authentication authentication, Long rid, String share, Long shareId) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeySpecException, IOException, InvalidKeyException {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+        Perm permission = null;
+        if (!StringUtils.isEmpty(share)) {
+            byte[] decrypt = RSAUtil.decrypt(rsaKeyProperties.getPrivateKey(), share);
+            rid = Long.valueOf(new String(decrypt));
+            ApiResponse<Share> shareApiResponse = shareService.selectByPrimaryKey(shareId);
+            permission = resourceService.sharePermission(rid, Long.valueOf(userSecurityUser.getUserId()), shareApiResponse.getData());
+        } else {
+            // 权限
+            permission = resourceService.permission(rid, Long.valueOf(userSecurityUser.getUserId()));
+
+        }
+
+        if (Boolean.FALSE.equals(permission.hasPermission())) {
+            ApiResponse<ResourceVo> response = new ApiResponse<>();
+            response.setResult(100, "尚未取得该文件授权，请联系作者获取");
+            return response;
+        }
+
         ApiResponse<ResourceVo> resourceInfo = resourceService.detail(rid);
         if (!resourceInfo.getSuccess()) {
             resourceInfo.setResult(ErrorCodeConstant.NO_MATCH, "文件已经丢失");
             return resourceInfo;
         }
-        // 权限
-        Perm permission = resourceService.permission(rid, Long.valueOf(userSecurityUser.getUserId()));
         resourceInfo.getData().setPerm(permission);
         return resourceInfo;
     }
@@ -160,8 +187,8 @@ public class ResourceRestController {
      * @see ResourceVo
      */
     @PostMapping("share")
-    public ApiResponse<String> share(Authentication authentication, Long shareId, String authCode) {
-        ApiResponse<String> response = new ApiResponse<>();
+    public ApiResponse<ShareResponse> share(Authentication authentication, Long shareId, String authCode) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeySpecException, InvalidKeyException {
+        ApiResponse<ShareResponse> response = new ApiResponse<>();
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         ApiResponse<Resource> resourceApiResponse = shareService.avaliable(shareId, authCode, userSecurityUser.getUserId());
 
@@ -170,7 +197,15 @@ public class ResourceRestController {
             return response;
         }
 
-        response.setData(String.valueOf(resourceApiResponse.getData().getRid()));
+        Resource resource = resourceApiResponse.getData();
+
+        byte[] encrypt = RSAUtil.encrypt(rsaKeyProperties.getPublicKey(), String.valueOf(resource.getRid()));
+
+        ShareResponse shareResponse = new ShareResponse();
+        shareResponse.setShare(new String(Base64.encodeBase64(encrypt)));
+        shareResponse.setExtension(resource.getExtension());
+        shareResponse.setShareId(shareId);
+        response.setData(shareResponse);
         return response;
     }
 
@@ -198,6 +233,7 @@ public class ResourceRestController {
      * @return 返回移动的文件列表
      */
     @PostMapping("move")
+    @ResourceOwner(id = "rids", selectService = IResourceService.class)
     public ApiResponse<Integer> move(@RequestParam(value = "rid") List<Long> rids, Long fid, @RequestParam(defaultValue = "0", required = false) Long fromFid) {
         return resourceService.move(rids, fid, fromFid);
     }
@@ -212,6 +248,7 @@ public class ResourceRestController {
      */
     @DeleteMapping("")
     @Transactional
+    @ResourceOwner(id = "rids", selectService = IResourceService.class)
     public ApiResponse<Integer> delete(@RequestParam(value = "rid") List<Long> rids) {
         for (Long rid : rids) {
             // 判断资源的类型，如果是文件夹，先要求清空文件夹后再删除文件夹
@@ -258,7 +295,11 @@ public class ResourceRestController {
     }
 
     @PostMapping("perm")
-    public ApiResponse<String> perm(Authentication authentication, @RequestParam(value = "users", required = false) List<Long> users, @RequestParam(value = "team", required = false) List<Long> team, @RequestParam(value = "perm") List<String> perm, String type, Long rid) {
+    @ResourceOwner(id = "rid", selectService = IResourceService.class)
+    public ApiResponse<String> perm(@RequestParam(value = "users", required = false) List<Long> users,
+                                    @RequestParam(value = "team", required = false) List<Long> team,
+                                    @RequestParam(value = "perm") List<String> perm,
+                                    String type, Long rid) {
         if ("member".equals(type)) {
             return resourceService.perm(users, perm, PermTargetType.MEMBER, rid);
         }
@@ -288,18 +329,18 @@ public class ResourceRestController {
      * 资源上传
      *
      * @param authentication 身份验证
-     * @param fid            文件ID
      * @param file           文件
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see Resource
      */
     @PostMapping("upload")
-    public ApiResponse<Storage> upload(Authentication authentication, Long fid, MultipartFile file) {
+    public ApiResponse<Storage> upload(Authentication authentication, MultipartFile file) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
-        return resourceService.upload(file, fid, userSecurityUser.getUserId());
+        return resourceService.upload(file, userSecurityUser.getUserId());
     }
+
 
     /**
      * 资源上传
@@ -315,7 +356,7 @@ public class ResourceRestController {
         List<Storage> files = JSON.parseArray(filesJson, Storage.class);
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         for (Storage storage : files) {
-            resourceService.saveResource(fid, userSecurityUser.getUserId(), storage);
+            resourceService.saveResource(fid, userSecurityUser.getUserId(), storage.getName(), storage);
         }
 
         return new ApiResponse<>();
@@ -330,6 +371,7 @@ public class ResourceRestController {
      * @see Resource
      */
     @PostMapping("upload/overwrite")
+    @ResourceOwner(id = "rid", selectService = IResourceService.class)
     public ApiResponse<String> overwrite(Authentication authentication, Long rid, @RequestParam(value = "files") String filesJson) {
         List<Storage> files = JSON.parseArray(filesJson, Storage.class);
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
@@ -409,9 +451,12 @@ public class ResourceRestController {
      * @see ResourceVo
      */
     @PostMapping("add")
-    public ApiResponse<ResourceVo> add(String type, @RequestParam(defaultValue = "0", required = false) Long fid, Authentication authentication) {
+    public ApiResponse<ResourceVo> add(String type,
+                                       String name,
+                                       @RequestParam(required = false) Long cid,
+                                       @RequestParam(defaultValue = "0", required = false) Long fid, Authentication authentication) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
-        resourceService.add(type, fid, userSecurityUser.getUserId());
+        resourceService.add(type, name, fid, cid, userSecurityUser.getUserId());
         return new ApiResponse<>();
     }
 }

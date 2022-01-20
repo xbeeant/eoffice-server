@@ -17,9 +17,9 @@ public interface PermMapper extends IMybatisPageHelperDao<Perm, Long> {
     /**
      * 权益
      *
-     * @param rid       rid
-     * @param targetId  targetId
-     * @param type      资源类型
+     * @param rid      rid
+     * @param targetId targetId
+     * @param type     资源类型
      * @return {@link Perm}
      * @see Perm
      */
@@ -34,15 +34,15 @@ public interface PermMapper extends IMybatisPageHelperDao<Perm, Long> {
      * @return {@link Perm}
      * @see Perm
      */
-    Perm sharePerm(@Param("rid") Long rid, @Param("targetId") Long targetId,  @Param("shareType") Integer shareType);
+    Perm sharePerm(@Param("rid") Long rid, @Param("targetId") Long targetId, @Param("shareType") Integer shareType);
 
 
     /**
      * perm group
      *
-     * @param rid       掉
-     * @param targetId  targetId
-     * @param type      资源类型
+     * @param rid      掉
+     * @param targetId targetId
+     * @param type     资源类型
      * @return {@link Perm}
      * @see Perm
      */
@@ -58,7 +58,7 @@ public interface PermMapper extends IMybatisPageHelperDao<Perm, Long> {
      * @return {@link Perm}
      * @see Perm
      */
-    Perm sharePermGroup(@Param("rid") Long rid, @Param("targetId") Long targetId,  @Param("shareType") Integer shareType);
+    Perm sharePermGroup(@Param("rid") Long rid, @Param("targetId") Long targetId, @Param("shareType") Integer shareType);
 
 
     /**

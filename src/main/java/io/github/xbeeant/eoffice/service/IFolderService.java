@@ -59,7 +59,32 @@ public interface IFolderService extends IMybatisPageHelperService<Folder, Long> 
      */
     void updateSize(Long fid, Long size);
 
+    /**
+     * sub folders
+     *
+     * @param fid 支撑材
+     * @return {@link List}
+     * @see List
+     * @see Folder
+     */
     List<Folder> subFolders(Long fid);
 
+    /**
+     * update size
+     *
+     * @param fid 支撑材
+     * @param oldSize oldSize
+     * @param newSize newSize
+     */
     void updateSize(Long fid, Long oldSize, Long newSize);
+
+    /**
+     * parent folders
+     *
+     * @param fid 支撑材
+     * @return {@link List}
+     * @see List
+     * @see Folder
+     */
+    List<Folder> parentFolders(Long fid);
 }

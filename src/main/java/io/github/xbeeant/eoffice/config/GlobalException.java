@@ -1,6 +1,7 @@
 package io.github.xbeeant.eoffice.config;
 
 import io.github.xbeeant.core.ApiResponse;
+import io.github.xbeeant.eoffice.exception.InvalidActionException;
 import io.github.xbeeant.eoffice.exception.ResourceMissingException;
 import org.apache.ibatis.reflection.ReflectionException;
 import org.slf4j.Logger;
@@ -34,6 +35,13 @@ public class GlobalException {
         ApiResponse<String> apiResponse = new ApiResponse<>();
         apiResponse.setResult(500, "SQL异常");
         logger.error("SQL异常", e);
+        return apiResponse;
+    }
+
+    @ExceptionHandler(value = InvalidActionException.class)
+    public ApiResponse<String> invalidExceptionHandler(HttpServletRequest request, Exception e) {
+        ApiResponse<String> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(400, e.getMessage());
         return apiResponse;
     }
 

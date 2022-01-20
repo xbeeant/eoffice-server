@@ -195,8 +195,8 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         TreeNode treeNode;
         for (Folder folder : cleanedFolders) {
             treeNode = new TreeNode();
-            treeNode.setKey(folder.getFid());
-            treeNode.setpKey(folder.getPfid());
+            treeNode.setKey(String.valueOf(folder.getFid()));
+            treeNode.setpKey(String.valueOf(folder.getPfid()));
             treeNode.setTitle(folder.getName());
             treeNodes.add(treeNode);
         }
@@ -205,13 +205,13 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         for (TreeNode node : treeNodes) {
             for (TreeNode subNode : treeNodes) {
                 if (subNode.getpKey().equals(node.getKey())) {
-                    subNode.setIsLeaf(false);
+                    subNode.setLeaf(false);
                     node.addChildren(subNode);
                 }
             }
         }
 
-        treeNodes.removeIf(node -> !(0L == node.getpKey()));
+        treeNodes.removeIf(node -> !("0".equals(node.getpKey())));
         return treeNodes;
     }
 
@@ -233,13 +233,13 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         for (MenuItem node : treeNodes) {
             for (MenuItem subNode : treeNodes) {
                 if (subNode.getpKey().equals(node.getKey())) {
-                    subNode.setIsLeaf(false);
+                    subNode.setLeaf(false);
                     node.addChildren(subNode);
                 }
             }
         }
         for (MenuItem node : treeNodes) {
-            if (Boolean.TRUE.equals(node.getIsLeaf())) {
+            if (Boolean.TRUE.equals(node.getLeaf())) {
                 node.setpKey("0");
             }
         }
@@ -252,5 +252,8 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         return folderMapper.subFolders(fid);
     }
 
-
+    @Override
+    public List<Folder> parentFolders(Long fid) {
+        return folderMapper.parents(fid);
+    }
 }

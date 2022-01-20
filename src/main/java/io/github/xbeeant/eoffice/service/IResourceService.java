@@ -24,15 +24,24 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * 上传资源
      *
      * @param file 文件
-     * @param fid  目录ID
      * @param uid  用户ID
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see Resource
      */
-    ApiResponse<Storage> upload(MultipartFile file, Long fid, String uid);
+    ApiResponse<Storage> upload(MultipartFile file, String uid);
 
-    ResourceVo saveResource(Long fid, String uid, Storage storage);
+    /**
+     * save resource
+     *
+     * @param fid      目录ID
+     * @param uid      uid
+     * @param filename 文件名
+     * @param storage  存储
+     * @return {@link ResourceVo}
+     * @see ResourceVo
+     */
+    ResourceVo saveResource(Long fid, String uid, String filename, Storage storage);
 
     /**
      * has permission resources
@@ -104,7 +113,7 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
     /**
      * share permission
      *
-     * @param rid 掉
+     * @param rid    掉
      * @param userId 用户标识
      * @return {@link Perm}
      * @see Perm
@@ -115,12 +124,14 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * 添加/创建资源
      *
      * @param type 类型
+     * @param name
      * @param fid  目录ID
+     * @param cid
      * @param uid  用户标识
      * @return {@link Storage}
      * @see Storage
      */
-    ResourceVo add(String type, Long fid, String uid);
+    ResourceVo add(String type, String name, Long fid, Long cid, String uid);
 
     /**
      * 用户

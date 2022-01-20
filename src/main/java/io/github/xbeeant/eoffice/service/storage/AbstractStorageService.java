@@ -39,9 +39,10 @@ public interface AbstractStorageService {
      *
      * @param type 类型
      * @param fid  目录ID
+     * @param cid  模板ID
      * @param uid  uid
      * @return {@link Storage}
      * @see Storage
      */
-    Storage add(String type, Long fid, String uid);
+    Storage add(String type, Long fid, Long cid, String uid);
 }

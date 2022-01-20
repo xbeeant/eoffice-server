@@ -4,12 +4,10 @@ import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.config.AbstractSecurityMybatisPageHelperServiceImpl;
 import io.github.xbeeant.eoffice.mapper.PermMapper;
-import io.github.xbeeant.eoffice.model.Perm;
-import io.github.xbeeant.eoffice.model.Resource;
-import io.github.xbeeant.eoffice.model.Share;
-import io.github.xbeeant.eoffice.model.User;
+import io.github.xbeeant.eoffice.model.*;
 import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.po.PermType;
+import io.github.xbeeant.eoffice.service.IFolderService;
 import io.github.xbeeant.eoffice.service.IPermService;
 import io.github.xbeeant.eoffice.service.IResourceService;
 import io.github.xbeeant.eoffice.service.IShareService;
@@ -37,6 +35,9 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
     @Autowired
     private IShareService shareService;
 
+    @Autowired
+    private IFolderService folderService;
+
     @Override
     public IMybatisPageHelperDao<Perm, Long> getRepositoryDao() {
         return this.permMapper;
@@ -58,17 +59,33 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
             type = PermType.FOLDER;
         }
 
-        // 文件的权限（自己创建的）
+        // 资源的权限
         Perm perm = permMapper.perm(rid, targetId, type.getType());
         if (null != perm) {
             return perm;
         }
 
-        // 资源没有对用户进行授权，校验资源有没有对用户所在的组进行授权
+        // 资源对应的用户分组的权限
         perm = permMapper.permGroup(rid, targetId, type.getType());
         if (null != perm) {
             return perm;
         }
+
+        // 资源对应的文件夹的权限
+        List<Folder> folders = folderService.parentFolders(resourceApiResponse.getData().getFid());
+        for (Folder folder : folders) {
+            perm = permMapper.perm(folder.getFid(), targetId, PermType.FOLDER.getType());
+            if (null != perm) {
+                return perm;
+            }
+
+            perm = permMapper.permGroup(folder.getFid(), targetId, PermType.FOLDER.getType());
+            if (null != perm) {
+                return perm;
+            }
+        }
+
+
 
         return new Perm();
     }
@@ -107,15 +124,20 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
     }
 
     @Override
-    public ApiResponse<String> perm(List<Long> targetIds, List<String> perm, Long rid, PermType type, PermTargetType targetType) {
+    public ApiResponse<String> perm(List<Long> targetIds, List<String> perm, Resource resource, PermType type, PermTargetType targetType) {
+        targetIds.removeIf(target -> target.equals(Long.valueOf(resource.getCreateBy())));
+        if (CollectionUtils.isEmpty(targetIds)) {
+            return new ApiResponse<>();
+        }
 
         // 获取已有的用户ID，权限进行权限重写
-        permMapper.removeExists(targetIds, rid);
+        permMapper.removeExists(targetIds, resource.getRid());
 
         List<Perm> inserts = new ArrayList<>();
 
         for (Long uid : targetIds) {
-            inserts.add(new Perm(perm, rid, uid, type, targetType));
+            // 不能修改自己的权限
+            inserts.add(new Perm(perm, resource.getRid(), uid, type, targetType));
         }
 
         // 写入新的授权

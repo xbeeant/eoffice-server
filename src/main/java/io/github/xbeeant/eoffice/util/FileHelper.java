@@ -1,8 +1,10 @@
 package io.github.xbeeant.eoffice.util;
 
 import io.github.xbeeant.core.exception.FolderNotFoundException;
+import io.github.xbeeant.eoffice.exception.ResourceMissingException;
 import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.eoffice.model.Storage;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -184,7 +188,7 @@ public class FileHelper {
             try {
                 response.sendError(404, "File not found!");
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("文件下载异常", e);
             }
             return;
         }
@@ -231,5 +235,24 @@ public class FileHelper {
         String fileName = resource.getName();
 
         download(storage, fileName, response, request);
+    }
+
+    public static String readAsString(Storage storage) {
+        try {
+            return new String(Files.readAllBytes(Paths.get(getStoragePath() + storage.getPath())));
+        } catch (Exception e) {
+            throw new ResourceMissingException("资源已经不存在了");
+        }
+    }
+
+    public static MultipartFile readAsMultipart(Storage storage) {
+        String filepath = getStoragePath() + storage.getPath();
+        try {
+            FileInputStream input = new FileInputStream(filepath);
+            return new FileMultipartFile("file",
+                    storage.getName(), "text/plain", IOUtils.toByteArray(input));
+        } catch (Exception e) {
+            throw new ResourceMissingException("资源已经不存在了");
+        }
     }
 }

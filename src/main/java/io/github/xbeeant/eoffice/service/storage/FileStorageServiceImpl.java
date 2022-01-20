@@ -3,8 +3,10 @@ package io.github.xbeeant.eoffice.service.storage;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.exception.FileSaveFailedException;
+import io.github.xbeeant.eoffice.model.DocTemplate;
 import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.eoffice.model.Storage;
+import io.github.xbeeant.eoffice.service.IDocTemplateService;
 import io.github.xbeeant.eoffice.service.IStorageService;
 import io.github.xbeeant.eoffice.util.FileHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +33,9 @@ public class FileStorageServiceImpl implements AbstractStorageService {
     @Autowired
     private IStorageService storageService;
 
+    @Autowired
+    private IDocTemplateService docTemplateService;
+
     @Override
     public Storage save(Object file, String filename, String uid) {
         MultipartFile multipartFile = (MultipartFile) file;
@@ -48,6 +53,7 @@ public class FileStorageServiceImpl implements AbstractStorageService {
         // MD5比较，如果文件已经存在，直接返回已经存在的文件信息，避免重复存储
         Storage example = new Storage();
         example.setMd5(md5);
+        example.setExtension(extension);
         ApiResponse<Storage> existStorage = storageService.selectOneByExample(example);
         Storage storage;
         if (!existStorage.getSuccess()) {
@@ -85,7 +91,16 @@ public class FileStorageServiceImpl implements AbstractStorageService {
     }
 
     @Override
-    public Storage add(String type, Long fid, String uid) {
-        return null;
+    public Storage add(String type, Long fid, Long cid, String uid) {
+        MultipartFile value = null;
+        if (null != cid) {
+            ApiResponse<DocTemplate> docTemplateApiResponse = docTemplateService.selectByPrimaryKey(cid);
+            Long sid = docTemplateApiResponse.getData().getSid();
+            ApiResponse<Storage> storageApiResponse = storageService.selectByPrimaryKey(sid);
+
+            value = FileHelper.readAsMultipart(storageApiResponse.getData());
+        }
+
+        return save(value, "新建文档." + type, uid);
     }
 }

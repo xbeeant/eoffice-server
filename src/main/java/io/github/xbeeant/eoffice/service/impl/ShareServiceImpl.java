@@ -85,12 +85,15 @@ public class ShareServiceImpl extends AbstractSecurityMybatisPageHelperServiceIm
             result.setResult(ErrorCodeConstant.NO_MATCH, "资源已被删除");
             return result;
         }
-        boolean isFolder = "folder".equals(resourceApiResponse.getData().getExtension());
+
+        Resource resource = resourceApiResponse.getData();
+
+        boolean isFolder = "folder".equals(resource.getExtension());
         PermType permType = PermType.SHARE_FILE;
         if (isFolder) {
             permType = PermType.SHARE_FOLDER;
         }
-        permService.perm(users, perm, rid, permType, targetType);
+        permService.perm(users, perm, resource, permType, targetType);
         // 记录分享操作
         Share share = new Share();
         share.setAuthCode(RandomHelper.random(4));

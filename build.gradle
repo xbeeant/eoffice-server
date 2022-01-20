@@ -69,6 +69,7 @@ dependencies {
     implementation 'io.github.xbeeant:serializer:1.0.0-SNAPSHOT'
     implementation 'io.github.xbeeant:antdesign:1.0.0-SNAPSHOT'
     implementation 'io.github.xbeeant:mdc:1.0.0-SNAPSHOT'
+    implementation 'io.github.xbeeant:aop:1.0.0-SNAPSHOT'
     implementation 'io.github.xbeeant:core:1.0.0-SNAPSHOT'
 
     implementation 'commons-io:commons-io:2.11.0'

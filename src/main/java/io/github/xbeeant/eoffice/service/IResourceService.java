@@ -48,12 +48,24 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      *
      * @param fid        fid
      * @param uid        uid
-     * @param pageBounds
+     * @param pageBounds 分页参数
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see List
      */
     ApiResponse<List<Resource>> hasPermissionResources(Long fid, String uid, PageBounds pageBounds);
+
+    /**
+     * has permission resources
+     *
+     * @param keyWords   关键词
+     * @param uid        uid
+     * @param pageBounds 分页参数
+     * @return {@link ApiResponse}
+     * @see ApiResponse
+     * @see List
+     */
+    ApiResponse<List<Resource>> hasPermissionResources(String keyWords, String uid, PageBounds pageBounds);
 
     /**
      * 详情

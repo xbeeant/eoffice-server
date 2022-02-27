@@ -6,7 +6,7 @@
         from eoffice_perm
         where rid = #{rid,jdbcType=BIGINT}
           and target_id = #{targetId,jdbcType=BIGINT}
-          and `type` = #{type}
+          and `type` = #{type} order by create_at desc limit 1
     </select>
 
     <select id="sharePerm" resultMap="BaseResultMap">

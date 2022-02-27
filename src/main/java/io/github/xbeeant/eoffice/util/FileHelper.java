@@ -4,6 +4,10 @@ import io.github.xbeeant.core.exception.FolderNotFoundException;
 import io.github.xbeeant.eoffice.exception.ResourceMissingException;
 import io.github.xbeeant.eoffice.model.Resource;
 import io.github.xbeeant.eoffice.model.Storage;
+import io.github.xbeeant.eoffice.model.User;
+import io.github.xbeeant.eoffice.service.render.office.OnlyOfficeConfiguration;
+import io.github.xbeeant.spring.security.SecurityUser;
+import io.github.xbeeant.spring.web.SpringContextProvider;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,6 +35,13 @@ public class FileHelper {
 
     private FileHelper() {
         // do nothing
+    }
+
+    public static String documentUrl(Long rid, Long sid, SecurityUser<User> user) {
+        return SpringContextProvider.getBean(OnlyOfficeConfiguration.class).getDocumentUrlPrefix()
+                + "?rid=" + rid
+                + "&sid=" + sid
+                + "&token=" + Base64Helper.base64Encode(user.getUserId());
     }
 
     public static String getPath(String folderName) {
@@ -254,5 +265,11 @@ public class FileHelper {
         } catch (Exception e) {
             throw new ResourceMissingException("资源已经不存在了");
         }
+    }
+
+    public static MultipartFile toMultipart(String content, String filename) {
+        //先把string转换成字节数组
+        byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
+        return new StringMultipartFile("file", filename, "text/plain", contentBytes);
     }
 }

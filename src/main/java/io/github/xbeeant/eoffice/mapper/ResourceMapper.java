@@ -20,7 +20,6 @@ public interface ResourceMapper extends IMybatisPageHelperDao<Resource, Long> {
      * has permission resources
      *
      * @param fid fid
-     * @param uid uid
      * @return {@link List}
      * @see List
      * @see Resource
@@ -39,6 +38,17 @@ public interface ResourceMapper extends IMybatisPageHelperDao<Resource, Long> {
      */
     List<Resource> hasPermissionResources(@Param("fid") Long fid, @Param("uid") String uid);
 
+    /**
+     * has permission resources
+     *
+     * @param keyWord 关键字
+     * @param uid     uid
+     * @param uid     uid
+     * @return {@link List}
+     * @see List
+     * @see Resource
+     */
+    List<Resource> hasPermissionResourcesByKeyWord(@Param("keyWord") String keyWord, @Param("uid") String uid);
 
     /**
      * 已授权过的成员

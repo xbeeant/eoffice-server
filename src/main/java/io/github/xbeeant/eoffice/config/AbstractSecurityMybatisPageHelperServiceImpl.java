@@ -25,7 +25,7 @@ public abstract class AbstractSecurityMybatisPageHelperServiceImpl<T extends Bas
             SecurityUser<User> userSecurityUser = SecurityHelper.currentUser();
             return userSecurityUser.getUserId();
         } catch (Exception e) {
-            return "";
+            return "0";
         }
     }
 }

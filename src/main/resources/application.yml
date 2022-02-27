@@ -75,3 +75,9 @@ rsa:
 
 logging:
   config: classpath:log4j2.yml
+onlyoffice:
+  server: http://10.113.10.2:8080
+  download: eoffice/
+  callback-url: eoffice/api/office/callback
+  changes-url: eoffice/api/office/changes
+  document-url: eoffice/api/resource/s

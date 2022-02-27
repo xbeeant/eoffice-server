@@ -1,6 +1,8 @@
 package io.github.xbeeant.eoffice.mapper;
 
+import com.github.pagehelper.Page;
 import io.github.xbeeant.eoffice.model.ResourceVersion;
+import io.github.xbeeant.eoffice.rest.vo.ResourceVersionVo;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -10,4 +12,13 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface ResourceVersionMapper extends IMybatisPageHelperDao<ResourceVersion, Long> {
+    /**
+     * fuzzy search vo
+     *
+     * @param example 例子
+     * @return {@link Page}
+     * @see Page
+     * @see ResourceVersionVo
+     */
+    Page<ResourceVersionVo> fuzzySearchVo(ResourceVersion example);
 }

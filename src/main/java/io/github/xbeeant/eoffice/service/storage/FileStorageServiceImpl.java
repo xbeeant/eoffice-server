@@ -26,7 +26,7 @@ import java.security.NoSuchAlgorithmException;
  * @author xiaobiao
  * @date 2022/1/6
  */
-@Component("fileStorageService")
+@Component
 public class FileStorageServiceImpl implements AbstractStorageService {
     private static final Logger logger = LoggerFactory.getLogger(FileStorageServiceImpl.class);
 
@@ -38,7 +38,13 @@ public class FileStorageServiceImpl implements AbstractStorageService {
 
     @Override
     public Storage save(Object file, String filename, String uid) {
-        MultipartFile multipartFile = (MultipartFile) file;
+        MultipartFile multipartFile;
+        if (file instanceof String) {
+            multipartFile = FileHelper.toMultipart((String ) file, filename);
+        } else  {
+            multipartFile = (MultipartFile) file;
+        }
+
         if (StringUtils.isEmpty(filename)) {
             filename = "";
         }

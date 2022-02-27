@@ -50,6 +50,9 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     private IStorageService storageService;
 
     @Autowired
+    private IUserService userService;
+
+    @Autowired
     private IResourceAttachmentService resourceAttachmentService;
 
     @Autowired
@@ -81,7 +84,19 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             throw new ResourceMissingException("文件丢了");
         }
         ResourceVo resourceVo = JsonHelper.copy(resourceApiResponse.getData(), ResourceVo.class);
-        resourceVo.setUrl("/api/resource/s?sid=" + resourceApiResponse.getData().getSid() + "&rid=" + rid);
+        // storage信息
+        ApiResponse<Storage> storageApiResponse = storageService.selectByPrimaryKey(resourceApiResponse.getData().getSid());
+        resourceVo.setStorage(storageApiResponse.getData());
+
+        // owner信息
+        ApiResponse<User> userApiResponse = userService.selectByPrimaryKey(Long.valueOf(resourceVo.getCreateBy()));
+        User owner = new User();
+        User user = userApiResponse.getData();
+        owner.setUsername(user.getUsername());
+        owner.setNickname(user.getNickname());
+        resourceVo.setOwner(owner);
+
+        resourceVo.setUrl("/eoffice/api/resource/s?sid=" + resourceApiResponse.getData().getSid() + "&rid=" + rid);
         result.setData(resourceVo);
         return result;
     }
@@ -102,6 +117,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         if (attachmentApiResponse.getData().getRid().equals(rid)) {
             Long sid = attachmentApiResponse.getData().getSid();
             ApiResponse<Storage> storageApiResponse = storageService.selectByPrimaryKey(sid);
+            // todo
             FileHelper.download(storageApiResponse.getData(), "", response, request);
         } else {
             Requests.writeJson(response, "资源不存在");
@@ -109,9 +125,17 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     }
 
     @Override
-    public ApiResponse<List<Resource>> hasPermissionResources(Long fid, String uid, PageBounds pageBounds) {
+    public ApiResponse<List<Resource>> hasPermissionResources(String keyWords, String uid, PageBounds pageBounds) {
         ApiResponse<List<Resource>> result = new ApiResponse<>();
 
+        List<Resource> resources = resourceMapper.hasPermissionResourcesByKeyWord("%" + keyWords + "%", uid);
+        result.setData(resources);
+        return result;
+    }
+
+    @Override
+    public ApiResponse<List<Resource>> hasPermissionResources(Long fid, String uid, PageBounds pageBounds) {
+        ApiResponse<List<Resource>> result = new ApiResponse<>();
 
         // 如果fid = 0 ，在首页，获取已经授权的文件夹 否则 判断是否已经授权了文件夹
         List<Resource> resources;
@@ -206,9 +230,16 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         resource.setUpdateBy(uid);
         updateByPrimaryKeySelective(resource);
 
-        // todo 版本信息记录
+        // 写入新的版本
+        ResourceVersion resourceVersion = new ResourceVersion();
+        resourceVersion.setRid(rid);
+        resourceVersion.setSid(storage.getSid());
+        resourceVersion.setSize(storage.getSize());
+        resourceVersion.setName(storage.getName());
+        resourceVersionService.insertSelective(resourceVersion);
+
         // 更新文件夹的存储空间
-        folderService.updateSize(dbResource.getFid(), dbResource.getSize(), resource.getSize());
+        folderService.updateFolderAndResourceSize(dbResource.getFid(), dbResource.getSize(), resource.getSize());
 
         return resource;
     }
@@ -252,7 +283,15 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         permService.insertSelective(perm);
 
         // 更新文件夹的存储空间
-        folderService.updateSize(fid, resource.getSize());
+        folderService.updateFolderSize(fid, resource.getSize());
+
+        // 写入新的版本
+        ResourceVersion resourceVersion = new ResourceVersion();
+        resourceVersion.setRid(resource.getRid());
+        resourceVersion.setSid(storage.getSid());
+        resourceVersion.setSize(storage.getSize());
+        resourceVersion.setName(storage.getName());
+        resourceVersionService.insertSelective(resourceVersion);
 
         resource.setPerm(perm);
         return resource;
@@ -305,6 +344,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
                 return response;
             }
         }
+
         ApiResponse<Folder> targetFolderResponse = folderService.selectByPrimaryKey(targetFid);
 
         if (!targetFolderResponse.getSuccess() || targetFolderResponse.getData().getDeleted()) {
@@ -342,11 +382,16 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
                             throw new InvalidResourceMoveException("不能移动到子文件夹中");
                         }
                     }
+
                     // 更新folder信息
                     Folder updateFolder = new Folder();
                     updateFolder.setFid(rid);
                     updateFolder.setPfid(targetFolder.getFid());
                     updateFolder.setPath(targetFolder.getPath() + "/" + resource.getName());
+
+                    folderService.updateFolderSize(targetFolder.getFid(), resource.getSize());
+                    folderService.updateFolderSize(sourceFolder.getFid(), -resource.getSize());
+
                     folderService.updateByPrimaryKeySelective(updateFolder);
                     updateResource.setPath(updateFolder.getPath());
                 }

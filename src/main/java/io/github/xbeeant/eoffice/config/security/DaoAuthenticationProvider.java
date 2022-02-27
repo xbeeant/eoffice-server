@@ -1,7 +1,7 @@
 package io.github.xbeeant.eoffice.config.security;
 
 import io.github.xbeeant.eoffice.service.IUserService;
-import io.github.xbeeant.spring.security.LoginParamters;
+import io.github.xbeeant.spring.security.LoginParameters;
 import io.github.xbeeant.spring.web.SpringContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 
-        LoginParamters loginParamters = (LoginParamters) authentication.getDetails();
+        LoginParameters loginParamters = (LoginParameters) authentication.getDetails();
         Object userName = loginParamters.get("username");
         if (null == userDetails) {
             log.warn("{} 登录失败 用户不存在", userName);

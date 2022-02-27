@@ -110,7 +110,7 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
     }
 
     @Override
-    public void updateSize(Long fid, Long size) {
+    public void updateFolderSize(Long fid, Long size) {
         List<Folder> parents = folderMapper.parents(fid);
         List<Long> parentIds = new ArrayList<>(parents.size());
         for (Folder folder : parents) {
@@ -126,14 +126,14 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
     }
 
     @Override
-    public void updateSize(Long fid, Long oldSize, Long newSize) {
+    public void updateFolderAndResourceSize(Long fid, Long resourceOldSize, Long resourceNewSize) {
         List<Folder> parents = folderMapper.parents(fid);
         List<Long> parentIds = new ArrayList<>(parents.size());
         for (Folder folder : parents) {
             parentIds.add(folder.getFid());
         }
         if (!CollectionUtils.isEmpty(parentIds)) {
-            folderMapper.updateSize(parentIds, oldSize, newSize);
+            folderMapper.updateResourceSize(parentIds, resourceOldSize, resourceNewSize);
         }
     }
 
@@ -198,6 +198,7 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
             treeNode.setKey(String.valueOf(folder.getFid()));
             treeNode.setpKey(String.valueOf(folder.getPfid()));
             treeNode.setTitle(folder.getName());
+            treeNode.setValue(String.valueOf(folder.getFid()));
             treeNodes.add(treeNode);
         }
 
@@ -205,7 +206,7 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         for (TreeNode node : treeNodes) {
             for (TreeNode subNode : treeNodes) {
                 if (subNode.getpKey().equals(node.getKey())) {
-                    subNode.setLeaf(false);
+                    subNode.setIsLeaf(false);
                     node.addChildren(subNode);
                 }
             }
@@ -233,16 +234,19 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         for (MenuItem node : treeNodes) {
             for (MenuItem subNode : treeNodes) {
                 if (subNode.getpKey().equals(node.getKey())) {
-                    subNode.setLeaf(false);
+                    subNode.setIsLeaf(false);
+                    subNode.setParentExist(true);
                     node.addChildren(subNode);
                 }
             }
         }
+
         for (MenuItem node : treeNodes) {
-            if (Boolean.TRUE.equals(node.getLeaf())) {
+            if (!node.getParentExist()) {
                 node.setpKey("0");
             }
         }
+
         treeNodes.removeIf(node -> !"0".equals(node.getpKey()));
         return treeNodes;
     }

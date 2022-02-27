@@ -24,7 +24,7 @@ Configuration:
     RollingFile:
       - name: ROLLING_FILE
         fileName: ${log.path}/${project.name}.log
-        filePattern: "${log.path}/historyRunLog/$${date:yyyy-MM}/${project.name}-%d{yyyy-MM-dd}-%i.log.gz"
+        filePattern: "${log.path}/history/$${date:yyyy-MM}/${project.name}-%d{yyyy-MM-dd}-%i.log.gz"
         PatternLayout:
           pattern: ${log.pattern}
         Filters:

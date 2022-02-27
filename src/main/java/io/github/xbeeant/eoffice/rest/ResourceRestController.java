@@ -13,6 +13,7 @@ import io.github.xbeeant.eoffice.model.*;
 import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.rest.vo.*;
 import io.github.xbeeant.eoffice.service.*;
+import io.github.xbeeant.eoffice.service.render.RenderFactory;
 import io.github.xbeeant.eoffice.util.AntDesignUtil;
 import io.github.xbeeant.eoffice.util.SecurityHelper;
 import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
@@ -72,6 +73,10 @@ public class ResourceRestController {
     @Autowired
     private IFolderService folderService;
 
+
+    @Autowired
+    private IResourceVersionService resourceVersionService;
+
     @PostMapping("rename")
     public ApiResponse<Resource> rename(String name, Long rid) {
         Resource resource = new Resource();
@@ -91,15 +96,22 @@ public class ResourceRestController {
      * @see List
      */
     @GetMapping
-    public ApiResponse<List<Resource>> resources(Authentication authentication, @RequestParam(defaultValue = "0", required = false) Long fid, PageRequest pageRequest) {
+    public ApiResponse<List<Resource>> resources(Authentication authentication,
+                                                 @RequestParam(defaultValue = "0", required = false) Long fid,
+                                                 @RequestParam(value = "key", required = false) String keyWords,
+                                                 PageRequest pageRequest) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
         ApiResponse<List<Resource>> apiResponse;
 
         String sorter = AntDesignUtil.translateOrder(pageRequest.getSorter());
         pageRequest.setSorter(sorter);
+        if (!StringUtils.isEmpty(keyWords)) {
+            apiResponse = resourceService.hasPermissionResources(keyWords, userSecurityUser.getUserId(), pageRequest.getPageBounds());
+        } else {
+            apiResponse = resourceService.hasPermissionResources(fid, userSecurityUser.getUserId(), pageRequest.getPageBounds());
+        }
 
-        apiResponse = resourceService.hasPermissionResources(fid, userSecurityUser.getUserId(), pageRequest.getPageBounds());
         apiResponse.setCode(0);
 
         return apiResponse;
@@ -147,9 +159,14 @@ public class ResourceRestController {
      * @see ResourceVo
      */
     @GetMapping("detail")
-    public ApiResponse<ResourceVo> detail(Authentication authentication, Long rid, String share, Long shareId) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeySpecException, IOException, InvalidKeyException {
+    public ApiResponse<ResourceVo> detail(Authentication authentication,
+                                          Long rid,
+                                          String share,
+                                          String render,
+                                          String mode,
+                                          Long shareId) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeySpecException, IOException, InvalidKeyException {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
-        Perm permission = null;
+        Perm permission;
         if (!StringUtils.isEmpty(share)) {
             byte[] decrypt = RSAUtil.decrypt(rsaKeyProperties.getPrivateKey(), share);
             rid = Long.valueOf(new String(decrypt));
@@ -158,7 +175,6 @@ public class ResourceRestController {
         } else {
             // 权限
             permission = resourceService.permission(rid, Long.valueOf(userSecurityUser.getUserId()));
-
         }
 
         if (Boolean.FALSE.equals(permission.hasPermission())) {
@@ -173,6 +189,7 @@ public class ResourceRestController {
             return resourceInfo;
         }
         resourceInfo.getData().setPerm(permission);
+        RenderFactory.getRender(render).setExtra(resourceInfo.getData(), mode, userSecurityUser);
         return resourceInfo;
     }
 
@@ -283,7 +300,7 @@ public class ResourceRestController {
             resourceService.updateByPrimaryKeySelective(resource);
 
             // 文件夹的空间减少
-            folderService.updateSize(data.getFid(), -data.getSize());
+            folderService.updateFolderSize(data.getFid(), -data.getSize());
         }
 
         return new ApiResponse<>();
@@ -405,7 +422,7 @@ public class ResourceRestController {
         AttachmentResponse attachmentResponse = new AttachmentResponse();
         attachmentResponse.setSuccess(true);
         attachmentResponse.setMessage("上传成功！");
-        attachmentResponse.setUrl("./api/resource/attachment?rid=" + rid + "&aid=" + resourceAttachmentApiResponse.getData().getAid());
+        attachmentResponse.setUrl("/eoffice/api/resource/attachment?rid=" + rid + "&aid=" + resourceAttachmentApiResponse.getData().getAid());
         return attachmentResponse;
     }
 
@@ -458,5 +475,26 @@ public class ResourceRestController {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         resourceService.add(type, name, fid, cid, userSecurityUser.getUserId());
         return new ApiResponse<>();
+    }
+
+    @GetMapping("history")
+    public ApiResponse<TableResponse<ResourceVersionVo>> history(Long rid, PageRequest pageRequest) {
+        ApiResponse<TableResponse<ResourceVersionVo>> apiResponse = new ApiResponse<>();
+        PageRequest webRequest = new PageRequest(pageRequest);
+
+        ResourceVersion example = new ResourceVersion();
+        example.setRid(rid);
+
+        ApiResponse<PageResponse<ResourceVersionVo>> list = resourceVersionService.fuzzySearchVoByPager(example, webRequest.getPageBounds());
+        if (!list.getSuccess()) {
+            apiResponse.setResult(ErrorCodeConstant.NO_MATCH, ErrorCodeConstant.NO_MATCH_MSG);
+            return apiResponse;
+        }
+
+        TableResponse<ResourceVersionVo> pageResponse = new TableResponse<>();
+        pageResponse.setList(list.getData());
+        pageResponse.setPagination(list.getData().getPagination());
+        apiResponse.setData(pageResponse);
+        return apiResponse;
     }
 }

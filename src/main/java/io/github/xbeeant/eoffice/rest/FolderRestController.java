@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -58,7 +59,7 @@ public class FolderRestController {
     public ApiResponse<List<Breadcrumb>> breadcrumb(Long fid) {
         ApiResponse<List<Breadcrumb>> result = new ApiResponse<>();
         List<Folder> parents = folderService.breadcrumb(fid);
-
+        Collections.reverse(parents);
         List<Breadcrumb> breadcrumbs = new ArrayList<>(parents.size());
 
         for (Folder parent : parents) {

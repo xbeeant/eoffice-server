@@ -15,7 +15,7 @@ import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import io.github.xbeeant.spring.mybatis.rest.AbstractPagehelperRestFormController;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -124,7 +124,7 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
     public ApiResponse<TableResponse<User>> table(
             Long gid,
             User user,
-            @ApiParam(value = "页面要求", required = true) PageRequest pageRequest) {
+            @Parameter(description = "页面要求", required = true) PageRequest pageRequest) {
         ApiResponse<TableResponse<User>> apiResponse = new ApiResponse<>();
         PageRequest webRequest = new PageRequest(pageRequest);
 

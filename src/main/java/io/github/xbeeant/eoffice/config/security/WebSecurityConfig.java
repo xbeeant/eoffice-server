@@ -29,6 +29,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/auth/**",
                         "/api/user/register",
+                        "/api/slaves",
                         "/api/socket/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -43,6 +44,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.rememberMe().rememberMeServices(rememberMeServices());
 
         // 自定义的token参数会话认证服务
+        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         // 未登录异常处理
         http.exceptionHandling().authenticationEntryPoint(new EofficeUnauthorizedAuthenticationEntryPoint());
@@ -59,6 +61,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
 
         http.headers().frameOptions().disable();
+    }
+
+    @Bean
+    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+        return new TokenAuthenticationFilter();
     }
 
     @Bean

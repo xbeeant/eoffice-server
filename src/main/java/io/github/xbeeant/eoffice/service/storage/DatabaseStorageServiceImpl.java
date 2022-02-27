@@ -30,7 +30,7 @@ import java.security.NoSuchAlgorithmException;
  * @author xiaobiao
  * @date 2022/1/6
  */
-@Component("databaseStorageService")
+@Component
 public class DatabaseStorageServiceImpl implements AbstractStorageService {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseStorageServiceImpl.class);
 

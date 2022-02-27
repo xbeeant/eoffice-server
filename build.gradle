@@ -2,6 +2,8 @@ plugins {
     id 'org.springframework.boot' version '2.5.6'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
+    id 'jacoco'
+    id "org.sonarqube" version "2.8"
 }
 
 group = 'io.github.xbeeant'
@@ -71,6 +73,7 @@ dependencies {
     implementation 'io.github.xbeeant:mdc:1.0.0-SNAPSHOT'
     implementation 'io.github.xbeeant:aop:1.0.0-SNAPSHOT'
     implementation 'io.github.xbeeant:core:1.0.0-SNAPSHOT'
+    implementation 'io.github.xbeeant:http:1.0.0-SNAPSHOT'
 
     implementation 'commons-io:commons-io:2.11.0'
 }

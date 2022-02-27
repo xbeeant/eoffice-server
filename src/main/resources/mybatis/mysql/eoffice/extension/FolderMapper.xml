@@ -48,7 +48,7 @@
         </foreach>
     </update>
 
-    <update id="updateSize">
+    <update id="updateResourceSize">
         <foreach collection="fids" item="fid">
             update eoffice_folder
             set size = size + #{newSize,jdbcType=BIGINT} - #{oldSize,jdbcType=BIGINT}

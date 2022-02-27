@@ -270,6 +270,6 @@ public class FileHelper {
     public static MultipartFile toMultipart(String content, String filename) {
         //先把string转换成字节数组
         byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
-        return new StringMultipartFile("file", filename, "text/plain", contentBytes);
+        return new FileMultipartFile("file", filename, "text/plain", contentBytes);
     }
 }

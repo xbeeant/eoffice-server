@@ -33,7 +33,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * eoffice_resource
@@ -53,8 +55,13 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     private IUserService userService;
 
     @Autowired
+    private IUserGroupService userGroupService;
+
+    @Autowired
     private IResourceAttachmentService resourceAttachmentService;
 
+    @Autowired
+    private IGroupService groupService;
     @Autowired
     private IFolderService folderService;
 
@@ -77,7 +84,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     }
 
     @Override
-    public ApiResponse<ResourceVo> detail(Long rid) {
+    public ApiResponse<ResourceVo> detail(Long rid, Long vid) {
         ApiResponse<ResourceVo> result = new ApiResponse<>();
         ApiResponse<Resource> resourceApiResponse = selectByPrimaryKey(rid);
         if (!resourceApiResponse.getSuccess()) {
@@ -85,7 +92,18 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         }
         ResourceVo resourceVo = JsonHelper.copy(resourceApiResponse.getData(), ResourceVo.class);
         // storage信息
-        ApiResponse<Storage> storageApiResponse = storageService.selectByPrimaryKey(resourceApiResponse.getData().getSid());
+        ApiResponse<Storage> storageApiResponse;
+        if (vid == null ) {
+            storageApiResponse = storageService.selectByPrimaryKey(resourceVo.getSid());
+        } else {
+            ApiResponse<ResourceVersion> resourceVersionApiResponse = resourceVersionService.selectByPrimaryKey(vid);
+            ResourceVersion resourceVersion = resourceVersionApiResponse.getData();
+            storageApiResponse = storageService.selectByPrimaryKey(resourceVersion.getSid());
+            resourceVo.setName(resourceVersion.getName());
+            resourceVo.setExtension(resourceVersion.getExtension());
+            resourceVo.setSid(resourceVersion.getSid());
+        }
+
         resourceVo.setStorage(storageApiResponse.getData());
 
         // owner信息
@@ -96,15 +114,21 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         owner.setNickname(user.getNickname());
         resourceVo.setOwner(owner);
 
-        resourceVo.setUrl("/eoffice/api/resource/s?sid=" + resourceApiResponse.getData().getSid() + "&rid=" + rid);
+        StringBuilder url = new StringBuilder();
+        url.append("/eoffice/api/resource/s?sid=" + resourceVo.getSid() + "&rid=" + rid);
+        if (vid != null) {
+            url.append( "&vid=" + vid);
+        }
+        resourceVo.setUrl(url.toString());
+
         result.setData(resourceVo);
         return result;
     }
 
     @Override
     public void download(Long rid, Long sid, HttpServletRequest request, HttpServletResponse response) {
-        // todo 权益校验
         ApiResponse<Resource> resourceApiResponse = selectByPrimaryKey(rid);
+
         ApiResponse<Storage> storageApiResponse = storageService.selectByPrimaryKey(sid);
         if (storageApiResponse.getSuccess()) {
             StorageFactory.getStorage(storageApiResponse.getData().getExtension()).download(storageApiResponse.getData(), resourceApiResponse.getData(), response, request);
@@ -145,7 +169,19 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
             } else {
                 PageMethod.orderBy("create_at desc");
             }
-            resources = resourceMapper.hasPermissionResources(fid, uid);
+            Long lUid = Long.valueOf(uid);
+            // 用户ID获取所在分组ID列表
+            UserGroup userGroupExample = new UserGroup();
+            userGroupExample.setUid(lUid);
+            ApiResponse<List<UserGroup>> listApiResponse = userGroupService.selectAllByExample(userGroupExample);
+            Set<Long> gids = new HashSet<>();
+            if (listApiResponse.getSuccess()) {
+                for (UserGroup item : listApiResponse.getData()) {
+                    List<Long> ids = groupService.parentIds(item.getGid());
+                    gids.addAll(ids);
+                }
+            }
+            resources = resourceMapper.hasPermissionResources(fid, uid, gids);
         } else {
             Perm perm = permService.perm(Long.valueOf(uid), fid);
             if (Boolean.FALSE.equals(perm.hasPermission())) {
@@ -165,7 +201,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
     }
 
     @Override
-    public ApiResponse<String> save(Long rid, String value, String uid) {
+    public ApiResponse<Resource> save(Long rid, String value, String uid) {
         // 资源信息
         ApiResponse<Resource> resourceApiResponse = selectByPrimaryKey(rid);
         Resource resource = resourceApiResponse.getData();
@@ -173,7 +209,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         try {
             storage = storageService.insert(value, resource.getName(), uid);
         } catch (Exception e) {
-            throw new FileSaveFailedException();
+            throw new FileSaveFailedException(e);
         }
 
         // 更新资源信息
@@ -193,8 +229,11 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         resourceVersion.setSid(storage.getSid());
         resourceVersion.setSize(storage.getSize());
         resourceVersion.setName(storage.getName());
+        resourceVersion.setExtension(storage.getExtension());
         resourceVersionService.insertSelective(resourceVersion);
-        ApiResponse<String> result = new ApiResponse<>();
+        ApiResponse<Resource> result = new ApiResponse<>();
+
+        result.setData(resource);
         result.setMsg("保存成功");
         return result;
     }
@@ -205,8 +244,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         try {
             storage = storageService.insert(file, uid);
         } catch (Exception e) {
-            logger.error("文件存储异常", e);
-            throw new FileSaveFailedException();
+            throw new FileSaveFailedException(e);
         }
 
         ApiResponse<Storage> result = new ApiResponse<>();
@@ -236,6 +274,8 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         resourceVersion.setSid(storage.getSid());
         resourceVersion.setSize(storage.getSize());
         resourceVersion.setName(storage.getName());
+        resourceVersion.setExtension(storage.getExtension());
+        resourceVersion.setCreateBy(uid);
         resourceVersionService.insertSelective(resourceVersion);
 
         // 更新文件夹的存储空间
@@ -291,6 +331,7 @@ public class ResourceServiceImpl extends AbstractSecurityMybatisPageHelperServic
         resourceVersion.setSid(storage.getSid());
         resourceVersion.setSize(storage.getSize());
         resourceVersion.setName(storage.getName());
+        resourceVersion.setExtension(storage.getExtension());
         resourceVersionService.insertSelective(resourceVersion);
 
         resource.setPerm(perm);

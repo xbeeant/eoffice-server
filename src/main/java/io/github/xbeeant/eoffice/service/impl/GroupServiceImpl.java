@@ -2,6 +2,7 @@ package io.github.xbeeant.eoffice.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
+import io.github.xbeeant.antdesign.TreeNode;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
 import io.github.xbeeant.core.IdWorker;
@@ -15,9 +16,11 @@ import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import io.github.xbeeant.spring.security.SecurityUser;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -85,6 +88,49 @@ public class GroupServiceImpl extends AbstractSecurityMybatisPageHelperServiceIm
         apiResponse.setData(pageList);
 
         return apiResponse;
+    }
+
+    @Override
+    public List<Long> parentIds(Long gid) {
+        return groupMapper.parentIds(gid);
+    }
+
+    @Override
+    public List<TreeNode> treeNodes(Integer type) {
+        List<Group> list = treeList(type);
+
+        List<TreeNode> treeNodes = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(list)) {
+            // to TreeNode
+            List<TreeNode> nodes = new ArrayList<>(list.size());
+            TreeNode treeNode;
+            for (Group group : list) {
+                treeNode = new TreeNode();
+                treeNode.setTitle(group.getName());
+                treeNode.setKey(String.valueOf(group.getGid()));
+                treeNode.setValue(String.valueOf(group.getGid()));
+                treeNode.setpKey(String.valueOf(group.getPgid()));
+                nodes.add(treeNode);
+            }
+
+            // 所有菜单构建父子分组项
+            for (TreeNode topItem : nodes) {
+                // 获取第一层分组
+                for (TreeNode childItem : nodes) {
+                    if (topItem.getKey().equals(childItem.getpKey())) {
+                        topItem.addChildren(childItem);
+                    }
+                }
+            }
+            // 获取grade分组是1的分组
+            for (TreeNode topMenu : nodes) {
+                if ("0".equals(topMenu.getpKey())) {
+                    treeNodes.add(topMenu);
+                }
+            }
+        }
+
+        return treeNodes;
     }
 
     @Override

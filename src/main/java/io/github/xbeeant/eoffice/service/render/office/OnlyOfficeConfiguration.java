@@ -1,6 +1,6 @@
 package io.github.xbeeant.eoffice.service.render.office;
 
-import io.github.xbeeant.http.Requests;
+import io.github.xbeeant.eoffice.util.UrlHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
@@ -28,7 +28,7 @@ public class OnlyOfficeConfiguration {
     private String documentUrlPrefix;
 
     public String getChangesPrefix() {
-        return Requests.getDomain(request) + changesPrefix;
+        return UrlHelper.getServerDomain(request) + changesPrefix;
     }
 
     public void setChangesPrefix(String changesPrefix) {
@@ -36,7 +36,7 @@ public class OnlyOfficeConfiguration {
     }
 
     public String getDocumentUrlPrefix() {
-        return Requests.getDomain(request) + documentUrlPrefix;
+        return UrlHelper.getServerDomain(request) + documentUrlPrefix;
     }
 
     public void setDocumentUrlPrefix(String documentUrlPrefix) {
@@ -44,7 +44,7 @@ public class OnlyOfficeConfiguration {
     }
 
     public String getCallbackUrlPrefix() {
-        return Requests.getDomain(request) + callbackUrlPrefix;
+        return UrlHelper.getServerDomain(request) + callbackUrlPrefix;
     }
 
     public void setCallbackUrlPrefix(String callbackUrlPrefix) {

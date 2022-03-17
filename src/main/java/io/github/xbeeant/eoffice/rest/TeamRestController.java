@@ -16,10 +16,11 @@ import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import io.github.xbeeant.spring.mybatis.rest.AbstractPagehelperRestFormController;
 import io.swagger.v3.oas.annotations.Parameter;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,37 +52,32 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
      */
     @GetMapping("tree")
     public List<TreeNode> tree(Integer type) {
-        List<Group> list = groupService.treeList(type);
-
         List<TreeNode> treeNodes = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(list)) {
-            // to TreeNode
-            List<TreeNode> nodes = new ArrayList<>(list.size());
-            TreeNode treeNode;
-            for (Group group : list) {
-                treeNode = new TreeNode();
-                treeNode.setTitle(group.getName());
-                treeNode.setKey(String.valueOf(group.getGid()));
-                treeNode.setpKey(String.valueOf(group.getPgid()));
-                nodes.add(treeNode);
-            }
-
-            // 所有菜单构建父子菜单项
-            for (TreeNode topItem : nodes) {
-                // 获取第一层菜单
-                for (TreeNode childItem : nodes) {
-                    if (topItem.getKey().equals(childItem.getpKey())) {
-                        topItem.addChildren(childItem);
-                    }
-                }
-            }
-            // 获取grade菜单是1的菜单
-            for (TreeNode topMenu : nodes) {
-                if ("0".equals(topMenu.getpKey())) {
-                    treeNodes.add(topMenu);
-                }
-            }
+        if (null == type) {
+            treeNodes.addAll(groupService.treeNodes(0));
+        } else {
+            treeNodes.addAll(groupService.treeNodes(type));
         }
+
+        return treeNodes;
+    }
+
+    @GetMapping("tree-all")
+    public List<TreeNode> treeAll() {
+        List<TreeNode> treeNodes = new ArrayList<>();
+        TreeNode treeNode = new TreeNode();
+        treeNode.setTitle("我的群组");
+        treeNode.setValue("1");
+        treeNode.setSelectable(false);
+        treeNode.setChildren(groupService.treeNodes(1));
+        treeNodes.add(treeNode);
+
+        treeNode = new TreeNode();
+        treeNode.setTitle("公司群组");
+        treeNode.setValue("0");
+        treeNode.setSelectable(false);
+        treeNode.setChildren(groupService.treeNodes(0));
+        treeNodes.add(treeNode);
 
         return treeNodes;
     }
@@ -89,7 +85,7 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
     /**
      * 用户
      *
-     * @param gid gid
+     * @param gid         gid
      * @param pageRequest pageRequest
      * @return {@link ApiResponse}
      * @see ApiResponse
@@ -158,5 +154,11 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
         ApiResponse<UserGroup> result = new ApiResponse<>();
         result.setData(existResponse.getData());
         return result;
+    }
+
+    @Override
+    public ApiResponse<Integer> delete(@Parameter(description = "id", required = true, example = "") @PathVariable(name = "id") Long id,
+                                       HttpServletRequest request, HttpServletResponse response) {
+        return super.delete(id, request, response);
     }
 }

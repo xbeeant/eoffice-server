@@ -831,7 +831,7 @@ public class OfficeConfig {
             }
 
             public static class Logo {
-                private String image = "https://iov.changan.com.cn/app/ca/loading-logo.png";
+                private String image = "";
                 private String imageEmbedded;
                 private String url;
 

@@ -3,6 +3,7 @@ package io.github.xbeeant.eoffice.service.storage;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.IdWorker;
 import io.github.xbeeant.eoffice.exception.FileSaveFailedException;
+import io.github.xbeeant.eoffice.exception.ResourceMissingException;
 import io.github.xbeeant.eoffice.model.ContentStorage;
 import io.github.xbeeant.eoffice.model.DocTemplate;
 import io.github.xbeeant.eoffice.model.Resource;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -55,7 +57,7 @@ public class DatabaseStorageServiceImpl implements AbstractStorageService {
             try {
                 content = new String(file.getBytes(), StandardCharsets.UTF_8);
             } catch (IOException e) {
-                throw new FileSaveFailedException();
+                throw new FileSaveFailedException(e);
             }
         }
 
@@ -63,7 +65,7 @@ public class DatabaseStorageServiceImpl implements AbstractStorageService {
         try {
             md5 = FileHelper.md5(content);
         } catch (NoSuchAlgorithmException e) {
-            throw new FileSaveFailedException();
+            throw new FileSaveFailedException(e);
         }
         long fileSize = content.length();
         String extension = FileHelper.extension(filename);
@@ -76,10 +78,6 @@ public class DatabaseStorageServiceImpl implements AbstractStorageService {
         Storage storage;
         if (!existStorage.getSuccess()) {
             String storageName = String.valueOf(IdWorker.getId());
-            String fileStoragePath = FileHelper.getStoragePath() + storageName;
-            if (logger.isInfoEnabled()) {
-                logger.info("开始保存文档 {} 存储路径 {}", uid, fileStoragePath);
-            }
             Long sid = IdWorker.getId();
             // 保存
             ContentStorage contentStorage = new ContentStorage();
@@ -107,7 +105,16 @@ public class DatabaseStorageServiceImpl implements AbstractStorageService {
     @Override
     public void download(Storage storage, Resource resource, HttpServletResponse response, HttpServletRequest request) {
         ApiResponse<ContentStorage> contentStorageResponse = contentStorageService.selectByPrimaryKey(storage.getSid());
-        Requests.writeJson(response, contentStorageResponse.getData().getContent());
+        try {
+            Requests.setResponseFilename(request, response, storage.getName());
+
+            response.setContentType(request.getServletContext().getMimeType(storage.getName()));
+
+            ServletOutputStream outputStream = response.getOutputStream();
+            outputStream.write(contentStorageResponse.getData().getContent().getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            throw new ResourceMissingException("文件已丢失", e);
+        }
     }
 
     @Override

@@ -1,7 +1,7 @@
 package io.github.xbeeant.eoffice.rest.vo;
 
 import io.github.xbeeant.eoffice.model.Resource;
-import io.github.xbeeant.eoffice.model.Storage;
+import io.github.xbeeant.eoffice.rest.inner.Attachment;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class ResourceInfo extends Resource {
 
-    private Storage latest;
+    private Attachment latest;
 
     private List<ResourcePerm> permed;
 
@@ -23,11 +23,11 @@ public class ResourceInfo extends Resource {
         this.permed = permed;
     }
 
-    public Storage getLatest() {
+    public Attachment getLatest() {
         return latest;
     }
 
-    public void setLatest(Storage latest) {
+    public void setLatest(Attachment latest) {
         this.latest = latest;
     }
 }

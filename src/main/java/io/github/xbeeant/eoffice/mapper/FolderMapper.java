@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author mybatis code generator
@@ -17,11 +18,12 @@ public interface FolderMapper extends IMybatisPageHelperDao<Folder, Long> {
      * has permission folders
      *
      * @param userId 用户标识
+     * @param gids 分组ID
      * @return {@link List}
      * @see List
      * @see Folder
      */
-    List<Folder> hasPermissionFolders(String userId);
+    List<Folder> hasPermissionFolders(@Param("userId") String userId, @Param("gids") Set<Long> gids);
 
     /**
      * sub folders

@@ -1,5 +1,6 @@
 package io.github.xbeeant.eoffice.service;
 
+import io.github.xbeeant.antdesign.TreeNode;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.eoffice.model.Group;
 import io.github.xbeeant.eoffice.model.User;
@@ -26,6 +27,16 @@ public interface IGroupService extends IMybatisPageHelperService<Group, Long> {
     List<Group> treeList(Integer type);
 
     /**
+     * tree nodes
+     *
+     * @param type 类型
+     * @return {@link List}
+     * @see List
+     * @see TreeNode
+     */
+    List<TreeNode> treeNodes(Integer type);
+
+    /**
      * 用户
      *
      * @param gid gid
@@ -47,4 +58,7 @@ public interface IGroupService extends IMybatisPageHelperService<Group, Long> {
      * @see PageResponse
      */
     ApiResponse<PageResponse<User>> outoffGroupUsers(Long gid, User user, PageBounds pageBounds);
+
+    List<Long> parentIds(Long gid);
+
 }

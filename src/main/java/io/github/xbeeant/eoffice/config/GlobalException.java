@@ -1,6 +1,7 @@
 package io.github.xbeeant.eoffice.config;
 
 import io.github.xbeeant.core.ApiResponse;
+import io.github.xbeeant.eoffice.exception.FileSaveFailedException;
 import io.github.xbeeant.eoffice.exception.InvalidActionException;
 import io.github.xbeeant.eoffice.exception.ResourceMissingException;
 import org.apache.ibatis.reflection.ReflectionException;
@@ -38,6 +39,14 @@ public class GlobalException {
         return apiResponse;
     }
 
+    @ExceptionHandler(value = FileSaveFailedException.class)
+    public ApiResponse<String> fileSaveFailedExceptionHandler(HttpServletRequest request, Exception e) {
+        ApiResponse<String> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(500, "文件保存失败");
+        logger.error("文件保存失败", e);
+        return apiResponse;
+    }
+
     @ExceptionHandler(value = InvalidActionException.class)
     public ApiResponse<String> invalidExceptionHandler(HttpServletRequest request, Exception e) {
         ApiResponse<String> apiResponse = new ApiResponse<>();
@@ -58,7 +67,7 @@ public class GlobalException {
     public ApiResponse<String> resourceMissingExceptionHandler(HttpServletRequest request, Exception e) {
         ApiResponse<String> apiResponse = new ApiResponse<>();
         apiResponse.setResult(500, e.getMessage());
-        logger.error("SQL异常", e);
+        logger.error("资源丢失", e);
         return apiResponse;
     }
 }

@@ -14,6 +14,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -27,7 +29,7 @@ import java.util.List;
 @Aspect
 @Component
 public class ResourceOwnerVerify {
-
+    private static final Logger logger = LoggerFactory.getLogger(ResourceOwnerVerify.class);
     /**
      * 转义字符切面
      */
@@ -77,6 +79,7 @@ public class ResourceOwnerVerify {
             if (apiResponse.getSuccess()) {
                 BaseModelObject data = apiResponse.getData();
                 if (!userSecurityUser.getUserId().equals(data.getCreateBy())) {
+                    logger.warn("资源 {} 分享失败 当前用户{} 资源作者 {}", value, userSecurityUser.getUserId(), data.getCreateBy());
                     throw new InvalidActionException("非所有者无法进行此操作");
                 }
             }

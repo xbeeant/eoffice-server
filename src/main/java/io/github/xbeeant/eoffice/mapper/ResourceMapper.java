@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author mybatis code generator
@@ -29,14 +30,14 @@ public interface ResourceMapper extends IMybatisPageHelperDao<Resource, Long> {
     /**
      * has permission resources
      *
-     * @param fid fid
-     * @param uid uid
-     * @param uid uid
+     * @param fid  fid
+     * @param uid  uid
+     * @param gids
      * @return {@link List}
      * @see List
      * @see Resource
      */
-    List<Resource> hasPermissionResources(@Param("fid") Long fid, @Param("uid") String uid);
+    List<Resource> hasPermissionResources(@Param("fid") Long fid, @Param("uid") String uid, @Param("gids") Set<Long> gids);
 
     /**
      * has permission resources

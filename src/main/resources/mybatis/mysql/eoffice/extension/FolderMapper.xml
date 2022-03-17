@@ -6,6 +6,18 @@
         from eoffice_folder
         where deleted = 0
           and fid in (select rid from eoffice_perm where type = 10 and target_id = #{userId,jdbcType=VARCHAR})
+        <if test="gids != null and gids.size() != 0">
+            union
+            select fid, pfid, name, icon, path, display_order
+            from eoffice_folder
+                    where deleted = 0
+                      and fid in (select rid
+                                  from eoffice_perm where type = 10
+                                                      and target_id in
+            <foreach collection="gids" separator="," open="(" close=")" item="gid">
+                #{gid,jdbcType=BIGINT}
+            </foreach>)
+        </if>
     </select>
 
     <select id="subFolders" resultMap="BaseResultMap">

@@ -8,11 +8,10 @@ import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.eoffice.service.render.office.OnlyOfficeConfiguration;
 import io.github.xbeeant.spring.security.SecurityUser;
 import io.github.xbeeant.spring.web.SpringContextProvider;
-import org.apache.commons.io.IOUtils;
+import io.github.xbeeant.spring.web.utils.file.FileMultipartFile;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,33 +37,36 @@ public class FileHelper {
     }
 
     public static String documentUrl(Long rid, Long sid, SecurityUser<User> user) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("rid=");
+        sb.append(rid);
+        if (null != sid) {
+            sb.append("&sid=");
+            sb.append(sid);
+        }
+        sb.append("&token=");
+        sb.append(Base64Helper.base64Encode(user.getUserId()));
         return SpringContextProvider.getBean(OnlyOfficeConfiguration.class).getDocumentUrlPrefix()
-                + "?rid=" + rid
-                + "&sid=" + sid
-                + "&token=" + Base64Helper.base64Encode(user.getUserId());
+                + "?" + sb;
     }
 
     public static String getPath(String folderName) {
         //获取跟目录---与jar包同级目录的upload目录下指定的子目录subdirectory
         File upload;
-        try {
-            //本地测试时获取到的是"工程目录/target/upload/subdirectory
-            File path = new File(ResourceUtils.getURL("classpath:").getPath());
-            if (!path.exists()) {
-                path = new File("");
-            }
-            upload = new File(path.getAbsolutePath(), folderName);
-            if (!upload.exists()) {
-                //如果不存在则创建目录
-                boolean mkdirs = upload.mkdirs();
-                if (!mkdirs) {
-                    throw new FolderNotFoundException("文件夹创建失败！");
-                }
-            }
-            return upload + "/";
-        } catch (FileNotFoundException e) {
-            throw new FolderNotFoundException("获取服务器路径发生错误！");
+        //本地测试时获取到的是"工程目录/target/upload/subdirectory
+        File path = new File("/home/spring");
+        if (!path.exists()) {
+            path = new File("");
         }
+        upload = new File(path.getAbsolutePath(), folderName);
+        if (!upload.exists()) {
+            //如果不存在则创建目录
+            boolean mkdirs = upload.mkdirs();
+            if (!mkdirs) {
+                throw new FolderNotFoundException("文件夹创建失败！");
+            }
+        }
+        return upload + "/";
     }
 
     public static String extension(String filename) {
@@ -252,24 +254,21 @@ public class FileHelper {
         try {
             return new String(Files.readAllBytes(Paths.get(getStoragePath() + storage.getPath())));
         } catch (Exception e) {
-            throw new ResourceMissingException("资源已经不存在了");
+            throw new ResourceMissingException("资源已经不存在了", e);
         }
     }
 
     public static MultipartFile readAsMultipart(Storage storage) {
         String filepath = getStoragePath() + storage.getPath();
         try {
-            FileInputStream input = new FileInputStream(filepath);
-            return new FileMultipartFile("file",
-                    storage.getName(), "text/plain", IOUtils.toByteArray(input));
+            File input = new File(filepath);
+            return new FileMultipartFile("file", input, storage.getName(), "text/plain");
         } catch (Exception e) {
-            throw new ResourceMissingException("资源已经不存在了");
+            throw new ResourceMissingException("资源已经不存在了", e);
         }
     }
 
     public static MultipartFile toMultipart(String content, String filename) {
-        //先把string转换成字节数组
-        byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
-        return new FileMultipartFile("file", filename, "text/plain", contentBytes);
+        return new FileMultipartFile("file", content, filename, "text/plain");
     }
 }

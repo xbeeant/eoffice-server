@@ -4,6 +4,7 @@ import io.github.xbeeant.antdesign.TableResponse;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.core.ErrorCodeConstant;
 import io.github.xbeeant.eoffice.aspect.annotation.ResourceOwner;
+import io.github.xbeeant.eoffice.enums.ActionAuditEnum;
 import io.github.xbeeant.eoffice.model.Share;
 import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.eoffice.po.PermTargetType;
@@ -11,6 +12,7 @@ import io.github.xbeeant.eoffice.rest.vo.ShareResourceVo;
 import io.github.xbeeant.eoffice.service.IResourceService;
 import io.github.xbeeant.eoffice.service.IShareService;
 import io.github.xbeeant.eoffice.util.AntDesignUtil;
+import io.github.xbeeant.eoffice.util.LogHelper;
 import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.security.SecurityUser;
@@ -88,10 +90,17 @@ public class ShareRestController {
             @RequestParam(value = "perm", required = false) List<String> perm,
             String type,
             Long rid,
-            Date endtime) {
+            Date endtime, Authentication authentication) {
+        ApiResponse<Share> response;
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+
         if ("member".equals(type)) {
-            return shareService.share(users, perm, rid, PermTargetType.MEMBER, endtime);
+            response = shareService.share(users, perm, rid, PermTargetType.MEMBER, endtime);
+            LogHelper.save(response.getData(), users, perm, ActionAuditEnum.OVERWRITE, userSecurityUser);
+        } else {
+            response = shareService.share(teams, perm, rid, PermTargetType.TEAM, endtime);
+            LogHelper.save(response.getData(), teams, perm, ActionAuditEnum.OVERWRITE, userSecurityUser);
         }
-        return shareService.share(teams, perm, rid, PermTargetType.TEAM, endtime);
+        return response;
     }
 }

@@ -47,4 +47,14 @@ public interface GroupMapper extends IMybatisPageHelperDao<Group, Long> {
      * @see User
      */
     Page<User> outoffGroupUsers(@Param("user") User user, @Param("gid") Long gid);
+
+    /**
+     * parent ids
+     *
+     * @param gid gid
+     * @return {@link List}
+     * @see List
+     * @see Long
+     */
+    List<Long> parentIds(Long gid);
 }

@@ -54,7 +54,7 @@ public class FileStorageServiceImpl implements AbstractStorageService {
         try {
             md5 = FileHelper.md5(multipartFile);
         } catch (NoSuchAlgorithmException e) {
-            throw new FileSaveFailedException();
+            throw new FileSaveFailedException(e);
         }
         // MD5比较，如果文件已经存在，直接返回已经存在的文件信息，避免重复存储
         Storage example = new Storage();
@@ -73,7 +73,7 @@ public class FileStorageServiceImpl implements AbstractStorageService {
             try {
                 multipartFile.transferTo(storageFile);
             } catch (IOException e) {
-                throw new FileSaveFailedException();
+                throw new FileSaveFailedException(e);
             }
             // 写入数据库
             storage = new Storage();

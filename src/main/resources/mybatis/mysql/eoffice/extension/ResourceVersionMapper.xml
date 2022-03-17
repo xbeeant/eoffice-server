@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.github.xbeeant.eoffice.mapper.ResourceVersionMapper">
-  <resultMap id="ResourceVersionVoMap" type="io.github.xbeeant.eoffice.rest.vo.ResourceVersionVo"
-             extends="BaseResultMap"
-  >
-    <result property="actor" column="actor" />
-  </resultMap>
+    <resultMap id="ResourceVersionVoMap" type="io.github.xbeeant.eoffice.rest.vo.ResourceVersionVo"
+               extends="BaseResultMap"
+    >
+        <result property="actor" column="actor"/>
+    </resultMap>
     <select id="fuzzySearchVo" resultMap="ResourceVersionVoMap">
-      select rv.*, u.nickname actor from eoffice_resource_version rv
-      left join eoffice_user u on u.uid = rv.create_by
-      where rv.rid = #{rid,jdbcType=BIGINT}
+        select rv.*, u.nickname actor
+        from eoffice_resource_version rv
+                 left join eoffice_user u on u.uid = rv.create_by
+        where rv.rid = #{rid,jdbcType=BIGINT}
     </select>
 </mapper>

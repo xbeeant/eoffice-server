@@ -71,11 +71,12 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * 详情
      *
      * @param rid 资源ID
+     * @param vid 版本ID，可为空，空为最新版本
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see ResourceVo
      */
-    ApiResponse<ResourceVo> detail(Long rid);
+    ApiResponse<ResourceVo> detail(Long rid, Long vid);
 
     /**
      * 下载
@@ -107,7 +108,7 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      * @see ApiResponse
      * @see String
      */
-    ApiResponse<String> save(Long rid, String value, String uid);
+    ApiResponse<Resource> save(Long rid, String value, String uid);
 
 
     /**
@@ -115,7 +116,6 @@ public interface IResourceService extends IMybatisPageHelperService<Resource, Lo
      *
      * @param rid    资源ID
      * @param userId 用户标识
-     * @param share
      * @return {@link Perm}
      * @see Perm
      */

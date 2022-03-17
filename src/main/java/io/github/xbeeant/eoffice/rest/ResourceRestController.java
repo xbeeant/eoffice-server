@@ -9,12 +9,14 @@ import io.github.xbeeant.core.JsonHelper;
 import io.github.xbeeant.crypto.asymmetric.RSAUtil;
 import io.github.xbeeant.eoffice.aspect.annotation.ResourceOwner;
 import io.github.xbeeant.eoffice.config.RsaKeyProperties;
+import io.github.xbeeant.eoffice.enums.ActionAuditEnum;
 import io.github.xbeeant.eoffice.model.*;
 import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.rest.vo.*;
 import io.github.xbeeant.eoffice.service.*;
 import io.github.xbeeant.eoffice.service.render.RenderFactory;
 import io.github.xbeeant.eoffice.util.AntDesignUtil;
+import io.github.xbeeant.eoffice.util.LogHelper;
 import io.github.xbeeant.eoffice.util.SecurityHelper;
 import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
@@ -38,6 +40,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -78,11 +81,15 @@ public class ResourceRestController {
     private IResourceVersionService resourceVersionService;
 
     @PostMapping("rename")
-    public ApiResponse<Resource> rename(String name, Long rid) {
+    public ApiResponse<Resource> rename(String name, Long rid, Authentication authentication) {
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+
         Resource resource = new Resource();
         resource.setRid(rid);
         resource.setName(name);
-        return resourceService.updateByPrimaryKeySelective(resource);
+        ApiResponse<Resource> resourceApiResponse = resourceService.updateByPrimaryKeySelective(resource);
+        LogHelper.save(resourceApiResponse.getData(), ActionAuditEnum.RENAME, userSecurityUser);
+        return resourceApiResponse;
     }
 
     /**
@@ -121,14 +128,15 @@ public class ResourceRestController {
      * 资源信息
      *
      * @param rid 资源ID
+     * @param vid 版本ID
      * @return {@link ApiResponse}
      * @see ApiResponse
      * @see ResourceVo
      */
     @GetMapping("info")
-    public ApiResponse<ResourceInfo> info(Long rid) {
+    public ApiResponse<ResourceInfo> info(Long rid, Long vid) {
         ApiResponse<ResourceInfo> result = new ApiResponse<>();
-        ApiResponse<ResourceVo> resourceVo = resourceService.detail(rid);
+        ApiResponse<ResourceVo> resourceVo = resourceService.detail(rid, vid);
         if (!resourceVo.getSuccess()) {
             resourceVo.setResult(ErrorCodeConstant.NO_MATCH, "文件已经丢失");
             return result;
@@ -153,6 +161,7 @@ public class ResourceRestController {
      *
      * @param authentication 身份验证
      * @param rid            资源ID
+     * @param vid            版本ID
      * @param share          分享访问Key
      * @return {@link ApiResponse}
      * @see ApiResponse
@@ -161,6 +170,7 @@ public class ResourceRestController {
     @GetMapping("detail")
     public ApiResponse<ResourceVo> detail(Authentication authentication,
                                           Long rid,
+                                          Long vid,
                                           String share,
                                           String render,
                                           String mode,
@@ -183,13 +193,27 @@ public class ResourceRestController {
             return response;
         }
 
-        ApiResponse<ResourceVo> resourceInfo = resourceService.detail(rid);
+        ApiResponse<ResourceVo> resourceInfo = resourceService.detail(rid, vid);
         if (!resourceInfo.getSuccess()) {
             resourceInfo.setResult(ErrorCodeConstant.NO_MATCH, "文件已经丢失");
             return resourceInfo;
         }
         resourceInfo.getData().setPerm(permission);
+        if (vid != null) {
+            ApiResponse<ResourceVersion> versionApiResponse = resourceVersionService.selectByPrimaryKey(vid);
+
+            if (!resourceInfo.getData().getSid().equals(versionApiResponse.getData().getSid())) {
+                resourceInfo.getData().getPerm().setEdit(false);
+            }
+        }
+
         RenderFactory.getRender(render).setExtra(resourceInfo.getData(), mode, userSecurityUser);
+        if (StringUtils.isEmpty(share)) {
+            LogHelper.save(resourceInfo.getData(), ActionAuditEnum.VIEW, userSecurityUser);
+        } else {
+            LogHelper.save(resourceInfo.getData(), ActionAuditEnum.VIEW_SHARE, userSecurityUser);
+        }
+
         return resourceInfo;
     }
 
@@ -223,6 +247,8 @@ public class ResourceRestController {
         shareResponse.setExtension(resource.getExtension());
         shareResponse.setShareId(shareId);
         response.setData(shareResponse);
+
+        LogHelper.save(resourceApiResponse.getData(), ActionAuditEnum.SHARE, userSecurityUser);
         return response;
     }
 
@@ -237,9 +263,11 @@ public class ResourceRestController {
      * @see String
      */
     @PostMapping("")
-    public ApiResponse<String> save(Authentication authentication, Long rid, String value) {
+    public ApiResponse<Resource> save(Authentication authentication, Long rid, String value) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
-        return resourceService.save(rid, value, userSecurityUser.getUserId());
+        ApiResponse<Resource> response = resourceService.save(rid, value, userSecurityUser.getUserId());
+        LogHelper.save(response.getData(), ActionAuditEnum.UPDATE, userSecurityUser);
+        return response;
     }
 
     /**
@@ -251,8 +279,16 @@ public class ResourceRestController {
      */
     @PostMapping("move")
     @ResourceOwner(id = "rids", selectService = IResourceService.class)
-    public ApiResponse<Integer> move(@RequestParam(value = "rid") List<Long> rids, Long fid, @RequestParam(defaultValue = "0", required = false) Long fromFid) {
-        return resourceService.move(rids, fid, fromFid);
+    public ApiResponse<Integer> move(@RequestParam(value = "rid") List<Long> rids, Long fid,
+                                     @RequestParam(defaultValue = "0", required = false) Long fromFid,
+                                     Authentication authentication) {
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+        ApiResponse<Integer> move = resourceService.move(rids, fid, fromFid);
+        for (Long rid : rids) {
+            LogHelper.save(rid, ActionAuditEnum.MOVE, userSecurityUser);
+        }
+
+        return move;
     }
 
     /**
@@ -266,7 +302,8 @@ public class ResourceRestController {
     @DeleteMapping("")
     @Transactional
     @ResourceOwner(id = "rids", selectService = IResourceService.class)
-    public ApiResponse<Integer> delete(@RequestParam(value = "rid") List<Long> rids) {
+    public ApiResponse<Integer> delete(@RequestParam(value = "rid") List<Long> rids, Authentication authentication) {
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         for (Long rid : rids) {
             // 判断资源的类型，如果是文件夹，先要求清空文件夹后再删除文件夹
             ApiResponse<Resource> resourceApiResponse = resourceService.selectByPrimaryKey(rid);
@@ -301,14 +338,20 @@ public class ResourceRestController {
 
             // 文件夹的空间减少
             folderService.updateFolderSize(data.getFid(), -data.getSize());
+
+            LogHelper.save(resourceApiResponse.getData(), ActionAuditEnum.DELETE, userSecurityUser);
         }
 
         return new ApiResponse<>();
     }
 
     @DeleteMapping("perm")
-    public ApiResponse<Integer> removePerm(Long pid) {
-        return permService.deleteByPrimaryKey(pid);
+    public ApiResponse<Integer> removePerm(Long pid, Authentication authentication) {
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+        ApiResponse<Perm> permApiResponse = permService.selectByPrimaryKey(pid);
+        ApiResponse<Integer> response = permService.deleteByPrimaryKey(pid);
+        LogHelper.save(permApiResponse.getData(), ActionAuditEnum.PERM_REMOVE, userSecurityUser);
+        return response;
     }
 
     @PostMapping("perm")
@@ -316,12 +359,17 @@ public class ResourceRestController {
     public ApiResponse<String> perm(@RequestParam(value = "users", required = false) List<Long> users,
                                     @RequestParam(value = "team", required = false) List<Long> team,
                                     @RequestParam(value = "perm") List<String> perm,
-                                    String type, Long rid) {
+                                    String type, Long rid, Authentication authentication) {
+        SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+        ApiResponse<String> response;
         if ("member".equals(type)) {
-            return resourceService.perm(users, perm, PermTargetType.MEMBER, rid);
+            response = resourceService.perm(users, perm, PermTargetType.MEMBER, rid);
+            LogHelper.save(rid, users, ActionAuditEnum.PERM, userSecurityUser);
+        } else {
+            response = resourceService.perm(team, perm, PermTargetType.TEAM, rid);
+            LogHelper.save(rid, team, ActionAuditEnum.PERM, userSecurityUser);
         }
-
-        return resourceService.perm(team, perm, PermTargetType.TEAM, rid);
+        return response;
     }
 
     @GetMapping("perm")
@@ -369,14 +417,19 @@ public class ResourceRestController {
      * @see Resource
      */
     @PostMapping("upload/save")
-    public ApiResponse<String> uploadSave(Authentication authentication, Long fid, @RequestParam(value = "files") String filesJson) {
+    public ApiResponse<List<ResourceVo>> uploadSave(Authentication authentication, Long fid, @RequestParam(value = "files") String filesJson) {
         List<Storage> files = JSON.parseArray(filesJson, Storage.class);
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
+        ApiResponse<List<ResourceVo>> objectApiResponse = new ApiResponse<>();
+        List<ResourceVo> resourceVos = new ArrayList<>();
         for (Storage storage : files) {
-            resourceService.saveResource(fid, userSecurityUser.getUserId(), storage.getName(), storage);
-        }
+            ResourceVo resourceVo = resourceService.saveResource(fid, userSecurityUser.getUserId(), storage.getName(), storage);
+            resourceVos.add(resourceVo);
 
-        return new ApiResponse<>();
+            LogHelper.save(resourceVo, ActionAuditEnum.UPLOAD, userSecurityUser);
+        }
+        objectApiResponse.setData(resourceVos);
+        return objectApiResponse;
     }
 
     /**
@@ -394,7 +447,8 @@ public class ResourceRestController {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
         for (Storage storage : files) {
-            resourceService.overwriteResource(rid, userSecurityUser.getUserId(), storage);
+            ResourceVo resourceVo = resourceService.overwriteResource(rid, userSecurityUser.getUserId(), storage);
+            LogHelper.save(resourceVo, ActionAuditEnum.OVERWRITE, userSecurityUser);
         }
 
         return new ApiResponse<>();
@@ -436,6 +490,7 @@ public class ResourceRestController {
      */
     @RequestMapping(value = "s", method = {RequestMethod.GET, RequestMethod.POST})
     public void download(Long rid, Long sid, HttpServletRequest request, HttpServletResponse response) {
+        // todo 权限校验
         resourceService.download(rid, sid, request, response);
     }
 
@@ -473,8 +528,12 @@ public class ResourceRestController {
                                        @RequestParam(required = false) Long cid,
                                        @RequestParam(defaultValue = "0", required = false) Long fid, Authentication authentication) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
-        resourceService.add(type, name, fid, cid, userSecurityUser.getUserId());
-        return new ApiResponse<>();
+        ResourceVo add = resourceService.add(type, name, fid, cid, userSecurityUser.getUserId());
+        ApiResponse<ResourceVo> response = new ApiResponse<>();
+        response.setData(add);
+
+        LogHelper.save(response.getData(), ActionAuditEnum.ADD, userSecurityUser);
+        return response;
     }
 
     @GetMapping("history")

@@ -1,10 +1,12 @@
 package io.github.xbeeant.eoffice.rest;
 
 import io.github.xbeeant.core.ApiResponse;
+import io.github.xbeeant.eoffice.enums.ActionAuditEnum;
 import io.github.xbeeant.eoffice.model.Folder;
 import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.eoffice.rest.vo.Breadcrumb;
 import io.github.xbeeant.eoffice.service.IFolderService;
+import io.github.xbeeant.eoffice.util.LogHelper;
 import io.github.xbeeant.spring.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -44,7 +46,10 @@ public class FolderRestController {
         folder.setName(name);
         folder.setPfid(pfid);
         folder.setCreateBy(principal.getUserId());
-        return folderService.insertSelective(folder);
+
+        ApiResponse<Folder> response = folderService.insertSelective(folder);
+        LogHelper.save(response.getData(), ActionAuditEnum.CREATE_FOLDER, principal);
+        return response;
     }
 
     /**

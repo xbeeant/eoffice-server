@@ -4,6 +4,8 @@ import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.eoffice.model.Config;
 import io.github.xbeeant.eoffice.service.IConfigService;
 import io.github.xbeeant.spring.web.SpringContextProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.Map;
 public class StorageFactory {
 
     private static final Map<String, AbstractStorageService> SERVICE_MAP = new HashMap<>();
+
+    public static final Logger logger = LoggerFactory.getLogger(StorageFactory.class);
 
     private static AbstractStorageService getService(String extension) {
         if (SERVICE_MAP.isEmpty()) {
@@ -30,7 +34,7 @@ public class StorageFactory {
                     try {
                         SERVICE_MAP.put(config.getCkey(), SpringContextProvider.getBean(config.getCvalue()));
                     } catch (Exception e) {
-
+                        logger.error("写入存储服务map异常", e);
                     }
                 }
             }
@@ -47,6 +51,7 @@ public class StorageFactory {
         if (null == bean) {
             return SpringContextProvider.getBean(FileStorageServiceImpl.class);
         }
+
         return bean;
     }
 }

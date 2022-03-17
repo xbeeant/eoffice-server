@@ -174,6 +174,12 @@ public class ShareServiceImpl extends AbstractSecurityMybatisPageHelperServiceIm
         ApiResponse<Resource> resourceApiResponse = resourceService.selectByPrimaryKey(share.getTargetId());
         Resource resource = resourceApiResponse.getData();
 
+        // 资源是本人创建的，可直接访问
+        if (resource.getCreateBy().equals(userId)) {
+            response.setData(resource);
+            return response;
+        }
+
         Perm permission = resourceService.sharePermission(resource.getRid(), Long.valueOf(userId), share);
         if (!permission.hasPermission()) {
             response.setResult(102, "作者已回收所有权限");

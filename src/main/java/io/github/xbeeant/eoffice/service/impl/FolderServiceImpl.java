@@ -9,11 +9,10 @@ import io.github.xbeeant.eoffice.mapper.FolderMapper;
 import io.github.xbeeant.eoffice.model.Folder;
 import io.github.xbeeant.eoffice.model.Perm;
 import io.github.xbeeant.eoffice.model.Resource;
+import io.github.xbeeant.eoffice.model.UserGroup;
 import io.github.xbeeant.eoffice.po.FullPerm;
 import io.github.xbeeant.eoffice.po.PermType;
-import io.github.xbeeant.eoffice.service.IFolderService;
-import io.github.xbeeant.eoffice.service.IPermService;
-import io.github.xbeeant.eoffice.service.IResourceService;
+import io.github.xbeeant.eoffice.service.*;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +43,12 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
      */
     @Autowired
     private IResourceService resourceService;
+
+    @Autowired
+    private IGroupService groupService;
+
+    @Autowired
+    private IUserGroupService userGroupService;
 
     @Override
     public IMybatisPageHelperDao<Folder, Long> getRepositoryDao() {
@@ -139,7 +144,8 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
 
     @Override
     public List<MenuItem> hasPermissionMenus(String userId) {
-        List<Folder> folders = folderMapper.hasPermissionFolders(userId);
+        // 用户ID获取所在分组ID列表
+        List<Folder> folders = permedFolders(userId);
         // 没有数据 返回空list
         if (CollectionUtils.isEmpty(folders)) {
             return Collections.emptyList();
@@ -165,7 +171,7 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
 
     @Override
     public List<TreeNode> hasPermissionFolders(String userId) {
-        List<Folder> folders = folderMapper.hasPermissionFolders(userId);
+        List<Folder> folders = permedFolders(userId);
         // 没有数据 返回空list
         if (CollectionUtils.isEmpty(folders)) {
             return Collections.emptyList();
@@ -187,6 +193,20 @@ public class FolderServiceImpl extends AbstractSecurityMybatisPageHelperServiceI
         cleanedFolders.addAll(permedFolders);
 
         return toTreeNode(cleanedFolders);
+    }
+
+    private List<Folder> permedFolders(String userId) {
+        UserGroup userGroupExample = new UserGroup();
+        userGroupExample.setUid(Long.valueOf(userId));
+        ApiResponse<List<UserGroup>> listApiResponse = userGroupService.selectAllByExample(userGroupExample);
+        Set<Long> gids = new HashSet<>();
+        if (listApiResponse.getSuccess()) {
+            for (UserGroup item : listApiResponse.getData()) {
+                List<Long> ids = groupService.parentIds(item.getGid());
+                gids.addAll(ids);
+            }
+        }
+        return folderMapper.hasPermissionFolders(userId, gids);
     }
 
     private List<TreeNode> toTreeNode(Set<Folder> cleanedFolders) {

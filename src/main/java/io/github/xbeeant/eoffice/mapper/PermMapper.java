@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author mybatis code generator
@@ -23,7 +24,7 @@ public interface PermMapper extends IMybatisPageHelperDao<Perm, Long> {
      * @return {@link Perm}
      * @see Perm
      */
-    Perm perm(@Param("rid") Long rid, @Param("targetId") Long targetId, @Param("type") int type);
+    List<Perm> perm(@Param("rid") Long rid, @Param("targetId") Long targetId, @Param("type") int type);
 
     /**
      * 权益
@@ -40,25 +41,25 @@ public interface PermMapper extends IMybatisPageHelperDao<Perm, Long> {
     /**
      * perm group
      *
-     * @param rid      掉
-     * @param targetId targetId
+     * @param rid      资源ID
      * @param type     资源类型
+     * @param gids 用户分组集
      * @return {@link Perm}
      * @see Perm
      */
-    Perm permGroup(@Param("rid") Long rid, @Param("targetId") Long targetId, @Param("type") Integer type);
+    List<Perm> permGroup(@Param("rid") Long rid, @Param("type") Integer type,@Param("gids") Set<Long> gids);
 
 
     /**
      * perm group
      *
-     * @param rid       掉
+     * @param rid       资源ID
      * @param targetId  targetId
      * @param shareType 分享资源类型
      * @return {@link Perm}
      * @see Perm
      */
-    Perm sharePermGroup(@Param("rid") Long rid, @Param("targetId") Long targetId, @Param("shareType") Integer shareType);
+    Perm sharePermGroup(@Param("rid") Long rid, @Param("gids") Set<Long> targetId, @Param("shareType") Integer shareType);
 
 
     /**

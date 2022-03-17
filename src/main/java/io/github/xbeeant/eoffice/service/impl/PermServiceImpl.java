@@ -7,10 +7,8 @@ import io.github.xbeeant.eoffice.mapper.PermMapper;
 import io.github.xbeeant.eoffice.model.*;
 import io.github.xbeeant.eoffice.po.PermTargetType;
 import io.github.xbeeant.eoffice.po.PermType;
-import io.github.xbeeant.eoffice.service.IFolderService;
-import io.github.xbeeant.eoffice.service.IPermService;
-import io.github.xbeeant.eoffice.service.IResourceService;
-import io.github.xbeeant.eoffice.service.IShareService;
+import io.github.xbeeant.eoffice.service.*;
+import io.github.xbeeant.eoffice.util.PermHelper;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * eoffice_perm
@@ -34,6 +33,9 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
 
     @Autowired
     private IShareService shareService;
+
+    @Autowired
+    private IUserGroupService userGroupService;
 
     @Autowired
     private IFolderService folderService;
@@ -60,35 +62,37 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
         }
 
         // 资源的权限
-        Perm perm = permMapper.perm(rid, targetId, type.getType());
-        if (null != perm) {
-            return perm;
+        List<Perm> perms = permMapper.perm(rid, targetId, type.getType());
+        if (!CollectionUtils.isEmpty(perms)) {
+            return PermHelper.migrate(perms);
         }
 
         // 资源对应的用户分组的权限
-        perm = permMapper.permGroup(rid, targetId, type.getType());
-        if (null != perm) {
-            return perm;
+        Set<Long> gids = userGroupService.userGroupIds(targetId);
+
+        perms = permMapper.permGroup(rid, type.getType(), gids);
+        if (!CollectionUtils.isEmpty(perms)) {
+            return PermHelper.migrate(perms);
         }
 
         // 资源对应的文件夹的权限
         List<Folder> folders = folderService.parentFolders(resourceApiResponse.getData().getFid());
         for (Folder folder : folders) {
-            perm = permMapper.perm(folder.getFid(), targetId, PermType.FOLDER.getType());
-            if (null != perm) {
-                return perm;
+            perms = permMapper.perm(folder.getFid(), targetId, PermType.FOLDER.getType());
+            if (!CollectionUtils.isEmpty(perms)) {
+                return PermHelper.migrate(perms);
             }
 
-            perm = permMapper.permGroup(folder.getFid(), targetId, PermType.FOLDER.getType());
-            if (null != perm) {
-                return perm;
+            perms = permMapper.permGroup(folder.getFid(), PermType.FOLDER.getType(), gids);
+            if (!CollectionUtils.isEmpty(perms)) {
+                return PermHelper.migrate(perms);
             }
         }
 
 
-
         return new Perm();
     }
+
 
     @Override
     public Perm sharePerm(Long userId, Long rid, Share share) {
@@ -103,14 +107,14 @@ public class PermServiceImpl extends AbstractSecurityMybatisPageHelperServiceImp
         if (isFolder) {
             type = PermType.SHARE_FOLDER;
         }
-
         Perm perm = permMapper.sharePerm(rid, userId, type.getType());
         if (null != perm) {
             return perm;
         }
 
         // 资源没有对用户进行授权，校验资源有没有对用户所在的组进行授权
-        perm = permMapper.sharePermGroup(rid, share.getTargetId(), type.getType());
+        Set<Long> gids = userGroupService.userGroupIds(userId);
+        perm = permMapper.sharePermGroup(rid, gids, type.getType());
         if (null != perm) {
             return perm;
         }

@@ -9,6 +9,8 @@ import io.github.xbeeant.eoffice.service.storage.StorageFactory;
 import io.github.xbeeant.eoffice.util.FileHelper;
 import io.github.xbeeant.spring.mybatis.pagehelper.IMybatisPageHelperDao;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +23,8 @@ import java.security.NoSuchAlgorithmException;
  */
 @Service
 public class StorageServiceImpl extends AbstractSecurityMybatisPageHelperServiceImpl<Storage, Long> implements IStorageService {
+
+    private static final Logger logger = LoggerFactory.getLogger(StorageServiceImpl.class);
 
     @Autowired
     private StorageMapper storageMapper;
@@ -50,6 +54,7 @@ public class StorageServiceImpl extends AbstractSecurityMybatisPageHelperService
             filename = "";
         }
         String extension = FileHelper.extension(filename);
+        logger.debug("文件写入 类型 {}", extension);
         return StorageFactory.getStorage(extension).save(file, filename, uid);
     }
 }

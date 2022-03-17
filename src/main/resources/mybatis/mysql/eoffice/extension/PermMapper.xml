@@ -6,7 +6,7 @@
         from eoffice_perm
         where rid = #{rid,jdbcType=BIGINT}
           and target_id = #{targetId,jdbcType=BIGINT}
-          and `type` = #{type} order by create_at desc limit 1
+          and `type` = #{type} order by create_at desc
     </select>
 
     <select id="sharePerm" resultMap="BaseResultMap">
@@ -21,7 +21,7 @@
         select download, edit, print, `view`, comment, share
         from eoffice_perm
         where rid = #{rid,jdbcType=BIGINT}
-          and target_id in (select gid from eoffice_user_group where uid = #{targetId,jdbcType=BIGINT})
+          and target_id in <foreach collection="gids" item="gid" open="(" close=")" separator=",">#{gid,jdbcType=BIGINT}</foreach>
           and `type` = #{type}
     </select>
 
@@ -29,7 +29,7 @@
         select download, edit, print, `view`, comment, share
         from eoffice_perm
         where rid = #{rid,jdbcType=BIGINT}
-        and target_id in (select gid from eoffice_user_group where uid = #{targetId,jdbcType=BIGINT})
+        and target_id in <foreach collection="gids" item="gid" open="(" close=")" separator=",">#{gid,jdbcType=BIGINT}</foreach>
         and  `type` = #{shareType,jdbcType=INTEGER}
     </select>
 

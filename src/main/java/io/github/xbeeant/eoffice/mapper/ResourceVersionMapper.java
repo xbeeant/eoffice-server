@@ -12,6 +12,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface ResourceVersionMapper extends IMybatisPageHelperDao<ResourceVersion, Long> {
+
     /**
      * fuzzy search vo
      *

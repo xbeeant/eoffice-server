@@ -12,10 +12,11 @@ import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
  * @version Sun Dec 19 22:49:46 CST 2021
  */
 public interface IResourceVersionService extends IMybatisPageHelperService<ResourceVersion, Long> {
+
     /**
      * fuzzy search vo by pager
      *
-     * @param example    查询条件
+     * @param example 例子
      * @param pageBounds pageBounds
      * @return {@link ApiResponse}
      * @see ApiResponse

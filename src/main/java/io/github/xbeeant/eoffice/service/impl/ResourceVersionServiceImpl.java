@@ -17,11 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * 
  * eoffice_resource_version
  */
 @Service
 public class ResourceVersionServiceImpl extends AbstractSecurityMybatisPageHelperServiceImpl<ResourceVersion, Long> implements IResourceVersionService {
+
     @Autowired
     private ResourceVersionMapper resourceVersionMapper;
 
@@ -40,7 +40,6 @@ public class ResourceVersionServiceImpl extends AbstractSecurityMybatisPageHelpe
     @Override
     public ApiResponse<PageResponse<ResourceVersionVo>> fuzzySearchVoByPager(ResourceVersion example, PageBounds pageBounds) {
         ApiResponse<PageResponse<ResourceVersionVo>> apiResponse = new ApiResponse<>();
-
         PageMethod.orderBy("create_at desc");
         PageMethod.startPage(pageBounds.getPage(), pageBounds.getLimit());
         Page<ResourceVersionVo> result = resourceVersionMapper.fuzzySearchVo(example);
@@ -50,7 +49,6 @@ public class ResourceVersionServiceImpl extends AbstractSecurityMybatisPageHelpe
         }
         PageResponse<ResourceVersionVo> pageList = new PageResponse<>(result, result.getTotal(), pageBounds.getPage());
         apiResponse.setData(pageList);
-
         return apiResponse;
     }
 }

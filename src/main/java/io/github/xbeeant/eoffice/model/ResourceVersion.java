@@ -4,36 +4,31 @@ import io.github.xbeeant.core.BaseModelObject;
 import java.io.Serializable;
 
 /**
- * 
  * eoffice_resource_version
  */
 public class ResourceVersion extends BaseModelObject<Long> implements Serializable {
+
     /**
-     * 
      * 版本ID
      */
     private Long vid;
 
     /**
-     * 
      * 资源ID
      */
     private Long rid;
 
     /**
-     * 
      * 存储ID
      */
     private Long sid;
 
     /**
-     * 
      * 资源名称
      */
     private String name;
 
     /**
-     * 
      * 资源大小
      */
     private Long size;
@@ -134,5 +129,27 @@ public class ResourceVersion extends BaseModelObject<Long> implements Serializab
     @Override
     public void assignKeyValue(Long value) {
         this.vid = value;
+    }
+
+    /**
+     * eoffice_resource_version.extension
+     */
+    private String extension;
+
+    /**
+     * get field eoffice_resource_version.extension
+     * @return extension eoffice_resource_version.extension
+     */
+    public String getExtension() {
+        return extension;
+    }
+
+    /**
+     *    eoffice_resource_version.extension
+     *
+     * @param extension the value for eoffice_resource_version.extension
+     */
+    public void setExtension(String extension) {
+        this.extension = extension == null ? null : extension.trim();
     }
 }

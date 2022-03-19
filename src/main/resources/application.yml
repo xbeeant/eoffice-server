@@ -46,6 +46,7 @@ spring:
             delete-where-none-check: true
             update-where-none-check: true
           enabled: true
+      test-while-idle: true
   session:
     store-type: jdbc
     jdbc:

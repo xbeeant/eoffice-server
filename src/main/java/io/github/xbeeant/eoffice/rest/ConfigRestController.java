@@ -3,6 +3,8 @@ package io.github.xbeeant.eoffice.rest;
 import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.eoffice.model.Config;
 import io.github.xbeeant.eoffice.service.IConfigService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +19,7 @@ import java.util.Map;
  * @author xiaobiao
  * @version 2021/11/22
  */
+@Api(tags = "配置模块")
 @RestController
 @RequestMapping("api/config")
 public class ConfigRestController {
@@ -32,6 +35,7 @@ public class ConfigRestController {
      * @see List
      */
     @GetMapping("{module}")
+    @ApiOperation(value = "获取配置")
     public ApiResponse<Map<String, String>> list(@PathVariable String module) {
         ApiResponse<Map<String, String>> result = new ApiResponse<>();
         Config example = new Config();

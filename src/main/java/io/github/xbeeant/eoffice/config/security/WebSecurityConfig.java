@@ -32,10 +32,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/inner/**",
                         "/api/slaves",
                         "/api/socket/**").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("/api/**").authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/")
+                .loginPage("/login")
                 .loginProcessingUrl(loginApi)
                 .and()
                 .logout().logoutUrl("/api/login/outLogin")

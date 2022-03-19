@@ -7,6 +7,8 @@ import io.github.xbeeant.eoffice.model.User;
 import io.github.xbeeant.eoffice.service.IFolderService;
 import io.github.xbeeant.eoffice.util.SecurityHelper;
 import io.github.xbeeant.spring.security.SecurityUser;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import java.util.List;
  * @author xiaobiao
  * @version 2021/8/30
  */
+@Api(tags = "首页模块")
 @RestController
 @RequestMapping("api")
 public class ApplicationRestController {
@@ -36,6 +39,7 @@ public class ApplicationRestController {
      * @see MenuItem
      */
     @GetMapping("menu")
+    @ApiOperation(value = "登录用户有权限的目录菜单")
     public List<MenuItem> menu() {
         SecurityUser<User> userSecurityUser = SecurityHelper.currentUser();
 
@@ -49,6 +53,7 @@ public class ApplicationRestController {
     }
 
     @GetMapping("currentUser")
+    @ApiOperation(value = "登录用户信息")
     public ApiResponse<CurrentUser> current(Authentication authentication, HttpSession session) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 

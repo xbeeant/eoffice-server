@@ -76,6 +76,9 @@ dependencies {
     implementation 'io.github.xbeeant:http:1.0.0-SNAPSHOT'
 
     implementation 'commons-io:commons-io:2.11.0'
+
+    // api doc
+    implementation group: 'com.github.xiaoymin', name: 'knife4j-spring-boot-starter', version: '3.0.3'
 }
 
 dependencyManagement {

@@ -8,6 +8,8 @@ import io.github.xbeeant.eoffice.rest.vo.Breadcrumb;
 import io.github.xbeeant.eoffice.service.IFolderService;
 import io.github.xbeeant.eoffice.util.LogHelper;
 import io.github.xbeeant.spring.security.SecurityUser;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import java.util.List;
  * @author xiaobiao
  * @version 2021/11/1
  */
+@Api(tags = "文件夹模块")
 @RestController
 @RequestMapping("api/folder")
 public class FolderRestController {
@@ -38,6 +41,7 @@ public class FolderRestController {
      * @see Folder
      */
     @PostMapping()
+    @ApiOperation(value = "创建文件夹")
     public ApiResponse<Folder> post(@RequestParam String name,
                                     @RequestParam(defaultValue = "0", required = false) Long pfid,
                                     Authentication authentication) {
@@ -61,6 +65,7 @@ public class FolderRestController {
      * @see List
      */
     @GetMapping("breadcrumb")
+    @ApiOperation(value = "文件夹面包屑导航")
     public ApiResponse<List<Breadcrumb>> breadcrumb(Long fid) {
         ApiResponse<List<Breadcrumb>> result = new ApiResponse<>();
         List<Folder> parents = folderService.breadcrumb(fid);

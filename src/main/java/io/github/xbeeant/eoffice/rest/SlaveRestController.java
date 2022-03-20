@@ -4,6 +4,7 @@ import io.github.xbeeant.core.ApiResponse;
 import io.github.xbeeant.eoffice.rest.vo.QiankunSlave;
 import io.github.xbeeant.eoffice.model.Slave;
 import io.github.xbeeant.eoffice.service.ISlaveService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import java.util.List;
  * @author xiaobiao
  * @version 2022/2/21
  */
+@Api(tags = "渲染器模块（qiankun)")
 @RestController
 @RequestMapping("api/slaves")
 public class SlaveRestController {

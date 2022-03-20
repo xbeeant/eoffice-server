@@ -15,9 +15,12 @@ import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import io.github.xbeeant.spring.mybatis.rest.AbstractPagehelperRestFormController;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +31,7 @@ import java.util.List;
  * @author xiaobiao
  * @version 2022/1/13
  */
+@Api(tags = "群组模块")
 @RestController
 @RequestMapping("api/team")
 public class TeamRestController extends AbstractPagehelperRestFormController<Group, Long> {
@@ -51,6 +55,7 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
      * @see TreeNode
      */
     @GetMapping("tree")
+    @ApiOperation(value = "群组树列表")
     public List<TreeNode> tree(Integer type) {
         List<TreeNode> treeNodes = new ArrayList<>();
         if (null == type) {
@@ -63,6 +68,7 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
     }
 
     @GetMapping("tree-all")
+    @ApiOperation(value = "所有群组的树列表")
     public List<TreeNode> treeAll() {
         List<TreeNode> treeNodes = new ArrayList<>();
         TreeNode treeNode = new TreeNode();
@@ -92,6 +98,7 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
      * @see TableResponse
      */
     @GetMapping("user")
+    @ApiOperation(value = "分组下的用户列表")
     public ApiResponse<TableResponse<User>> user(Long gid, PageRequest pageRequest) {
         ApiResponse<TableResponse<User>> result = new ApiResponse<>();
         // 通过rid查询所有的历史版本 分页
@@ -109,6 +116,7 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
     }
 
     @DeleteMapping("user")
+    @ApiOperation(value = "从分组下移除用户")
     public ApiResponse<Integer> user(Long gid, Long uid) {
         UserGroup userGroup = new UserGroup();
         userGroup.setUid(uid);
@@ -117,6 +125,7 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
     }
 
     @GetMapping("user/unlink")
+    @ApiOperation(value = "未添加到当前分组的用户列表")
     public ApiResponse<TableResponse<User>> table(
             Long gid,
             User user,
@@ -138,6 +147,7 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
     }
 
     @PostMapping("user")
+    @ApiOperation(value = "添加用户到分组")
     public ApiResponse<UserGroup> groupUserAdd(Long gid, Long userId) {
         UserGroup example = new UserGroup();
         example.setGid(gid);
@@ -157,8 +167,9 @@ public class TeamRestController extends AbstractPagehelperRestFormController<Gro
     }
 
     @Override
+    @ApiOperation(value = "删除分组")
     public ApiResponse<Integer> delete(@Parameter(description = "id", required = true, example = "") @PathVariable(name = "id") Long id,
-                                       HttpServletRequest request, HttpServletResponse response) {
+                                       @ApiIgnore HttpServletRequest request, @ApiIgnore HttpServletResponse response) {
         return super.delete(id, request, response);
     }
 }

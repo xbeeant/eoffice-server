@@ -17,6 +17,8 @@ import io.github.xbeeant.eoffice.util.SecurityHelper;
 import io.github.xbeeant.eoffice.util.UrlHelper;
 import io.github.xbeeant.spring.security.SecurityUser;
 import io.github.xbeeant.spring.web.utils.file.FileMultipartFile;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,7 @@ import java.net.URL;
  * @author xiaobiao
  * @version 2021/7/1
  */
+@Api(tags = "onlyoffice服务模块")
 @RestController
 @RequestMapping("api/office")
 public class OnlyOfficeInnerRestController {
@@ -53,6 +56,7 @@ public class OnlyOfficeInnerRestController {
      * @see OnlyOfficeCallbackResponse
      */
     @RequestMapping(value = "callback", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT})
+    @ApiOperation(value = "事件回调接口")
     public OnlyOfficeCallbackResponse callback(@RequestBody OnlyOfficeCallback callback, String token, HttpServletRequest request) {
         if (logger.isInfoEnabled()) {
             logger.info("token {} callback  {}", token, JsonHelper.toJsonString(callback));

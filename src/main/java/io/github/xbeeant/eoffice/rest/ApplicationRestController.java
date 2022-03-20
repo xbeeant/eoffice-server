@@ -8,12 +8,14 @@ import io.github.xbeeant.eoffice.service.IFolderService;
 import io.github.xbeeant.eoffice.util.SecurityHelper;
 import io.github.xbeeant.spring.security.SecurityUser;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -54,7 +56,8 @@ public class ApplicationRestController {
 
     @GetMapping("currentUser")
     @ApiOperation(value = "登录用户信息")
-    public ApiResponse<CurrentUser> current(Authentication authentication, HttpSession session) {
+    @ApiImplicitParams({})
+    public ApiResponse<CurrentUser> current(@ApiIgnore Authentication authentication,@ApiIgnore HttpSession session) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
         ApiResponse<CurrentUser> response = new ApiResponse<>();

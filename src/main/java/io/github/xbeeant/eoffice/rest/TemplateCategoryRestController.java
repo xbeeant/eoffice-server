@@ -7,6 +7,7 @@ import io.github.xbeeant.eoffice.service.IDocTemplateCategoryService;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import io.github.xbeeant.spring.mybatis.rest.AbstractPagehelperRestFormController;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author xiaobiao
  * @version 2022/1/19
  */
+@Api(tags = "模板分类模块")
 @RestController
 @RequestMapping("api/template/category")
 public class TemplateCategoryRestController extends AbstractPagehelperRestFormController<DocTemplateCategory, Long> {

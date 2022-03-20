@@ -13,6 +13,7 @@ import io.github.xbeeant.eoffice.service.IDocTemplateService;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import io.github.xbeeant.spring.mybatis.rest.AbstractPagehelperRestFormController;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +28,7 @@ import java.util.List;
  * @author xiaobiao
  * @version 2022/1/19
  */
+@Api(tags = "模板模块")
 @RestController
 @RequestMapping("api/template")
 public class TemplateRestController extends AbstractPagehelperRestFormController<DocTemplate, Long> {

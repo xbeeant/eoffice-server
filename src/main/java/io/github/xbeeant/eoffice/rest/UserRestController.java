@@ -11,11 +11,14 @@ import io.github.xbeeant.http.Requests;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import io.github.xbeeant.spring.mybatis.rest.AbstractPagehelperRestFormController;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -24,6 +27,7 @@ import java.util.List;
  * @author xiaobiao
  * @version 2022/1/6
  */
+@Api(tags = "用户模块")
 @RestController
 @RequestMapping("api/user")
 public class UserRestController extends AbstractPagehelperRestFormController<User, Long> {
@@ -37,7 +41,8 @@ public class UserRestController extends AbstractPagehelperRestFormController<Use
     }
 
     @PostMapping("register")
-    public ApiResponse<String> register(User user, HttpServletRequest request) {
+    @ApiOperation(value = "注册")
+    public ApiResponse<String> register(User user, @ApiIgnore HttpServletRequest request) {
         ApiResponse<String> result = new ApiResponse<>();
         // 用户名校验
         User example = new User();
@@ -77,6 +82,7 @@ public class UserRestController extends AbstractPagehelperRestFormController<Use
     }
 
     @GetMapping("search")
+    @ApiOperation(value = "搜索")
     public ApiResponse<List<User>> search(String s) {
         return userService.search("%" + s + "%");
     }

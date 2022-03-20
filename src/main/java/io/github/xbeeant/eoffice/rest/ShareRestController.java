@@ -16,9 +16,12 @@ import io.github.xbeeant.eoffice.util.LogHelper;
 import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.security.SecurityUser;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Date;
 import java.util.List;
@@ -27,6 +30,7 @@ import java.util.List;
  * @author xiaobiao
  * @date 2022/1/12
  */
+@Api(tags = "分享模块")
 @RequestMapping("api/share")
 @RestController
 public class ShareRestController {
@@ -35,7 +39,8 @@ public class ShareRestController {
     private IShareService shareService;
 
     @GetMapping("myshare")
-    public ApiResponse<TableResponse<ShareResourceVo>> myshare(Authentication authentication, PageRequest pageRequest) {
+    @ApiOperation(value = "我的分享")
+    public ApiResponse<TableResponse<ShareResourceVo>> myshare(@ApiIgnore Authentication authentication, PageRequest pageRequest) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
         ApiResponse<TableResponse<ShareResourceVo>> apiResponse = new ApiResponse<>();
@@ -59,7 +64,8 @@ public class ShareRestController {
     }
 
     @GetMapping("")
-    public ApiResponse<TableResponse<ShareResourceVo>> list(Authentication authentication, PageRequest pageRequest) {
+    @ApiOperation(value = "分享给我的文件列表")
+    public ApiResponse<TableResponse<ShareResourceVo>> list(@ApiIgnore Authentication authentication, PageRequest pageRequest) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
         ApiResponse<TableResponse<ShareResourceVo>> apiResponse = new ApiResponse<>();
@@ -84,13 +90,14 @@ public class ShareRestController {
 
     @PostMapping("")
     @ResourceOwner(id = "rid", selectService = IResourceService.class)
+    @ApiOperation(value = "分享")
     public ApiResponse<Share> share(
             @RequestParam(value = "users", required = false) List<Long> users,
             @RequestParam(value = "team", required = false) List<Long> teams,
             @RequestParam(value = "perm", required = false) List<String> perm,
             String type,
             Long rid,
-            Date endtime, Authentication authentication) {
+            Date endtime,@ApiIgnore Authentication authentication) {
         ApiResponse<Share> response;
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 

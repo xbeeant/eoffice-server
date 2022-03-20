@@ -22,6 +22,9 @@ import io.github.xbeeant.spring.mybatis.antdesign.PageRequest;
 import io.github.xbeeant.spring.mybatis.antdesign.PageResponse;
 import io.github.xbeeant.spring.mybatis.pagehelper.PageBounds;
 import io.github.xbeeant.spring.security.SecurityUser;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -48,6 +52,7 @@ import java.util.List;
  * @author xiaobiao
  * @version 2021/10/31
  */
+@Api(tags = "资源模块")
 @RestController
 @RequestMapping("api/resource")
 public class ResourceRestController {
@@ -81,7 +86,8 @@ public class ResourceRestController {
     private IResourceVersionService resourceVersionService;
 
     @PostMapping("rename")
-    public ApiResponse<Resource> rename(String name, Long rid, Authentication authentication) {
+    @ApiOperation(value = "重命名文件（夹）")
+    public ApiResponse<Resource> rename(String name, Long rid, @ApiIgnore Authentication authentication) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
         Resource resource = new Resource();
@@ -103,9 +109,10 @@ public class ResourceRestController {
      * @see List
      */
     @GetMapping
-    public ApiResponse<List<Resource>> resources(Authentication authentication,
+    @ApiOperation(value = "文件（夹）列表")
+    public ApiResponse<List<Resource>> resources(@ApiIgnore Authentication authentication,
                                                  @RequestParam(defaultValue = "0", required = false) Long fid,
-                                                 @RequestParam(value = "key", required = false) String keyWords,
+                                                 @ApiParam(name = "搜索的关键词") @RequestParam(value = "key", required = false) String keyWords,
                                                  PageRequest pageRequest) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
@@ -134,6 +141,7 @@ public class ResourceRestController {
      * @see ResourceVo
      */
     @GetMapping("info")
+    @ApiOperation(value = "文件（夹）信息")
     public ApiResponse<ResourceInfo> info(Long rid, Long vid) {
         ApiResponse<ResourceInfo> result = new ApiResponse<>();
         ApiResponse<ResourceVo> resourceVo = resourceService.detail(rid, vid);
@@ -168,7 +176,8 @@ public class ResourceRestController {
      * @see ResourceVo
      */
     @GetMapping("detail")
-    public ApiResponse<ResourceVo> detail(Authentication authentication,
+    @ApiOperation(value = "文件（夹）详情")
+    public ApiResponse<ResourceVo> detail(@ApiIgnore Authentication authentication,
                                           Long rid,
                                           Long vid,
                                           String share,
@@ -228,7 +237,8 @@ public class ResourceRestController {
      * @see ResourceVo
      */
     @PostMapping("share")
-    public ApiResponse<ShareResponse> share(Authentication authentication, Long shareId, String authCode) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeySpecException, InvalidKeyException {
+    @ApiOperation(value = "文件分享")
+    public ApiResponse<ShareResponse> share(@ApiIgnore Authentication authentication, Long shareId, String authCode) throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeySpecException, InvalidKeyException {
         ApiResponse<ShareResponse> response = new ApiResponse<>();
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         ApiResponse<Resource> resourceApiResponse = shareService.avaliable(shareId, authCode, userSecurityUser.getUserId());
@@ -263,7 +273,8 @@ public class ResourceRestController {
      * @see String
      */
     @PostMapping("")
-    public ApiResponse<Resource> save(Authentication authentication, Long rid, String value) {
+    @ApiOperation(value = "文件保存")
+    public ApiResponse<Resource> save(@ApiIgnore Authentication authentication, Long rid, String value) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         ApiResponse<Resource> response = resourceService.save(rid, value, userSecurityUser.getUserId());
         LogHelper.save(response.getData(), ActionAuditEnum.UPDATE, userSecurityUser);
@@ -279,9 +290,10 @@ public class ResourceRestController {
      */
     @PostMapping("move")
     @ResourceOwner(id = "rids", selectService = IResourceService.class)
+    @ApiOperation(value = "文件(夹)移动")
     public ApiResponse<Integer> move(@RequestParam(value = "rid") List<Long> rids, Long fid,
                                      @RequestParam(defaultValue = "0", required = false) Long fromFid,
-                                     Authentication authentication) {
+                                     @ApiIgnore Authentication authentication) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         ApiResponse<Integer> move = resourceService.move(rids, fid, fromFid);
         for (Long rid : rids) {
@@ -302,7 +314,8 @@ public class ResourceRestController {
     @DeleteMapping("")
     @Transactional
     @ResourceOwner(id = "rids", selectService = IResourceService.class)
-    public ApiResponse<Integer> delete(@RequestParam(value = "rid") List<Long> rids, Authentication authentication) {
+    @ApiOperation(value = "文件（夹）删除")
+    public ApiResponse<Integer> delete(@RequestParam(value = "rid") List<Long> rids, @ApiIgnore Authentication authentication) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         for (Long rid : rids) {
             // 判断资源的类型，如果是文件夹，先要求清空文件夹后再删除文件夹
@@ -346,7 +359,8 @@ public class ResourceRestController {
     }
 
     @DeleteMapping("perm")
-    public ApiResponse<Integer> removePerm(Long pid, Authentication authentication) {
+    @ApiOperation(value = "文件（夹）移除授权")
+    public ApiResponse<Integer> removePerm(Long pid,@ApiIgnore Authentication authentication) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         ApiResponse<Perm> permApiResponse = permService.selectByPrimaryKey(pid);
         ApiResponse<Integer> response = permService.deleteByPrimaryKey(pid);
@@ -356,10 +370,11 @@ public class ResourceRestController {
 
     @PostMapping("perm")
     @ResourceOwner(id = "rid", selectService = IResourceService.class)
+    @ApiOperation(value = "文件（夹）授权")
     public ApiResponse<String> perm(@RequestParam(value = "users", required = false) List<Long> users,
                                     @RequestParam(value = "team", required = false) List<Long> team,
                                     @RequestParam(value = "perm") List<String> perm,
-                                    String type, Long rid, Authentication authentication) {
+                                    String type, Long rid,@ApiIgnore Authentication authentication) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         ApiResponse<String> response;
         if ("member".equals(type)) {
@@ -373,6 +388,7 @@ public class ResourceRestController {
     }
 
     @GetMapping("perm")
+    @ApiOperation(value = "查看文件（夹）授权")
     public ApiResponse<TableResponse<ResourcePerm>> perm(Long rid, PageRequest pageRequest) {
         ApiResponse<TableResponse<ResourcePerm>> apiResponse = new ApiResponse<>();
         ApiResponse<PageResponse<ResourcePerm>> list = resourceService.permed(rid, pageRequest.getPageBounds());
@@ -400,7 +416,8 @@ public class ResourceRestController {
      * @see Resource
      */
     @PostMapping("upload")
-    public ApiResponse<Storage> upload(Authentication authentication, MultipartFile file) {
+    @ApiOperation(value = "文件上传")
+    public ApiResponse<Storage> upload(@ApiIgnore Authentication authentication, MultipartFile file) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
         return resourceService.upload(file, userSecurityUser.getUserId());
@@ -417,7 +434,8 @@ public class ResourceRestController {
      * @see Resource
      */
     @PostMapping("upload/save")
-    public ApiResponse<List<ResourceVo>> uploadSave(Authentication authentication, Long fid, @RequestParam(value = "files") String filesJson) {
+    @ApiOperation(value = "保存上传的文件")
+    public ApiResponse<List<ResourceVo>> uploadSave(@ApiIgnore Authentication authentication, Long fid, @RequestParam(value = "files") String filesJson) {
         List<Storage> files = JSON.parseArray(filesJson, Storage.class);
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         ApiResponse<List<ResourceVo>> objectApiResponse = new ApiResponse<>();
@@ -441,8 +459,9 @@ public class ResourceRestController {
      * @see Resource
      */
     @PostMapping("upload/overwrite")
+    @ApiOperation(value = "覆盖已经上传的文件")
     @ResourceOwner(id = "rid", selectService = IResourceService.class)
-    public ApiResponse<String> overwrite(Authentication authentication, Long rid, @RequestParam(value = "files") String filesJson) {
+    public ApiResponse<String> overwrite(@ApiIgnore Authentication authentication, Long rid, @RequestParam(value = "files") String filesJson) {
         List<Storage> files = JSON.parseArray(filesJson, Storage.class);
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
 
@@ -464,7 +483,8 @@ public class ResourceRestController {
      * @see Resource
      */
     @PostMapping("attachment")
-    public AttachmentResponse attachment(Authentication authentication, Long rid, MultipartFile file) throws NoSuchAlgorithmException, IOException {
+    @ApiOperation(value = "附件上传")
+    public AttachmentResponse attachment(@ApiIgnore Authentication authentication, Long rid, MultipartFile file) throws NoSuchAlgorithmException, IOException {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         Storage storage = storageService.insert(file, userSecurityUser.getUserId());
 
@@ -489,12 +509,14 @@ public class ResourceRestController {
      * @param response 响应
      */
     @RequestMapping(value = "s", method = {RequestMethod.GET, RequestMethod.POST})
-    public void download(Long rid, Long sid, HttpServletRequest request, HttpServletResponse response) {
+    @ApiOperation(value = "文件下载")
+    public void download(Long rid, Long sid,@ApiIgnore  HttpServletRequest request,@ApiIgnore  HttpServletResponse response) {
         // todo 权限校验
         resourceService.download(rid, sid, request, response);
     }
 
     @GetMapping("folder")
+    @ApiOperation(value = "获取有权限的文件夹")
     public List<TreeNode> folder() {
         SecurityUser<User> userSecurityUser = SecurityHelper.currentUser();
         return folderService.hasPermissionFolders(userSecurityUser.getUserId());
@@ -509,6 +531,7 @@ public class ResourceRestController {
      * @param response 响应
      */
     @GetMapping("attachment")
+    @ApiOperation(value = "附件下载")
     public void attachment(Long rid, Long aid, HttpServletRequest request, HttpServletResponse response) {
         resourceService.downloadAttachment(rid, aid, request, response);
     }
@@ -523,10 +546,11 @@ public class ResourceRestController {
      * @see ResourceVo
      */
     @PostMapping("add")
+    @ApiOperation(value = "新建文件")
     public ApiResponse<ResourceVo> add(String type,
                                        String name,
                                        @RequestParam(required = false) Long cid,
-                                       @RequestParam(defaultValue = "0", required = false) Long fid, Authentication authentication) {
+                                       @RequestParam(defaultValue = "0", required = false) Long fid,@ApiIgnore Authentication authentication) {
         SecurityUser<User> userSecurityUser = (SecurityUser<User>) authentication.getPrincipal();
         ResourceVo add = resourceService.add(type, name, fid, cid, userSecurityUser.getUserId());
         ApiResponse<ResourceVo> response = new ApiResponse<>();
@@ -537,6 +561,7 @@ public class ResourceRestController {
     }
 
     @GetMapping("history")
+    @ApiOperation(value = "文件历史")
     public ApiResponse<TableResponse<ResourceVersionVo>> history(Long rid, PageRequest pageRequest) {
         ApiResponse<TableResponse<ResourceVersionVo>> apiResponse = new ApiResponse<>();
         PageRequest webRequest = new PageRequest(pageRequest);

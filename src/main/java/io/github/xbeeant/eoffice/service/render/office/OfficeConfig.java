@@ -1,5 +1,6 @@
 package io.github.xbeeant.eoffice.service.render.office;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import io.github.xbeeant.spring.security.SecurityUser;
 
 import java.util.List;
@@ -11,11 +12,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class OfficeConfig {
 
-    private Document document;
-
     private String documentType;
-
-    private EditorConfig editorConfig;
 
     private String height = "100%";
 
@@ -24,6 +21,10 @@ public class OfficeConfig {
     private String type = "desktop";
 
     private String width = "100%";
+
+    private Document document;
+
+    private EditorConfig editorConfig;
 
     public Document getDocument() {
         return document;
@@ -83,11 +84,16 @@ public class OfficeConfig {
 
     public static class Document {
         private String fileType;
-        private Info info;
+
         private String key;
-        private Permissions permissions;
+
         private String title;
+
         private String url;
+
+        private Info info;
+        private Permissions permissions;
+
 
         public String getFileType() {
             return fileType;
@@ -186,6 +192,13 @@ public class OfficeConfig {
 
             public static class SharingSettings {
                 private Boolean isLink;
+                /**
+                 * the access rights for the user with the name above. Can be
+                 * <p>
+                 * Full Access
+                 * Read Only
+                 * Deny Access
+                 */
                 private String permissions;
                 private String user;
 
@@ -216,18 +229,26 @@ public class OfficeConfig {
         }
 
         public static class Permissions {
+            private Boolean chat = true;
             private Boolean comment = false;
+            private List<CommentGroup> commentGroups;
             private Boolean copy = false;
             private Boolean deleteCommentAuthorOnly = false;
             private Boolean download = false;
             private Boolean edit = false;
             private Boolean editCommentAuthorOnly = false;
             private Boolean fillForms = false;
-            private Boolean modifyContentControl = false;
-            private Boolean modifyFilter = false;
+            private Boolean modifyContentControl;
+            private Boolean modifyFilter;
             private Boolean print = false;
-            private Boolean review = false;
+
+            private Boolean protect;
+
+            private Boolean rename;
+            private Boolean review;
             private List<String> reviewGroups;
+
+            private List<String> userInfoGroups;
 
             public Boolean getComment() {
                 return comment;
@@ -324,6 +345,78 @@ public class OfficeConfig {
             public void setReviewGroups(List<String> reviewGroups) {
                 this.reviewGroups = reviewGroups;
             }
+
+            public Boolean getChat() {
+                return chat;
+            }
+
+            public void setChat(Boolean chat) {
+                this.chat = chat;
+            }
+
+            public List<CommentGroup> getCommentGroups() {
+                return commentGroups;
+            }
+
+            public void setCommentGroups(List<CommentGroup> commentGroups) {
+                this.commentGroups = commentGroups;
+            }
+
+            public Boolean getProtect() {
+                return protect;
+            }
+
+            public void setProtect(Boolean protect) {
+                this.protect = protect;
+            }
+
+            public Boolean getRename() {
+                return rename;
+            }
+
+            public void setRename(Boolean rename) {
+                this.rename = rename;
+            }
+
+            public List<String> getUserInfoGroups() {
+                return userInfoGroups;
+            }
+
+            public void setUserInfoGroups(List<String> userInfoGroups) {
+                this.userInfoGroups = userInfoGroups;
+            }
+
+            public static class CommentGroup {
+                private List<String> edit;
+
+                private List<String> remove;
+
+                private List<String> view;
+
+                public List<String> getEdit() {
+                    return edit;
+                }
+
+                public void setEdit(List<String> edit) {
+                    this.edit = edit;
+                }
+
+                public List<String> getRemove() {
+                    return remove;
+                }
+
+                public void setRemove(List<String> remove) {
+                    this.remove = remove;
+                }
+
+                public List<String> getView() {
+                    return view;
+                }
+
+                public void setView(List<String> view) {
+                    this.view = view;
+                }
+            }
         }
     }
 
@@ -331,17 +424,24 @@ public class OfficeConfig {
         private String actionLink;
         private String callbackUrl;
 
+        private CoEditing coEditing;
+
         private String createUrl;
-        private Customization customization = new Customization();
-        private Embedded embedded;
+
         private String lang = "zh-CN";
+
         private String location = "zh-CN";
+
         private String mode = "edit";
-        private Plugins plugins;
+
         private List<Recent> recent;
         private String region;
         private List<Templates> templates;
         private User user;
+
+        private Customization customization = new Customization();
+        private Embedded embedded;
+        private Plugins plugins;
 
         public String getActionLink() {
             return actionLink;
@@ -447,19 +547,45 @@ public class OfficeConfig {
             this.user = user;
         }
 
+        public static class CoEditing {
+            private String mode = "fast";
+
+            private Boolean change = true;
+
+            public String getMode() {
+                return mode;
+            }
+
+            public void setMode(String mode) {
+                this.mode = mode;
+            }
+
+            public Boolean getChange() {
+                return change;
+            }
+
+            public void setChange(Boolean change) {
+                this.change = change;
+            }
+        }
+
         public static class Customization {
             private Anonymous anonymous;
             private Boolean autosave = true;
-            private Boolean chat = true;
             private Boolean comments = true;
             private Boolean compactHeader = false;
             private Boolean compactToolbar = false;
             private Boolean compatibleFeatures = false;
             private Customer customer;
+
+            private Features features;
+
             private Feedback feedback;
             private Boolean forcesave = false;
             private Goback goback;
             private Boolean help = true;
+
+            private Boolean hideNotes = false;
             private Boolean hideRightMenu = false;
             private Boolean hideRulers = false;
             private Logo logo;
@@ -467,12 +593,12 @@ public class OfficeConfig {
             private String macrosMode = "warn";
             private Boolean mentionShare = true;
             private Boolean plugins;
-            private String reviewDisplay = "original";
-            private Boolean showReviewChanges = false;
-            private Boolean spellcheck = false;
+
+            private Review review;
             private Boolean toolbarHideFileName = false;
             private Boolean toolbarNoTabs = false;
-            private Boolean trackChanges = false;
+
+            private String uiTheme;
             private String unit = "cm";
             private Integer zoom = 100;
 
@@ -492,12 +618,36 @@ public class OfficeConfig {
                 this.autosave = autosave;
             }
 
-            public Boolean getChat() {
-                return chat;
+            public Features getFeatures() {
+                return features;
             }
 
-            public void setChat(Boolean chat) {
-                this.chat = chat;
+            public void setFeatures(Features features) {
+                this.features = features;
+            }
+
+            public Boolean getHideNotes() {
+                return hideNotes;
+            }
+
+            public void setHideNotes(Boolean hideNotes) {
+                this.hideNotes = hideNotes;
+            }
+
+            public Review getReview() {
+                return review;
+            }
+
+            public void setReview(Review review) {
+                this.review = review;
+            }
+
+            public String getUiTheme() {
+                return uiTheme;
+            }
+
+            public void setUiTheme(String uiTheme) {
+                this.uiTheme = uiTheme;
             }
 
             public Boolean getComments() {
@@ -628,29 +778,6 @@ public class OfficeConfig {
                 this.plugins = plugins;
             }
 
-            public String getReviewDisplay() {
-                return reviewDisplay;
-            }
-
-            public void setReviewDisplay(String reviewDisplay) {
-                this.reviewDisplay = reviewDisplay;
-            }
-
-            public Boolean getShowReviewChanges() {
-                return showReviewChanges;
-            }
-
-            public void setShowReviewChanges(Boolean showReviewChanges) {
-                this.showReviewChanges = showReviewChanges;
-            }
-
-            public Boolean getSpellcheck() {
-                return spellcheck;
-            }
-
-            public void setSpellcheck(Boolean spellcheck) {
-                this.spellcheck = spellcheck;
-            }
 
             public Boolean getToolbarHideFileName() {
                 return toolbarHideFileName;
@@ -668,14 +795,6 @@ public class OfficeConfig {
                 this.toolbarNoTabs = toolbarNoTabs;
             }
 
-            public Boolean getTrackChanges() {
-                return trackChanges;
-            }
-
-            public void setTrackChanges(Boolean trackChanges) {
-                this.trackChanges = trackChanges;
-            }
-
             public String getUnit() {
                 return unit;
             }
@@ -690,6 +809,88 @@ public class OfficeConfig {
 
             public void setZoom(Integer zoom) {
                 this.zoom = zoom;
+            }
+
+            public static class Review {
+                private Boolean hideReviewDisplay;
+
+                private Boolean hoverMode;
+
+                /**
+                 * – markup - the document is displayed with proposed changes highlighted;
+                 * – simple - the document is displayed with proposed changes highlighted, but the balloons are turned off;
+                 * – final - the document is displayed with all the proposed changes applied;
+                 * – original - the original document is displayed without the proposed changes.
+                 * The default value is original,
+                 */
+                private String reviewDisplay = "original";
+
+                private Boolean showReviewChanges;
+
+                private Boolean trackChanges;
+
+                public Boolean getHideReviewDisplay() {
+                    return hideReviewDisplay;
+                }
+
+                public void setHideReviewDisplay(Boolean hideReviewDisplay) {
+                    this.hideReviewDisplay = hideReviewDisplay;
+                }
+
+                public Boolean getHoverMode() {
+                    return hoverMode;
+                }
+
+                public void setHoverMode(Boolean hoverMode) {
+                    this.hoverMode = hoverMode;
+                }
+
+                public String getReviewDisplay() {
+                    return reviewDisplay;
+                }
+
+                public void setReviewDisplay(String reviewDisplay) {
+                    this.reviewDisplay = reviewDisplay;
+                }
+
+                public Boolean getShowReviewChanges() {
+                    return showReviewChanges;
+                }
+
+                public void setShowReviewChanges(Boolean showReviewChanges) {
+                    this.showReviewChanges = showReviewChanges;
+                }
+
+                public Boolean getTrackChanges() {
+                    return trackChanges;
+                }
+
+                public void setTrackChanges(Boolean trackChanges) {
+                    this.trackChanges = trackChanges;
+                }
+            }
+
+            public static class Features {
+                private Boolean spellcheck;
+
+                @JSONField(name = "spellcheck.mode")
+                private Boolean spellcheckMode;
+
+                public Boolean getSpellcheck() {
+                    return spellcheck;
+                }
+
+                public void setSpellcheck(Boolean spellcheck) {
+                    this.spellcheck = spellcheck;
+                }
+
+                public Boolean getSpellcheckMode() {
+                    return spellcheckMode;
+                }
+
+                public void setSpellcheckMode(Boolean spellcheckMode) {
+                    this.spellcheckMode = spellcheckMode;
+                }
             }
 
             public static class Anonymous {
@@ -717,9 +918,19 @@ public class OfficeConfig {
                 private String address;
                 private String info;
                 private String logo;
+
+                private String logoDark;
                 private String mail;
                 private String name;
                 private String www;
+
+                public String getLogoDark() {
+                    return logoDark;
+                }
+
+                public void setLogoDark(String logoDark) {
+                    this.logoDark = logoDark;
+                }
 
                 public String getAddress() {
                     return address;
@@ -832,6 +1043,8 @@ public class OfficeConfig {
 
             public static class Logo {
                 private String image = "";
+
+                private String imageDark = "";
                 private String imageEmbedded;
                 private String url;
 
@@ -857,6 +1070,14 @@ public class OfficeConfig {
 
                 public void setUrl(String url) {
                     this.url = url;
+                }
+
+                public String getImageDark() {
+                    return imageDark;
+                }
+
+                public void setImageDark(String imageDark) {
+                    this.imageDark = imageDark;
                 }
             }
         }
